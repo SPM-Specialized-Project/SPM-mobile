@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../features/backend_status/presentation/backend_status_screen.dart';
+import '../features/component_catalog/presentation/mobile_home_screen.dart';
 import 'theme/app_theme.dart';
 
 class MyApp extends StatelessWidget {
@@ -11,7 +11,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Tutor Support System',
       theme: AppTheme.light,
-      home: const BackendStatusScreen(),
+      home: const MobileHomeScreen(),
     );
   }
 }

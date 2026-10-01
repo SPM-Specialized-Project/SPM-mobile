@@ -14,7 +14,26 @@ import 'package:spm_mobile/features/backend_status/application/backend_health_pr
 import 'package:spm_mobile/features/backend_status/data/backend_health.dart';
 
 void main() {
-  testWidgets('shows a successful backend health response', (tester) async {
+  testWidgets('shows frontend branding and course-card examples', (
+    tester,
+  ) async {
+    await tester.pumpWidget(const ProviderScope(child: MyApp()));
+
+    expect(find.text('Tutor Support System'), findsOneWidget);
+    expect(find.text('Computer Network'), findsOneWidget);
+    expect(find.text('Database System'), findsOneWidget);
+    expect(find.text('Operating System'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Thư viện'),
+      250,
+      scrollable: find.byType(Scrollable).first,
+    );
+    expect(find.text('Thư viện'), findsOneWidget);
+  });
+
+  testWidgets('backend health screen remains reachable from the showcase', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -27,6 +46,7 @@ void main() {
       ),
     );
 
+    await tester.tap(find.byTooltip('Kiểm tra backend'));
     await tester.pumpAndSettle();
     expect(find.text('Kết nối thành công'), findsOneWidget);
     expect(find.text('Service: spm-backend'), findsOneWidget);
