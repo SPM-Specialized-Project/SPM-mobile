@@ -10,14 +10,33 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:spm_mobile/app/app.dart';
+import 'package:spm_mobile/core/security/token_storage.dart';
 import 'package:spm_mobile/features/backend_status/application/backend_health_provider.dart';
 import 'package:spm_mobile/features/backend_status/data/backend_health.dart';
+import 'package:spm_mobile/features/component_catalog/presentation/mobile_home_screen.dart';
+
+import 'support/fake_token_storage.dart';
 
 void main() {
-  testWidgets('shows frontend branding and course-card examples', (
-    tester,
-  ) async {
-    await tester.pumpWidget(const ProviderScope(child: MyApp()));
+  testWidgets('opens the branded login screen', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [tokenStorageProvider.overrideWithValue(FakeTokenStorage())],
+        child: const MyApp(),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 10));
+
+    expect(find.text('HCMUT SSO'), findsOneWidget);
+    expect(find.text('Chào mừng trở lại'), findsOneWidget);
+    expect(find.text('Đăng nhập'), findsOneWidget);
+  });
+
+  testWidgets('component showcase still renders independently', (tester) async {
+    await tester.pumpWidget(
+      const ProviderScope(child: MaterialApp(home: MobileHomeScreen())),
+    );
 
     expect(find.text('Tutor Support System'), findsOneWidget);
     expect(find.text('Computer Network'), findsOneWidget);
@@ -42,7 +61,7 @@ void main() {
                 const BackendHealth(ok: true, service: 'spm-backend'),
           ),
         ],
-        child: const MyApp(),
+        child: const MaterialApp(home: MobileHomeScreen()),
       ),
     );
 
