@@ -3,6 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../auth/application/auth_controller.dart';
 import '../../auth/data/auth_session.dart';
+import '../../admin/presentation/screens/admin_codepulse_screen.dart';
+import '../../management/presentation/screens/course_requests_screen.dart';
+import '../../management/presentation/screens/manager_courses_screen.dart';
+import '../../management/presentation/screens/manager_registrations_screen.dart';
+import '../../management/presentation/screens/manager_sessions_screen.dart';
 import '../../tutor/presentation/screens/tutor_courses_screen.dart';
 import '../../tutor/presentation/screens/tutor_registrations_screen.dart';
 import '../../tutor/presentation/screens/tutor_sessions_screen.dart';
@@ -12,6 +17,7 @@ import '../../student/presentation/screens/student_registrations_screen.dart';
 import '../../student/presentation/screens/student_sessions_screen.dart';
 import '../../student/presentation/screens/student_submissions_screen.dart';
 import '../domain/role_navigation.dart';
+import '../../tssa/presentation/tssa_screen.dart';
 
 class AuthenticatedAppShell extends ConsumerStatefulWidget {
   const AuthenticatedAppShell({required this.session, super.key});
@@ -30,6 +36,19 @@ class _AuthenticatedAppShellState extends ConsumerState<AuthenticatedAppShell> {
   @override
   void initState() {
     super.initState();
+    _initializePages();
+  }
+
+  @override
+  void didUpdateWidget(covariant AuthenticatedAppShell oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.session.role != widget.session.role) {
+      _selectedIndex = 0;
+      _initializePages();
+    }
+  }
+
+  void _initializePages() {
     final destinations = destinationsForRole(widget.session.role);
     _pages = List<Widget?>.filled(destinations.length, null);
     _pages[0] = _destinationPage(destinations[0]);
@@ -45,6 +64,15 @@ class _AuthenticatedAppShellState extends ConsumerState<AuthenticatedAppShell> {
       appBar: AppBar(
         title: Text(selectedDestination.label),
         actions: [
+          if (widget.session.role != UserRole.unknown)
+            IconButton(
+              tooltip: 'Hỗ trợ học tập TSSA',
+              icon: const Icon(Icons.diversity_1_outlined),
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const TssaScreen()),
+              ),
+            ),
           Padding(
             padding: const EdgeInsets.only(right: 16),
             child: CircleAvatar(
@@ -101,6 +129,31 @@ class _AuthenticatedAppShellState extends ConsumerState<AuthenticatedAppShell> {
         AppSection.registrations => TutorRegistrationsScreen(
           session: widget.session,
         ),
+        _ => _DestinationPage(
+          destination: destination,
+          session: widget.session,
+        ),
+      };
+    }
+    if (widget.session.role == UserRole.coordinator ||
+        widget.session.role == UserRole.chairman) {
+      return switch (destination.section) {
+        AppSection.courses => const ManagerCoursesScreen(),
+        AppSection.sessions => ManagerSessionsScreen(session: widget.session),
+        AppSection.registrations => const ManagerRegistrationsScreen(),
+        AppSection.courseRequests => CourseRequestsScreen(
+          session: widget.session,
+        ),
+        _ => _DestinationPage(
+          destination: destination,
+          session: widget.session,
+        ),
+      };
+    }
+    if (widget.session.role == UserRole.admin) {
+      return switch (destination.section) {
+        AppSection.courses => const ManagerCoursesScreen(),
+        AppSection.codePulse => const AdminCodePulseScreen(),
         _ => _DestinationPage(
           destination: destination,
           session: widget.session,

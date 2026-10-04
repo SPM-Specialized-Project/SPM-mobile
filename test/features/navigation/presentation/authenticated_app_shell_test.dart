@@ -7,6 +7,9 @@ import 'package:spm_mobile/core/security/token_storage.dart';
 import 'package:spm_mobile/features/auth/application/auth_providers.dart';
 import 'package:spm_mobile/features/auth/data/auth_repository.dart';
 import 'package:spm_mobile/features/auth/data/auth_session.dart';
+import 'package:spm_mobile/features/admin/application/admin_providers.dart';
+import 'package:spm_mobile/features/navigation/presentation/authenticated_app_shell.dart';
+import 'package:spm_mobile/features/management/application/management_providers.dart';
 import 'package:spm_mobile/features/student/application/student_providers.dart';
 import 'package:spm_mobile/features/student/data/student_registration.dart';
 import 'package:spm_mobile/features/tutor/application/tutor_providers.dart';
@@ -294,6 +297,91 @@ void main() {
     expect(find.byType(NavigationBar), findsOneWidget);
     expect(find.text('Khóa học của tôi'), findsOneWidget);
     expect(tokenStorage.token, 'saved-token');
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('coordinator and chairman get management tabs', (tester) async {
+    for (final role in [UserRole.coordinator, UserRole.chairman]) {
+      final session = AuthSession(
+        accessToken: 'manager-token',
+        role: role,
+        user: const AuthUser(
+          id: 'manager-1',
+          email: 'manager@example.com',
+          firstName: 'Course',
+          lastName: 'Manager',
+          picture: null,
+        ),
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            managerCoursesProvider.overrideWith((ref) async => []),
+            managerSessionsProvider.overrideWith((ref) async => []),
+            managerRegistrationsProvider.overrideWith((ref) async => []),
+            courseRequestsProvider.overrideWith((ref) async => []),
+          ],
+          child: MaterialApp(home: AuthenticatedAppShell(session: session)),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Danh mục khóa học'), findsOneWidget);
+      expect(find.text('Yêu cầu môn'), findsOneWidget);
+
+      await tester.tap(find.text('Buổi học'));
+      await tester.pumpAndSettle();
+      expect(find.text('Lịch điều phối'), findsOneWidget);
+      expect(find.text('Tạo buổi học'), findsOneWidget);
+
+      await tester.tap(find.text('Yêu cầu môn'));
+      await tester.pumpAndSettle();
+      expect(find.text('Yêu cầu khóa học'), findsOneWidget);
+      expect(find.text('Yêu cầu mở môn'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    }
+  });
+
+  testWidgets('admin receives CodePulse term and classroom screens', (
+    tester,
+  ) async {
+    final session = AuthSession(
+      accessToken: 'admin-token',
+      role: UserRole.admin,
+      user: const AuthUser(
+        id: 'admin-1',
+        email: 'admin@example.com',
+        firstName: 'System',
+        lastName: 'Admin',
+        picture: null,
+      ),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          managerCoursesProvider.overrideWith((ref) async => []),
+          codePulseTermsProvider.overrideWith((ref) async => []),
+          codePulseClassroomsProvider.overrideWith((ref) async => []),
+        ],
+        child: MaterialApp(home: AuthenticatedAppShell(session: session)),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Danh mục khóa học'), findsOneWidget);
+    expect(find.text('CodePulse'), findsOneWidget);
+    await tester.tap(find.text('CodePulse'));
+    await tester.pumpAndSettle();
+    expect(find.text('Quản lý học kỳ CodePulse'), findsOneWidget);
+    expect(find.text('Tạo học kỳ'), findsOneWidget);
+    expect(find.text('Tạo buổi học'), findsNothing);
+
+    await tester.tap(find.text('Lớp DSA').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Tạo lớp'), findsOneWidget);
+    expect(find.text('Tạo buổi học'), findsNothing);
     expect(tester.takeException(), isNull);
   });
 }
