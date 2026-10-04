@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../application/auth_controller.dart';
+import '../../tssa/presentation/tssa_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -260,6 +261,33 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             ),
                           ),
                           const SizedBox(height: 18),
+                          TextButton(
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const TssaRegistration(),
+                              ),
+                            ),
+                            child: const Text(
+                              'Tạo tài khoản hỗ trợ học tập TSSA',
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => Scaffold(
+                                  appBar: AppBar(
+                                    title: const Text('Về dịch vụ'),
+                                  ),
+                                  body: const TssaPublicInfo(),
+                                ),
+                              ),
+                            ),
+                            child: const Text(
+                              'Về dịch vụ / hướng dẫn dùng offline',
+                            ),
+                          ),
                           Text(
                             'TUTOR SUPPORT SYSTEM · HCMUT',
                             textAlign: TextAlign.center,
