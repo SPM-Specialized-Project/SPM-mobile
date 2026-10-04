@@ -7,6 +7,10 @@ String tutorErrorMessage(Object error) {
   if (error is DioException) {
     final body = error.response?.data;
     if (body is Map<String, dynamic> && body['message'] is String) {
+      final details = body['errors'];
+      if (details is Map && details.isNotEmpty) {
+        return '${body['message']}\n${details.values.whereType<String>().toSet().join('\n')}';
+      }
       return body['message'] as String;
     }
     if (error.response?.statusCode == 403) {
