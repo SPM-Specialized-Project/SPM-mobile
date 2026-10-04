@@ -1,0 +1,50 @@
+{
+  "date": "2026-10-04",
+  "flutter": {
+    "skipped": 0,
+    "tests": 114,
+    "passed": 114
+  },
+  "backend": {
+    "skipped": 0,
+    "passed": 99,
+    "leafCases": 88,
+    "testNodes": 99,
+    "parentTests": 11
+  },
+  "android": {
+    "scenarios": 1,
+    "package": "com.example.spm_mobile.validation",
+    "device": "emulator-5554",
+    "passed": 1
+  },
+  "analyzer": "No issues found",
+  "apk": {
+    "bytes": 212709661,
+    "sha256": "EA3F8DA391D7FEBE894360BBEE0244FDBD9AE2CC43363CB1F4DA7496A66A8BBC",
+    "path": "build/app/outputs/flutter-apk/app-debug.apk"
+  },
+  "tssaUnitWidgetLineCoverage": {
+    "hit": 824,
+    "percent": 56.48,
+    "total": 1459,
+    "includesAndroidIntegration": false
+  },
+  "livePreview": {
+    "data": "synthetic",
+    "apiPort": 4317,
+    "webPort": 4318,
+    "browserTabClosed": true,
+    "servicesStopped": true,
+    "viewportReset": true
+  },
+  "cleanup": {
+    "remainingPaths": [
+      "C:\\disk D\\SPM-mobile\\output\\tssa-validation-20261004\\android-app",
+      "C:\\Users\\tungq\\AppData\\Local\\Temp\\spm-tssa-test-vt8Io1"
+    ],
+    "recursiveDeletionBlocked": true
+  },
+  "modelProvider": "simulated; real BGE-M3 inference not run",
+  "all86AcceptanceCriteriaConfirmed": false
+}

@@ -1,0 +1,42 @@
+{
+  "lib\\core\\security\\token_storage.dart": {
+    "hit": 1,
+    "total": 11
+  },
+  "lib\\core\\security\\draft_storage.dart": {
+    "hit": 24,
+    "total": 24
+  },
+  "lib\\core\\security\\session_events.dart": {
+    "hit": 4,
+    "total": 4
+  },
+  "lib\\features\\tssa\\data\\tssa_repository.dart": {
+    "hit": 23,
+    "total": 25
+  },
+  "lib\\features\\tssa\\presentation\\tssa_form.dart": {
+    "hit": 206,
+    "total": 364
+  },
+  "lib\\features\\tssa\\presentation\\tssa_governance.dart": {
+    "hit": 169,
+    "total": 313
+  },
+  "lib\\features\\tssa\\presentation\\tssa_profiles.dart": {
+    "hit": 118,
+    "total": 233
+  },
+  "lib\\features\\tssa\\presentation\\tssa_ui.dart": {
+    "hit": 99,
+    "total": 103
+  },
+  "lib\\features\\tssa\\presentation\\tssa_screen.dart": {
+    "hit": 65,
+    "total": 101
+  },
+  "lib\\features\\tssa\\presentation\\tssa_workflows.dart": {
+    "hit": 144,
+    "total": 320
+  }
+}

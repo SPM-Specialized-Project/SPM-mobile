@@ -1,0 +1,116 @@
+00:00 +0: loading C:/disk D/SPM-mobile/test/core/networking/api_client_test.dart
+00:00 +0: C:/disk D/SPM-mobile/test/core/networking/session_expiry_test.dart: S01 401/null expires current token and removes drafts
+00:00 +1: C:/disk D/SPM-mobile/test/core/networking/session_expiry_test.dart: S01 401/null expires current token and removes drafts
+00:00 +2: C:/disk D/SPM-mobile/test/core/networking/session_expiry_test.dart: S01 401/null expires current token and removes drafts
+00:00 +3: C:/disk D/SPM-mobile/test/core/networking/session_expiry_test.dart: S01 401/null expires current token and removes drafts
+00:00 +4: C:/disk D/SPM-mobile/test/core/networking/session_expiry_test.dart: S01 401/null expires current token and removes drafts
+00:00 +5: C:/disk D/SPM-mobile/test/core/networking/session_expiry_test.dart: S01 403/ACCOUNT_LOCKED expires current token and removes drafts
+00:00 +6: C:/disk D/SPM-mobile/test/core/networking/session_expiry_test.dart: S02 login failure preserves current token and draft
+00:00 +7: C:/disk D/SPM-mobile/test/features/auth/application/auth_controller_test.dart: AuthController starts signed out when secure storage has no token
+00:00 +8: C:/disk D/SPM-mobile/test/features/auth/application/auth_controller_test.dart: AuthController starts signed out when secure storage has no token
+00:00 +9: C:/disk D/SPM-mobile/test/features/auth/application/auth_controller_test.dart: AuthController starts signed out when secure storage has no token
+00:00 +10: C:/disk D/SPM-mobile/test/features/auth/application/auth_controller_test.dart: AuthController sets the session after a successful login
+00:00 +11: C:/disk D/SPM-mobile/test/features/auth/data/auth_repository_test.dart: posts credentials and parses the login response
+00:00 +12: C:/disk D/SPM-mobile/test/features/auth/data/auth_repository_test.dart: posts credentials and parses the login response
+00:00 +13: C:/disk D/SPM-mobile/test/features/auth/data/auth_repository_test.dart: posts credentials and parses the login response
+00:00 +14: C:/disk D/SPM-mobile/test/features/auth/application/auth_controller_test.dart: AuthController logout clears the session
+00:00 +15: C:/disk D/SPM-mobile/test/features/auth/application/auth_controller_test.dart: AuthController logout clears the session
+00:00 +16: C:/disk D/SPM-mobile/test/features/auth/application/auth_controller_test.dart: AuthController ignores a login response that arrives after logout
+00:00 +17: C:/disk D/SPM-mobile/test/features/auth/application/auth_controller_test.dart: AuthController keeps the newest login when requests complete out of order
+00:00 +18: C:/disk D/SPM-mobile/test/features/auth/application/auth_controller_test.dart: AuthController restores a saved token through the backend session check
+00:00 +19: C:/disk D/SPM-mobile/test/features/auth/data/auth_session_test.dart: AuthSession.fromJson maps the backend login response, including a null picture
+00:00 +20: C:/disk D/SPM-mobile/test/features/auth/data/auth_session_test.dart: AuthSession.fromJson maps the backend login response, including a null picture
+00:00 +21: C:/disk D/SPM-mobile/test/features/auth/data/auth_session_test.dart: AuthSession.fromJson maps the backend login response, including a null picture
+00:01 +22: C:/disk D/SPM-mobile/test/features/auth/data/auth_session_test.dart: AuthSession.fromJson maps an unrecognized role to unknown
+00:01 +23: C:/disk D/SPM-mobile/test/features/auth/data/auth_session_test.dart: AuthSession.fromJson maps the legacy tutor role to lecturer
+00:01 +24: C:/disk D/SPM-mobile/test/features/auth/data/auth_session_test.dart: AuthSession.fromJson rejects a missing access token with FormatException
+00:01 +25: C:/disk D/SPM-mobile/test/features/auth/data/auth_session_test.dart: AuthSession.fromJson rejects a missing user object with FormatException
+00:02 +26: C:/disk D/SPM-mobile/test/features/auth/presentation/login_screen_test.dart: shows brand, welcome text, fields, and login button
+00:03 +27: C:/disk D/SPM-mobile/test/features/auth/presentation/login_screen_test.dart: shows brand, welcome text, fields, and login button
+00:03 +28: C:/disk D/SPM-mobile/test/features/auth/presentation/login_screen_test.dart: shows brand, welcome text, fields, and login button
+00:03 +29: C:/disk D/SPM-mobile/test/features/auth/presentation/login_screen_test.dart: shows brand, welcome text, fields, and login button
+00:03 +30: C:/disk D/SPM-mobile/test/features/auth/presentation/login_screen_test.dart: shows brand, welcome text, fields, and login button
+00:03 +31: C:/disk D/SPM-mobile/test/features/auth/presentation/login_screen_test.dart: shows brand, welcome text, fields, and login button
+00:03 +32: C:/disk D/SPM-mobile/test/features/auth/presentation/login_screen_test.dart: shows brand, welcome text, fields, and login button
+00:03 +33: C:/disk D/SPM-mobile/test/features/auth/presentation/login_screen_test.dart: shows brand, welcome text, fields, and login button
+00:03 +34: C:/disk D/SPM-mobile/test/features/auth/presentation/login_screen_test.dart: shows brand, welcome text, fields, and login button
+00:04 +35: C:/disk D/SPM-mobile/test/features/auth/presentation/login_screen_test.dart: shows brand, welcome text, fields, and login button
+00:04 +36: C:/disk D/SPM-mobile/test/features/auth/presentation/login_screen_test.dart: shows brand, welcome text, fields, and login button
+00:04 +37: C:/disk D/SPM-mobile/test/features/auth/presentation/login_screen_test.dart: shows brand, welcome text, fields, and login button
+00:04 +38: C:/disk D/SPM-mobile/test/features/auth/presentation/login_screen_test.dart: shows brand, welcome text, fields, and login button
+00:04 +39: C:/disk D/SPM-mobile/test/features/auth/presentation/login_screen_test.dart: shows brand, welcome text, fields, and login button
+00:05 +40: C:/disk D/SPM-mobile/test/features/navigation/presentation/authenticated_app_shell_test.dart: login opens role tabs and logout returns to login
+00:06 +41: C:/disk D/SPM-mobile/test/features/navigation/presentation/authenticated_app_shell_test.dart: login opens role tabs and logout returns to login
+00:06 +42: C:/disk D/SPM-mobile/test/features/navigation/presentation/authenticated_app_shell_test.dart: login opens role tabs and logout returns to login
+00:06 +43: C:/disk D/SPM-mobile/test/features/navigation/presentation/authenticated_app_shell_test.dart: login opens role tabs and logout returns to login
+00:07 +44: C:/disk D/SPM-mobile/test/features/navigation/presentation/authenticated_app_shell_test.dart: login opens role tabs and logout returns to login
+00:07 +45: C:/disk D/SPM-mobile/test/features/navigation/presentation/authenticated_app_shell_test.dart: login opens role tabs and logout returns to login
+00:07 +46: C:/disk D/SPM-mobile/test/features/navigation/presentation/authenticated_app_shell_test.dart: login opens role tabs and logout returns to login
+00:07 +47: C:/disk D/SPM-mobile/test/features/navigation/presentation/authenticated_app_shell_test.dart: login opens role tabs and logout returns to login
+00:08 +48: C:/disk D/SPM-mobile/test/features/navigation/presentation/authenticated_app_shell_test.dart: login opens role tabs and logout returns to login
+00:08 +49: C:/disk D/SPM-mobile/test/features/navigation/presentation/authenticated_app_shell_test.dart: login opens role tabs and logout returns to login
+00:08 +50: C:/disk D/SPM-mobile/test/features/navigation/presentation/authenticated_app_shell_test.dart: login opens role tabs and logout returns to login
+00:08 +51: C:/disk D/SPM-mobile/test/features/navigation/presentation/authenticated_app_shell_test.dart: login opens role tabs and logout returns to login
+00:08 +52: C:/disk D/SPM-mobile/test/features/navigation/presentation/authenticated_app_shell_test.dart: login opens role tabs and logout returns to login
+00:08 +53: C:/disk D/SPM-mobile/test/features/navigation/presentation/authenticated_app_shell_test.dart: login opens role tabs and logout returns to login
+00:08 +54: C:/disk D/SPM-mobile/test/features/navigation/presentation/authenticated_app_shell_test.dart: login opens role tabs and logout returns to login
+00:08 +55: C:/disk D/SPM-mobile/test/features/navigation/presentation/authenticated_app_shell_test.dart: login opens role tabs and logout returns to login
+00:08 +56: C:/disk D/SPM-mobile/test/features/navigation/presentation/authenticated_app_shell_test.dart: login opens role tabs and logout returns to login
+00:08 +57: C:/disk D/SPM-mobile/test/features/navigation/presentation/authenticated_app_shell_test.dart: login opens role tabs and logout returns to login
+00:08 +58: C:/disk D/SPM-mobile/test/features/navigation/presentation/authenticated_app_shell_test.dart: login opens role tabs and logout returns to login
+00:08 +59: C:/disk D/SPM-mobile/test/features/tssa/tssa_form_test.dart: F01 conditional validation permits draft and requires complete submitted fields
+00:09 +60: C:/disk D/SPM-mobile/test/features/tssa/tssa_screen_test.dart: UI01 learner has correct tabs on 390px screen with large text
+00:09 +61: C:/disk D/SPM-mobile/test/features/tssa/tssa_screen_test.dart: UI01 learner has correct tabs on 390px screen with large text
+00:09 +62: C:/disk D/SPM-mobile/test/features/tssa/tssa_screen_test.dart: UI01 learner has correct tabs on 390px screen with large text
+00:09 +63: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: DSA course has all web tabs and edit permission controls
+00:09 +64: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: DSA course has all web tabs and edit permission controls
+00:10 +65: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: DSA course has all web tabs and edit permission controls
+00:10 +66: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: DSA course has all web tabs and edit permission controls
+00:10 +67: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: DSA course has all web tabs and edit permission controls
+00:10 +68: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: DSA course has all web tabs and edit permission controls
+00:10 +69: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: DSA course has all web tabs and edit permission controls
+00:10 +70: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: DSA course has all web tabs and edit permission controls
+00:10 +71: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: DSA course has all web tabs and edit permission controls
+00:10 +72: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: DSA course has all web tabs and edit permission controls
+00:11 +73: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: DSA course has all web tabs and edit permission controls
+00:11 +74: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: DSA course has all web tabs and edit permission controls
+00:11 +75: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: DSA course has all web tabs and edit permission controls
+00:11 +76: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: DSA course has all web tabs and edit permission controls
+00:11 +77: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: DSA course has all web tabs and edit permission controls
+00:11 +78: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: DSA course has all web tabs and edit permission controls
+00:12 +79: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: DSA course has all web tabs and edit permission controls
+00:12 +80: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: DSA course has all web tabs and edit permission controls
+00:12 +81: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: DSA course has all web tabs and edit permission controls
+00:12 +82: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: DSA course has all web tabs and edit permission controls
+00:12 +83: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: DSA course has all web tabs and edit permission controls
+00:12 +84: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_screens_test.dart: tutor can open an assigned course and switch to its roster
+00:13 +85: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_screens_test.dart: tutor can open an assigned course and switch to its roster
+00:13 +86: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_screens_test.dart: tutor can open an assigned course and switch to its roster
+00:13 +87: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: section edits save with the loaded revision and survive a new screen
+00:13 +88: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: section edits save with the loaded revision and survive a new screen
+00:14 +89: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: section edits save with the loaded revision and survive a new screen
+00:14 +90: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: section edits save with the loaded revision and survive a new screen
+00:14 +91: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: section edits save with the loaded revision and survive a new screen
+00:14 +92: C:/disk D/SPM-mobile/test/widget_test.dart: backend health screen remains reachable from the showcase
+00:14 +93: C:/disk D/SPM-mobile/test/widget_test.dart: backend health screen remains reachable from the showcase
+00:14 +94: C:/disk D/SPM-mobile/test/features/tssa/tssa_contract_screens_test.dart: CUI learner request detail renders captured API contract at large text
+00:15 +95: C:/disk D/SPM-mobile/test/features/tutor/presentation/tutor_course_workspace_test.dart: tutor feedback saves a separate comment per active student
+00:15 +96: C:/disk D/SPM-mobile/test/features/tssa/tssa_contract_screens_test.dart: CUI coordinator request detail renders captured API contract at large text
+00:16 +97: C:/disk D/SPM-mobile/test/features/tssa/tssa_contract_screens_test.dart: CUI coordinator matching review renders captured API contract at large text
+00:16 +98: C:/disk D/SPM-mobile/test/features/tssa/tssa_contract_screens_test.dart: CUI learner bookings renders captured API contract at large text
+00:16 +99: C:/disk D/SPM-mobile/test/features/tssa/tssa_contract_screens_test.dart: CUI learner booking detail renders captured API contract at large text
+00:17 +100: C:/disk D/SPM-mobile/test/features/tssa/tssa_contract_screens_test.dart: CUI tutor booking detail renders captured API contract at large text
+00:17 +101: C:/disk D/SPM-mobile/test/features/tssa/tssa_contract_screens_test.dart: CUI coordinator booking detail renders captured API contract at large text
+00:18 +102: C:/disk D/SPM-mobile/test/features/tssa/tssa_contract_screens_test.dart: CUI learner privacy renders captured API contract at large text
+00:18 +103: C:/disk D/SPM-mobile/test/features/tssa/tssa_contract_screens_test.dart: CUI coordinator privacy queue renders captured API contract at large text
+00:18 +104: C:/disk D/SPM-mobile/test/features/tssa/tssa_contract_screens_test.dart: CUI learner support renders captured API contract at large text
+00:19 +105: C:/disk D/SPM-mobile/test/features/tssa/tssa_contract_screens_test.dart: CUI coordinator case detail renders captured API contract at large text
+00:19 +106: C:/disk D/SPM-mobile/test/features/tssa/tssa_contract_screens_test.dart: CUI learner notifications renders captured API contract at large text
+00:19 +107: C:/disk D/SPM-mobile/test/features/tssa/tssa_contract_screens_test.dart: CUI learner preferences renders captured API contract at large text
+00:20 +108: C:/disk D/SPM-mobile/test/features/tssa/tssa_contract_screens_test.dart: CUI admin governance renders captured API contract at large text
+00:20 +109: C:/disk D/SPM-mobile/test/features/tssa/tssa_contract_screens_test.dart: CUI admin bindings renders captured API contract at large text
+00:20 +110: C:/disk D/SPM-mobile/test/features/tssa/tssa_contract_screens_test.dart: CUI admin models renders captured API contract at large text
+00:20 +111: C:/disk D/SPM-mobile/test/features/tssa/tssa_contract_screens_test.dart: CUI admin audit renders captured API contract at large text
+00:21 +112: C:/disk D/SPM-mobile/test/features/tssa/tssa_contract_screens_test.dart: CUI coordinator metrics renders captured API contract at large text
+00:21 +113: C:/disk D/SPM-mobile/test/features/tssa/tssa_contract_screens_test.dart: CUI public information works without API or session
+00:22 +114: All tests passed!
