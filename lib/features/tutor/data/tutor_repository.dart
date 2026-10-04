@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../auth/data/auth_session.dart';
 import '../domain/tutor_course.dart';
+import '../domain/tutor_course_workspace.dart';
 import '../domain/tutor_registration.dart';
 import '../domain/tutor_session.dart';
 import '../domain/tutor_submission.dart';
@@ -33,6 +34,92 @@ class TutorRepository {
       response.data,
       'sessions',
     ).map(TutorSession.fromJson).toList(growable: false);
+  }
+
+  Future<TutorCourseDetail> saveCourseContent(
+    String courseId,
+    List<TutorCourseSection> sections,
+    int expectedRevision,
+  ) async {
+    final response = await _dio.patch<Map<String, dynamic>>(
+      '/api/courses/${Uri.encodeComponent(courseId)}/detail',
+      data: {
+        'content': sections.map((item) => item.toJson()).toList(),
+        'expectedRevision': expectedRevision,
+      },
+    );
+    return TutorCourseDetail.fromJson(
+      _requiredBody(response.data, 'course detail'),
+    );
+  }
+
+  Future<CourseRoster> getRoster(String courseId) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/api/classrooms/${Uri.encodeComponent(courseId)}/memberships',
+    );
+    return CourseRoster.fromJson(_requiredBody(response.data, 'roster'));
+  }
+
+  Future<void> addCourseMember(String courseId, String studentEmail) async {
+    await _dio.post<Object?>(
+      '/api/classrooms/${Uri.encodeComponent(courseId)}/memberships',
+      data: {'studentEmail': studentEmail},
+    );
+  }
+
+  Future<void> revokeCourseMember(String courseId, String membershipId) async {
+    await _dio.patch<Object?>(
+      '/api/classrooms/${Uri.encodeComponent(courseId)}/memberships/${Uri.encodeComponent(membershipId)}',
+      data: {'status': 'REVOKED'},
+    );
+  }
+
+  Future<TutorCourseFeedback> getCourseFeedback(String courseId) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/api/courses/${Uri.encodeComponent(courseId)}/tutor-feedback',
+    );
+    return TutorCourseFeedback.fromJson(
+      _requiredMap(
+        _requiredBody(response.data, 'feedback')['item'],
+        'feedback',
+      ),
+    );
+  }
+
+  Future<void> saveCourseFeedback(
+    String courseId,
+    TutorCourseFeedback feedback,
+  ) async {
+    await _dio.patch<Object?>(
+      '/api/courses/${Uri.encodeComponent(courseId)}/tutor-feedback',
+      data: {
+        'courseComment': feedback.courseComment,
+        'studentComments': feedback.studentComments,
+        'expectedRevision': feedback.revision,
+      },
+    );
+  }
+
+  Future<List<TutorSubmission>> getCourseSubmissions(TutorCourse course) async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        '/api/courses/${Uri.encodeComponent(course.id)}/submissions',
+      );
+      return _readItems(response.data, 'submissions')
+          .map(
+            (json) => TutorSubmission.fromJson({
+              ...json,
+              'courseTitle': course.title,
+            }),
+          )
+          .toList();
+    } on DioException catch (error) {
+      if (error.response?.statusCode == 404 &&
+          (error.response?.data as Map?)?['code'] == 'ASSIGNMENT_NOT_FOUND') {
+        return [];
+      }
+      rethrow;
+    }
   }
 
   Future<TutorSession> createSession({
