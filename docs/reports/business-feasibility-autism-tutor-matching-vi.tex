@@ -1,0 +1,1023 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[utf8]{inputenc}
+  \usepackage[T5,T1]{fontenc}
+  \usepackage[english,vietnamese]{babel}
+\else
+  \usepackage{fontspec}
+  \usepackage{polyglossia}
+  \setdefaultlanguage{vietnamese}
+  \setotherlanguage{english}
+\fi
+\usepackage[a4paper,margin=2.15cm,headheight=15pt]{geometry}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{array,booktabs,tabularx}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,calc}
+\usepackage{hyperref}
+\usepackage{xurl}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+
+\definecolor{ink}{HTML}{19324D}
+\definecolor{teal}{HTML}{087E8B}
+\definecolor{sky}{HTML}{EAF4F7}
+\definecolor{mint}{HTML}{EAF5F0}
+\definecolor{amber}{HTML}{FFF4D6}
+\definecolor{linegray}{HTML}{D7E0E7}
+\definecolor{muted}{HTML}{526273}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=teal,
+  citecolor=teal,
+  urlcolor=teal,
+  pdftitle={Feasibility kinh doanh và kiến trúc AI ghép tutor--student tự kỷ},
+  pdfauthor={SPM Mobile},
+  pdfsubject={Nghiên cứu sản phẩm, kinh doanh và AI hỗ trợ điều phối giáo dục}
+}
+\urlstyle{same}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setlist[itemize]{leftmargin=1.35em,itemsep=2pt,topsep=3pt}
+\setlist[enumerate]{leftmargin=1.55em,itemsep=3pt,topsep=3pt}
+\renewcommand{\arraystretch}{1.22}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcommand{\vn}[1]{\textcolor{ink}{#1}}
+\newcommand{\assumption}{\textcolor{teal}{\textbf{GIẢ ĐỊNH MINH HỌA}}}
+\newcommand{\notmeasured}{\textcolor{muted}{\textit{Chưa đo trong pilot}}}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small\textcolor{muted}{SPM Mobile \textbar\ Nghiên cứu sản phẩm}}
+\rhead{\small\textcolor{muted}{Bản nghiên cứu mở rộng}}
+\cfoot{\small\textcolor{muted}{\thepage}}
+\titleformat{\section}{\Large\bfseries\color{ink}}{\thesection}{0.65em}{}
+\titleformat{\subsection}{\large\bfseries\color{teal}}{\thesubsection}{0.65em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{ink}}{\thesubsubsection}{0.65em}{}
+
+\begin{document}
+
+\begin{center}
+{\large\textcolor{teal}{NGHIÊN CỨU FEASIBILITY SẢN PHẨM VÀ KINH DOANH}}\\[7pt]
+{\LARGE\bfseries\color{ink} Kết nối học sinh tự kỷ\\ với gia sư phù hợp}\\[7pt]
+{\large Mô hình ghép nối AI-native, coordinator kiểm soát shortlist}\\[12pt]
+\rule{0.82\textwidth}{0.7pt}\\[7pt]
+\textcolor{muted}{SPM Mobile \quad|\quad Việt Nam \quad|\quad Chốt bằng chứng: 02/10/2026}
+\end{center}
+
+\vspace{5pt}
+\noindent
+\colorbox{sky}{\parbox{\dimexpr\textwidth-2\fboxsep\relax}{
+\textbf{\textcolor{ink}{Kết luận tạm thời.}}
+Có cơ sở để thử một dịch vụ ghép nối quy mô nhỏ, do coordinator điều phối và
+gia đình/học sinh xác nhận. Bằng chứng hiện tại chưa đủ để kết luận quy mô thị
+trường trả phí hoặc tính khả thi khi mở rộng. Vì vậy, nên kiểm chứng nhu cầu,
+nguồn tutor và unit economics bằng pilot thủ công trước; AI chỉ nên đưa ra danh
+sách gợi ý có giải thích để coordinator duyệt, không tự quyết định ai được ghép
+với ai.
+}}
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Mục tiêu và kết luận điều hành}
+
+Nghiên cứu này đánh giá giả thuyết: một ứng dụng có thể giúp gia đình tìm gia
+sư theo đúng môn học, lịch, cách học và hỗ trợ mà từng học sinh cần; coordinator
+đảm bảo an toàn và duyệt đề xuất; AI giảm thời gian tìm kiếm bằng cách xếp hạng
+các hồ sơ đã qua điều kiện cơ bản. Đây là dịch vụ giáo dục và kết nối, không
+phải công cụ chẩn đoán tự kỷ hay thay thế chuyên gia lâm sàng.
+
+\begin{tabularx}{\textwidth}{>{\bfseries\color{ink}}p{3.25cm}Y}
+\toprule
+Khía cạnh & Đánh giá tại thời điểm lập báo cáo \\
+\midrule
+Nhu cầu xã hội & Có tín hiệu về rào cản giáo dục hòa nhập cho trẻ khuyết tật nói
+chung tại Việt Nam. Các số liệu này không riêng cho tự kỷ và không chứng minh
+nhu cầu mua gia sư. \\
+Dữ liệu quy mô thị trường & Chưa có ước lượng đủ chắc cho số học sinh tự kỷ trong
+độ tuổi học môn phổ thông, số gia đình tìm gia sư, khả năng chi trả hoặc số tutor
+đủ năng lực. Không suy TAM từ tỷ lệ hiện mắc trẻ nhỏ. \\
+Khả thi sản phẩm & Có thể kiểm chứng qua mô hình concierge: ghép thủ công, quy
+mô hẹp, theo dõi mức chấp nhận, độ phù hợp, an toàn và thời gian coordinator. \\
+Khả thi thương mại & Chưa xác nhận. Mô hình hoa hồng có thể chịu áp lực chi phí
+điều phối; hợp đồng với trung tâm/trường hoặc tài trợ tiếp cận cần được thử song
+song. \\
+AI & Chỉ nên bật sau khi có hồ sơ tutor đã xác minh, consent, dữ liệu phù hợp và
+quy trình giám sát. Human coordinator giữ quyền duyệt, từ chối và ghép lại. \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Quyết định đề xuất}
+
+\textbf{Tiếp tục sang giai đoạn discovery và pilot có kiểm soát.} Chưa đầu tư
+vào mô hình AI tự động hoặc tuyên bố đây là marketplace đã chứng minh được khả
+năng mở rộng. Thứ tự nên là:
+\begin{enumerate}
+  \item Phỏng vấn gia đình, tutor và tổ chức giáo dục để xác nhận vấn đề, cách
+  họ tìm nhau hiện nay, tiêu chí phù hợp, niềm tin và người trả tiền.
+  \item Thử dịch vụ ghép thủ công với coordinator; ghi lại lý do được nhận,
+  từ chối, đổi tutor và chi phí phục vụ từng trường hợp.
+  \item Chỉ sau khi quy trình và dữ liệu đủ tốt, chạy AI ở chế độ shadow
+  (xếp hạng nội bộ, chưa tác động lựa chọn), rồi đánh giá an toàn và độ phù hợp.
+\end{enumerate}
+
+\section{Nhu cầu và bằng chứng thị trường}
+
+\subsection{Số liệu đã kiểm chứng}
+
+\par\medskip\noindent
+\textbf{Tự kỷ: bằng chứng trực tiếp tại Việt Nam.}\par\smallskip\noindent
+\begin{tabularx}{\textwidth}{p{3.15cm}p{5.25cm}Y}
+\toprule
+\textbf{Nguồn và phạm vi} & \textbf{Số liệu được báo cáo} &
+\textbf{Cách dùng và giới hạn} \\
+\midrule
+Khảo sát quần thể 7 tỉnh/thành, 2017--2018 \cite{vui2022} &
+40.243 trẻ 18--30 tháng tham gia (94,5\% số được mời); 305 ca xác nhận sau
+quy trình sàng lọc M-CHAT và đánh giá DSM-IV; tỷ lệ 0,758\%, xấp xỉ 1/132. &
+Khảo sát đại diện quốc gia cho nhóm tuổi 18--30 tháng theo bài báo; không đo
+học sinh tuổi đi học, nhu cầu gia sư hay khả năng chi trả. \\
+\addlinespace
+Nghiên cứu trường mầm non miền Nam, công bố 2024 \cite{tran2024} &
+9.397 trẻ 24--72 tháng ở 41 trường; bác sĩ tâm thần nhi đánh giá theo DSM-5;
+tỷ lệ 1,2\%, xấp xỉ 1/84. &
+Một nghiên cứu khu vực, không phải ước lượng toàn quốc. Khác tuổi, địa bàn và
+quy trình với khảo sát 2017--2018; không gộp hai tỷ lệ. \\
+\addlinespace
+WHO, ước tính toàn cầu \cite{who2025} &
+Ước tính khoảng 1/127 người trên thế giới có tự kỷ vào năm 2021. &
+Chỉ để đặt bối cảnh toàn cầu. WHO lưu ý khả năng và nhu cầu khác nhau, có thể
+thay đổi; không áp tỷ lệ này vào dân số Việt Nam để suy ra số khách hàng. \\
+\addlinespace
+CDC/ADDM, Hoa Kỳ, năm giám sát 2022 \cite{cdc2025} &
+32,2/1.000 trẻ 8 tuổi (khoảng 1/31) trên 16 địa điểm; địa điểm dao động
+9,7--53,1/1.000. &
+Định nghĩa giám sát kết hợp hồ sơ chẩn đoán, giáo dục đặc biệt và mã ICD.
+Khác hệ thống phát hiện và bối cảnh Việt Nam; không chuyển thành tỷ lệ Việt Nam. \\
+\bottomrule
+\end{tabularx}
+
+\vspace{5pt}
+\textbf{Giáo dục, khả năng tiếp cận và mức sẵn sàng số: chủ yếu là số liệu
+khuyết tật nói chung, không riêng tự kỷ.}\par\smallskip\noindent
+\begin{tabularx}{\textwidth}{p{3.15cm}p{5.25cm}Y}
+\toprule
+\textbf{Nguồn và phạm vi} & \textbf{Số liệu được báo cáo} &
+\textbf{Cách dùng và giới hạn} \\
+\midrule
+Điều tra người khuyết tật Việt Nam 2023 (VDS 2023) \cite{gso2023} &
+Tỷ lệ khuyết tật: 1,98\% ở trẻ 2--17 tuổi; 1,51\% ở trẻ 5--17 tuổi; 1,56\%
+ở trẻ 5--15 tuổi. &
+Đây là các phân nhóm tuổi và khái niệm khuyết tật của khảo sát, không phải
+tỷ lệ tự kỷ. Không nhân dân số học sinh với các tỷ lệ này để tính TAM tự kỷ. \\
+\addlinespace
+VDS 2023, đi học đúng tuổi \cite{gso2023} &
+Tiểu học: trẻ khuyết tật 68,1\%, không khuyết tật 95,2\% (chênh 27,1 điểm
+phần trăm); THCS: 53,0\% và 90,0\% (chênh 37 điểm); THPT: trẻ khuyết tật
+30,8\%, thấp hơn nhóm không khuyết tật 45,8 điểm. &
+Chỉ số là \emph{đi học đúng tuổi}, không phải tỷ lệ nhập học chung. Gợi ý cần
+đo sự phù hợp và khả năng tiếp cận; không chứng minh gia đình cần hoặc mua tutor. \\
+\addlinespace
+VDS 2023, truy cập công nghệ thông tin \cite{gso2023} &
+Người khuyết tật từ 6 tuổi có truy cập Internet trong 3 tháng: 33,6\%, so
+với 83,7\% ở người không khuyết tật; sở hữu điện thoại di động lần lượt
+53,7\% và 89,2\%. &
+Khoảng cách này yêu cầu app nhẹ, dùng được với băng thông thấp và có kênh
+hỗ trợ ngoài app. Không coi tỷ lệ của toàn nhóm khuyết tật là riêng trẻ tự kỷ. \\
+\addlinespace
+VDS 2023, trường có học sinh khuyết tật \cite{gso2023} &
+79,6\% trường có học sinh khuyết tật, so với 71,4\% năm 2016; mức vùng
+được báo cáo từ 58,8\% tại Đồng bằng sông Cửu Long đến 90,2\% tại Trung du
+và miền núi phía Bắc. &
+Cho thấy có mặt học sinh khuyết tật trong trường học nhưng không cho biết
+mật độ tự kỷ, nguồn tutor hay nhu cầu trả phí tại từng địa phương. \\
+\bottomrule
+\end{tabularx}
+
+\vspace{5pt}
+\textbf{Hạ tầng số và chương trình hỗ trợ: không đồng nghĩa với khả năng tiếp
+cận app của từng gia đình.}\par\smallskip\noindent
+\begin{tabularx}{\textwidth}{p{3.15cm}p{5.25cm}Y}
+\toprule
+\textbf{Nguồn và phạm vi} & \textbf{Số liệu được báo cáo} &
+\textbf{Cách dùng và giới hạn} \\
+\midrule
+UNICEF, kết quả hỗ trợ hòa nhập tại Việt Nam 2024 \cite{unicef2025inclusive} &
+Báo cáo nêu hơn 400.000 trẻ khuyết tật chưa đến trường; 3\% trường tiếp cận
+được về mặt thể chất; 1/10 trường THCS có giáo viên được đào tạo về giáo dục
+hòa nhập. &
+Số liệu UNICEF về trẻ khuyết tật nói chung; có thể dùng để mô tả bối cảnh hệ
+thống, không phải số trẻ tự kỷ tiềm năng cho sản phẩm. \\
+\addlinespace
+UNESCO, AI Readiness Assessment Việt Nam 2025 \cite{unescoai2025} &
+Khoảng 90\% trường kết nối Internet cho mục đích giảng dạy; tỷ lệ máy tính
+xấp xỉ 1 máy/3 học sinh; gần 40\% trường thiếu học liệu số. &
+Đây là chỉ số trường học, không phải kết nối hộ gia đình. Kết nối Internet
+không đồng nghĩa có thiết bị riêng, nội dung tiếp cận được hoặc giáo viên sẵn
+sàng dùng app. \\
+\addlinespace
+UNICEF--MOET, chương trình chuyển đổi số 2022--2026 \cite{unescoedtech2026} &
+UNESCO SDG4 Hub ghi nhận 260.000 giáo viên/cán bộ quản lý được tập huấn,
+4 triệu trẻ hưởng lợi trực tiếp (6\% là trẻ khuyết tật), triển khai cùng
+10 Sở GD\&ĐT; ngân sách được nêu là 2,3 triệu USD. &
+Đây là quy mô và kết quả chương trình, không phải số người dùng app này hay
+bằng chứng AI matching đã nâng kết quả học tập. Phải giữ nhãn “báo cáo chương
+trình”, không diễn giải thành thị trường. \\
+\addlinespace
+World Bank, dự án hỗ trợ giáo dục trẻ điếc \cite{worldbankdeaf2023} &
+1.929 học sinh điếc ở 20/68 tỉnh, thành được dự án hỗ trợ; 96\% đạt bài kiểm
+tra cuối kỳ so với mục tiêu dự án 50\%; có 150 video bài học và 4.000 mục từ
+điển ngôn ngữ ký hiệu. &
+Kết quả của gói tổng hợp gồm đào tạo, phương pháp, học liệu và hỗ trợ sư phạm;
+không thể quy kết riêng cho công nghệ, và không suy rộng sang tự kỷ. Gợi ý
+thiết kế phải kết hợp tutor, nội dung và điều phối. \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Diễn giải đúng cho quyết định kinh doanh}
+
+Nguồn Việt Nam về tự kỷ hiện có trong desk research là nghiên cứu ở trẻ nhỏ;
+không có số liệu quốc gia mới, được xác nhận ở đây cho số học sinh tự kỷ tuổi
+đi học đang cần gia sư. Số liệu khuyết tật của GSO, số liệu UNICEF về trường
+học, và tỷ lệ toàn cầu của WHO có đơn vị phân tích khác nhau. Chúng cho biết
+bối cảnh và các rào cản cần thiết kế quanh sản phẩm, không phải số khách hàng.
+Tỷ lệ hiện mắc cũng không đồng nghĩa với nhu cầu học thêm, sự sẵn sàng chia sẻ
+dữ liệu, khả năng chi trả hay ý định mua.
+
+\textbf{Kết luận thị trường:} có lý do để kiểm chứng vấn đề và thiết kế dịch vụ
+bao trùm, nhưng hiện chưa có căn cứ để công bố con số TAM/SAM/SOM đáng tin cậy.
+Trước khi quyết định mở rộng, cần dữ liệu địa bàn mục tiêu từ gia đình, tutor
+đã xác minh và đối tác có thể giới thiệu hai phía.
+
+\subsection{Cách tính quy mô thị trường mà không thổi phồng}
+
+\begin{align*}
+N^* &= \min(N_F,N_T,N_C),\\
+R_{\text{annual}} &= N^* \times M_{\text{paid}} \times R_{\text{net/month}}.
+\end{align*}
+
+Trong đó $N_F$ là số gia đình có nhu cầu và đồng ý; $N_T$ là suất tutor đạt
+chuẩn; $N_C$ là suất coordinator có thể theo dõi; $M_{\text{paid}}$ là số
+tháng trả phí bình quân; $R_{\text{net/month}}$ là doanh thu ròng mỗi tháng.
+Giá trị phục vụ được $N^*$ bị giới hạn bởi phía nhỏ nhất trong ba năng lực.
+Các biến cần đo tại địa bàn: số yêu cầu thật theo môn/lớp/lịch/hình thức; tỷ
+lệ qua sàng lọc điều kiện dịch vụ; tỷ lệ gia đình đồng ý thử; tỷ lệ tutor đã
+xác minh nhận ca; tỷ lệ hoàn tất buổi đầu; thời lượng duy trì; và mức phí ròng
+sau hoàn tiền, hủy buổi, thanh toán và điều phối. Không lấy 0,758\% ở trẻ
+18--30 tháng hoặc tỷ lệ khuyết tật nói chung làm đầu vào cho công thức này.
+
+\begin{tabularx}{\textwidth}{p{3.0cm}p{6.3cm}Y}
+\toprule
+\textbf{Tầng ước lượng} & \textbf{Định nghĩa dùng trong nghiên cứu} &
+\textbf{Nguồn dữ liệu phải thu} \\
+\midrule
+TAM lý thuyết & Gia đình/học sinh thuộc địa bàn và độ tuổi dịch vụ, có mục
+tiêu học tập phù hợp với dịch vụ ghép tutor. & Số học sinh theo địa bàn/tuổi,
+khảo sát nhu cầu; dữ liệu tự nguyện từ đối tác; không suy từ prevalence. \\
+SAM khả dụng & Phần TAM có thể tiếp cận qua đối tác/tutor, lịch, môn, phương
+thức và yêu cầu hỗ trợ hiện có. & Danh sách tutor xác minh, lịch trống, khả
+năng phục vụ tại chỗ/online, địa bàn và yêu cầu mà tutor nhận. \\
+SOM giai đoạn pilot & Số ca app và coordinator có thể tiếp nhận an toàn trong
+kỳ pilot và có khả năng được tutor nhận. & Yêu cầu thực nhận, phút điều phối,
+số tutor nhận việc và kết quả buổi đầu; đo theo tuần. \\
+\bottomrule
+\end{tabularx}
+
+\section{Khách hàng, giá trị và mô hình doanh thu}
+
+\subsection{Các bên trong dịch vụ}
+
+\begin{itemize}
+  \item \textbf{Người học:} học sinh tự kỷ hoặc học sinh có nhu cầu hỗ trợ học
+  tập tương tự; không bắt buộc cung cấp chẩn đoán nếu không cần cho việc học và
+  gia đình không muốn chia sẻ.
+  \item \textbf{Người đồng hành/quyết định:} phụ huynh hoặc người giám hộ; cùng
+  học sinh phù hợp độ tuổi và khả năng tham gia xác định mục tiêu, cách giao
+  tiếp và lựa chọn gia sư.
+  \item \textbf{Tutor:} gia sư theo môn/khối lớp, công khai kinh nghiệm và phạm
+  vi chuyên môn; hồ sơ phải được kiểm tra trước khi nhận đề xuất.
+  \item \textbf{Coordinator:} nhân sự chịu trách nhiệm tiếp nhận nhu cầu, xem
+  xét hồ sơ, kiểm tra phù hợp/an toàn, giải thích đề xuất, xin xác nhận, theo
+  dõi buổi đầu và hỗ trợ đổi tutor.
+  \item \textbf{Đối tác:} trung tâm giáo dục hòa nhập, trường học, tổ chức hỗ
+  trợ gia đình hoặc mạng lưới tutor; có thể vừa giới thiệu cung-cầu vừa giúp
+  bảo đảm tiêu chuẩn vận hành.
+\end{itemize}
+
+\subsection{Giá trị cần kiểm chứng}
+
+\begin{tabularx}{\textwidth}{p{3.0cm}Y Y}
+\toprule
+\textbf{Bên liên quan} & \textbf{Giá trị giả thuyết} & \textbf{Bằng chứng cần
+thu trong pilot} \\
+\midrule
+Gia đình/học sinh & Ít phải tự dò tìm; được xem lý do tutor phù hợp; có thể
+nói rõ cách học, mục tiêu và điều cần tránh. &
+Thời gian từ đăng ký đến đề xuất; tỷ lệ chấp nhận; cảm nhận an toàn; số lần
+phải đổi tutor. \\
+Tutor & Nhận yêu cầu có bối cảnh học tập rõ ràng, lịch và mục tiêu phù hợp
+trước khi nhận lớp. &
+Tỷ lệ tutor nhận đề xuất; tỷ lệ hoàn thành buổi đầu; lý do từ chối; thời gian
+chuẩn bị. \\
+Trung tâm/trường & Coordinator gom nhu cầu, hồ sơ tutor và theo dõi ghép nối
+thành một quy trình có thể xem lại. &
+Số giờ điều phối tiết kiệm/tăng; số gia đình được phục vụ; khả năng ký hợp
+đồng hoặc tài trợ. \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Mô hình doanh thu nên thử}
+
+\begin{enumerate}
+  \item \textbf{B2B2C với trung tâm hoặc đối tác:} phí dịch vụ/tháng hoặc phí
+  cho mỗi ca đang được điều phối. Đây là giả thuyết phù hợp để thử đầu tiên
+  vì có thể tận dụng mạng lưới tutor, chuyên môn và niềm tin sẵn có.
+  \item \textbf{Hoa hồng buổi học:} nền tảng thu một phần giao dịch sau khi
+  tutor và gia đình đã xác nhận. Cần kiểm tra khả năng chi trả, phí thanh toán,
+  hủy buổi, hoàn tiền và chi phí coordinator.
+  \item \textbf{Hỗ trợ tiếp cận:} tài trợ hoặc suất học bổng từ tổ chức/trung
+  tâm có thể giúp giảm rào cản giá; không nên dựa vào mô hình này nếu chưa có
+  đối tác cam kết.
+\end{enumerate}
+
+\textbf{Khuyến nghị:} không lấy quảng cáo hoặc bán dữ liệu làm nguồn doanh thu.
+Trong giai đoạn đầu, thử hợp đồng với một đối tác và hoa hồng minh bạch; không
+thu phí phụ huynh cho một thuật toán chưa được đánh giá.
+
+\subsection{Phân khúc và kênh kiểm chứng}
+
+\begin{tabularx}{\textwidth}{p{2.8cm}p{5.5cm}Y}
+\toprule
+\textbf{Phân khúc} & \textbf{Nhu cầu giả thuyết} &
+\textbf{Cần hỏi/đo trước khi kết luận} \\
+\midrule
+Gia đình và học sinh & Tìm tutor đúng môn, lịch, cách giao tiếp và điều chỉnh
+đã chọn; muốn được biết vì sao một người được đề xuất. &
+Cách tìm hiện tại; thời gian, chi phí và lần đổi tutor; ai quyết định và ai
+trả tiền; thông tin nào không muốn chia sẻ; học sinh muốn tham gia thế nào. \\
+Tutor & Nhận ca có yêu cầu dạy và lịch rõ ràng; biết hỗ trợ nào được kỳ vọng;
+có điểm liên hệ khi cần đổi lịch/trao đổi. &
+Môn/lớp có thể dạy; lịch và địa bàn nhận; kinh nghiệm có thể kiểm chứng; cách
+được giới thiệu; điều kiện từ chối; phút chuẩn bị và hỗ trợ cần từ coordinator. \\
+Trung tâm/trường/tổ chức & Điều phối nguồn tutor, xác minh quy trình và giúp
+gia đình tiếp cận dịch vụ. &
+Ai có thẩm quyền giới thiệu; nghĩa vụ bảo vệ trẻ; cách thanh toán/hợp đồng;
+nguồn tutor thật; yêu cầu lưu trữ và báo cáo; có ngân sách hay cơ chế tài trợ. \\
+Coordinator & Giải quyết trường hợp thiếu thông tin, ngoại lệ, an toàn và
+đổi ghép; theo dõi lý do hệ thống đề xuất. &
+Số phút/case; checklist xét duyệt; tải ca theo tuần; tỷ lệ override; loại lý
+do thiếu tutor; thời gian phản hồi và quy trình sự cố. \\
+\bottomrule
+\end{tabularx}
+
+\textit{Đây là giả thuyết phân khúc, không phải phân loại đã được phỏng vấn
+hoặc chứng minh có sẵn lòng chi trả. Không gắn mọi học sinh tự kỷ với cùng một
+nhu cầu, kiểu học hay môi trường học.}
+
+\subsection{Kịch bản hòa vốn minh họa}
+
+Bảng dưới đây không phải giá thị trường Việt Nam. Đây là phép tính nhạy cảm để
+biết dữ liệu nào phải hỏi trong phỏng vấn. Tất cả đầu vào ngoài công thức đều
+là giả định, chưa phải báo giá hay chi phí thực tế.
+
+\begin{center}
+\small
+\begin{tabular}{p{2.25cm}rrrrr}
+\toprule
+\textbf{Giá/buổi} & \textbf{Hoa hồng} &
+\shortstack{\textbf{Doanh thu/tháng}\\\textbf{mỗi học sinh}} &
+\shortstack{\textbf{Đóng góp sau}\\\textbf{biến phí}} &
+\shortstack{\textbf{Số học sinh}\\\textbf{hòa vốn}} &
+\textbf{Kịch bản}\\
+\midrule
+200.000 đ & 10\% & 80.000 đ & 50.000 đ & 400 & Thấp \\
+200.000 đ & 15\% & 120.000 đ & 90.000 đ & 223 & Thấp \\
+200.000 đ & 20\% & 160.000 đ & 130.000 đ & 154 & Thấp \\
+\addlinespace
+350.000 đ & 10\% & 140.000 đ & 110.000 đ & 182 & Cơ sở \\
+350.000 đ & 15\% & 210.000 đ & 180.000 đ & 112 & Cơ sở \\
+350.000 đ & 20\% & 280.000 đ & 250.000 đ & 80 & Cơ sở \\
+\addlinespace
+500.000 đ & 10\% & 200.000 đ & 170.000 đ & 118 & Cao \\
+500.000 đ & 15\% & 300.000 đ & 270.000 đ & 75 & Cao \\
+500.000 đ & 20\% & 400.000 đ & 370.000 đ & 55 & Cao \\
+\bottomrule
+\end{tabular}
+\normalsize
+\end{center}
+
+\small
+\textit{Tất cả là giả định minh họa, không phải giá hay chi phí thị trường:
+4 buổi/tháng/học sinh; biến phí 30.000 đ/học sinh/tháng; chi phí cố định
+20 triệu đ/tháng. Doanh thu = giá/buổi $\times$ 4 $\times$ hoa hồng;
+đóng góp = doanh thu trừ biến phí; hòa vốn = làm tròn lên
+20 triệu/đóng góp. Bảng nhạy cảm đồng thời theo 3 giá buổi (200.000,
+350.000, 500.000 đ) và 3 tỷ lệ (10\%, 15\%, 20\%). Chưa tính thuế, hoàn
+tiền, chi phí thu hút khách hàng, số ca không hoạt động hoặc chi phí nhân sự
+tăng thêm khi tải coordinator vượt công suất. Vì vậy, bảng không chứng minh
+được khả năng sinh lời.}
+\normalsize
+
+\textbf{Công thức năng lực điều phối:}
+\[
+  \text{số ca theo dõi tối đa/tháng}
+  = \frac{\text{giờ coordinator khả dụng/tháng}}
+  {\text{giờ onboarding + matching + follow-up trung bình mỗi ca}}.
+\]
+Hai đầu vào này chưa được đo. Nếu coordinator phải tăng giờ hoặc tuyển thêm
+người khi số ca tăng, chi phí không còn cố định; điểm hòa vốn ở bảng trên sẽ
+tăng. Pilot phải ghi phút thực tế cho từng hoạt động thay vì dùng một chi phí
+điều phối bình quân giả định.
+
+\section{Sản phẩm và mức độ sẵn sàng của app hiện tại}
+
+Tài liệu kiến trúc của repository mô tả Flutter mobile có đăng nhập và điều
+hướng theo role, gồm student, lecturer và coordinator; phần matching tutor
+hiện chỉ là utility luật đơn giản trong React web, chưa thấy được gọi từ luồng
+chính. Source cũng chưa có AI matching endpoint/worker hoặc module lưu kết quả
+matching \cite{spmarchitecture2026}. Do đó:
+
+\begin{itemize}
+  \item \textbf{Tận dụng được:} Flutter app, xác thực và khung điều hướng theo
+  role; coordinator đã là role có trong kiến trúc sản phẩm. Cần xác định tutor
+  là role mới hay tích hợp từ lecturer, và thêm vai trò phụ huynh/người giám hộ.
+  \item \textbf{Cần thiết kế thêm:} hồ sơ nhu cầu học tập/điều chỉnh, tutor
+  onboarding và xác minh, consent, yêu cầu ghép nối, thuật toán xếp hạng, màn
+  hình điều phối, audit, lịch/feedback và quy trình báo sự cố.
+  \item \textbf{Chưa thể tuyên bố đã có:} AI matching production, dữ liệu đào
+  tạo, kết nối phụ huynh--học sinh, kiểm tra tutor chuyên biệt cho tự kỷ hoặc
+  kết quả cải thiện học tập.
+\end{itemize}
+
+Vì vậy, đề xuất dưới đây là \textbf{kiến trúc mục tiêu để nghiên cứu và triển
+khai sau này}, không phải sơ đồ mô tả tính năng đang chạy.
+
+\textbf{AI-native trong phạm vi báo cáo này} nghĩa là app thiết kế ngay từ đầu
+để biến yêu cầu học tập, tutor đã xác minh, lịch và phản hồi sau buổi học thành
+dữ liệu có cấu trúc phục vụ matching; AI có thể giảm thời gian tìm shortlist
+và giúp coordinator xem lý do. Nó không có nghĩa mọi tính năng phải gọi mô hình
+hay AI được trao quyền tự ghép. Hiện chưa có bộ dữ liệu/outcome hoặc endpoint
+matching trong source; vì vậy pilot bắt đầu bằng concierge và luật minh bạch,
+sau đó mới đánh giá AI ở chế độ shadow.
+
+\section{Module mục tiêu và luồng ghép nối}
+
+\subsection{Sơ đồ module}
+
+\begin{figure}[ht]
+\centering
+\resizebox{0.72\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\small,
+  >=Latex,
+  actor/.style={draw=ink,rounded corners=2mm,fill=white,minimum width=4.0cm,
+    minimum height=1.05cm,align=center,text width=3.65cm,line width=0.8pt},
+  client/.style={draw=teal,rounded corners=2mm,fill=sky,minimum width=8.5cm,
+    minimum height=1.0cm,align=center,text width=8.0cm,line width=1pt},
+  service/.style={draw=teal,rounded corners=2mm,fill=mint,minimum width=8.5cm,
+    minimum height=0.95cm,align=center,text width=8.0cm,line width=1pt},
+  human/.style={draw=ink,rounded corners=2mm,fill=amber,minimum width=8.5cm,
+    minimum height=0.95cm,align=center,text width=8.0cm,line width=1pt},
+  data/.style={draw=muted,rounded corners=2mm,fill=white,minimum width=8.5cm,
+    minimum height=0.9cm,align=center,text width=8.0cm,dashed},
+  flow/.style={-{Latex[length=2.5mm]},draw=teal,line width=0.9pt},
+  feedback/.style={-{Latex[length=2mm]},draw=muted,dashed,line width=0.8pt}
+]
+\node[actor] (family) at (-2.7,6.2) {\textbf{Gia đình / học sinh}\\Mục tiêu học tập, cách học, lịch và consent};
+\node[actor] (tutor) at (2.7,6.2) {\textbf{Tutor}\\Môn/khối lớp, kinh nghiệm, lịch và xác minh};
+\node[client] (app) at (0,4.55) {\textbf{Ứng dụng Flutter / Web}\\Đăng ký nhu cầu, hồ sơ tutor, trạng thái và xác nhận};
+\node[client] (api) at (0,2.95) {\textbf{Backend Matching Orchestrator}\\RBAC, consent, kiểm tra dữ liệu và tạo hồ sơ ghép nối};
+\node[service] (filter) at (0,1.35) {\textbf{1. Điều kiện bắt buộc}\\Môn, khối lớp, lịch, hình thức, khu vực và tutor đã xác minh};
+\node[service] (rank) at (0,-0.2) {\textbf{2. AI hỗ trợ xếp hạng}\\Chỉ hồ sơ đủ điều kiện; giải thích tiêu chí phù hợp và điểm chưa chắc chắn};
+\node[human] (coordinator) at (0,-1.75) {\textbf{3. Coordinator duyệt}\\Kiểm tra an toàn, xem giải thích, đổi/thêm ứng viên và ghi lý do};
+\node[client] (confirm) at (0,-3.3) {\textbf{Gia đình/học sinh xác nhận}\\Xem giới thiệu tutor, chọn buổi thử và có quyền yêu cầu ghép lại};
+\node[client] (session) at (0,-4.85) {\textbf{Buổi học và phản hồi}\\Lịch học, trạng thái buổi, phản hồi theo consent và hỗ trợ ghép lại};
+\node[data] (governance) at (0,-6.55) {\textbf{Xuyên suốt:} consent \textbar\ hồ sơ tối thiểu \textbar\ phân quyền
+\textbar\ audit log \textbar\ lưu/xóa theo mục đích \textbar\ theo dõi phản hồi và sự cố};
+
+\draw[flow] (family.south) -- (app.north west);
+\draw[flow] (tutor.south) -- (app.north east);
+\draw[flow] (app) -- (api);
+\draw[flow] (api) -- (filter);
+\draw[flow] (filter) -- (rank);
+\draw[flow] (rank) -- (coordinator);
+\draw[flow] (coordinator) -- (confirm);
+\draw[flow] (confirm) -- (session);
+\draw[feedback] (session) -- (governance);
+\end{tikzpicture}%
+}
+\caption{Kiến trúc đề xuất. AI chỉ xếp hạng hồ sơ đủ điều kiện; coordinator
+duyệt đề xuất; gia đình/học sinh xác nhận trước khi bắt đầu.}
+\label{fig:modules}
+\end{figure}
+
+\clearpage
+\subsection{Kiến trúc logic và ranh giới thành phần}
+
+Sơ đồ module ở trên mô tả ai làm gì; sơ đồ sau mô tả các thành phần phần mềm
+đề xuất và ranh giới dữ liệu. Luồng xử lý đi qua backend để xác thực quyền,
+kiểm tra consent và ghi dấu quyết định. App mobile không gọi trực tiếp mô hình
+AI hoặc gửi hồ sơ trẻ tới nhà cung cấp mô hình. Các kho dữ liệu trong hình là
+thiết kế mục tiêu; chúng chưa có trong codebase.
+
+\begin{figure}[ht]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\footnotesize,
+  >=Latex,
+  comp/.style={draw=ink,rounded corners=2mm,fill=sky,minimum width=3.7cm,
+    minimum height=1.05cm,text width=3.35cm,align=center,line width=0.8pt},
+  svc/.style={draw=teal,rounded corners=2mm,fill=mint,minimum width=3.7cm,
+    minimum height=1.05cm,text width=3.35cm,align=center,line width=0.8pt},
+  human/.style={draw=ink,rounded corners=2mm,fill=amber,minimum width=3.7cm,
+    minimum height=1.05cm,text width=3.35cm,align=center,line width=0.8pt},
+  store/.style={draw=muted,rounded corners=2mm,fill=white,minimum width=3.7cm,
+    minimum height=1.05cm,text width=3.35cm,align=center,dashed,line width=0.8pt},
+  flow/.style={-{Latex[length=2mm]},draw=teal,line width=0.8pt},
+  logflow/.style={-{Latex[length=1.8mm]},draw=muted,dashed,line width=0.7pt}
+]
+\node[comp] (familyapp) at (-5.2,5.4) {\textbf{Flutter: gia đình / học sinh}\\Yêu cầu học, consent, lựa chọn tutor};
+\node[comp] (tutorapp) at (-1.2,5.4) {\textbf{Flutter: tutor}\\Hồ sơ môn/lớp, lịch, nhận/từ chối ca};
+\node[comp] (coordui) at (2.8,5.4) {\textbf{Web: coordinator}\\Shortlist, kiểm tra, duyệt/override};
+
+\node[svc] (api) at (-1.2,3.45) {\textbf{Backend API + xác thực}\\Bearer/RBAC, kiểm tra chủ thể và quyền};
+\node[svc] (consent) at (2.8,3.45) {\textbf{Consent + tối thiểu hóa}\\Chỉ mở yêu cầu khi đủ mục đích/quyền};
+\node[svc] (matching) at (-1.2,1.45) {\textbf{Matching domain module}\\Tạo phiên bản yêu cầu và điều phối pipeline};
+\node[store] (tutordata) at (2.8,1.45) {\textbf{Tutor registry}\\Xác minh, môn/lớp, lịch và phạm vi nhận ca};
+
+\node[svc] (filter) at (-5.2,-0.55) {\textbf{Điều kiện bắt buộc}\\Môn/lớp, lịch, mode, địa bàn, xác minh};
+\node[svc] (ranker) at (-1.2,-0.55) {\textbf{Ranker / AI worker}\\MVP: luật giải thích được; AI: nghiên cứu sau};
+\node[svc] (reason) at (2.8,-0.55) {\textbf{Giải thích + thiếu dữ liệu}\\Tiêu chí, nguồn trường dữ liệu, độ bất định};
+\node[human] (review) at (6.8,-0.55) {\textbf{Coordinator review queue}\\Duyệt, hỏi thêm, xếp lại hoặc không ghép};
+
+\node[human] (choice) at (-1.2,-2.55) {\textbf{Gia đình/học sinh chọn}\\Đồng ý buổi thử hoặc đề nghị shortlist khác};
+\node[comp] (booking) at (-1.2,-4.5) {\textbf{Booking / theo dõi}\\Buổi học, feedback, đổi tutor, báo sự cố};
+\node[store] (profiles) at (2.8,-2.55) {\textbf{Kho dữ liệu có cấu trúc}\\Yêu cầu, hồ sơ tối thiểu, trạng thái ghép};
+\node[store] (audit) at (6.8,-2.55) {\textbf{Consent + audit store}\\Ai xem/duyệt, lý do, phiên bản luật/model};
+
+\draw[flow] (familyapp.south) -- (api.north west);
+\draw[flow] (tutorapp.south) -- (api.north);
+\draw[flow] (coordui.south) -- (api.north east);
+\draw[flow] (api) -- (consent);
+\draw[flow] (consent) -- (matching);
+\draw[flow] (tutordata) -- (matching);
+\draw[flow] (matching) -- (filter);
+\draw[flow] (filter) -- (ranker);
+\draw[flow] (ranker) -- (reason);
+\draw[flow] (reason) -- (review);
+\draw[flow] (review.south west) -- (choice.north east);
+\draw[flow] (choice) -- (booking);
+\draw[logflow] (matching.south east) -- (profiles.north);
+\draw[logflow] (review.south) -- (audit.north);
+\draw[logflow] (booking.east) -- (profiles.south west);
+\draw[logflow] (booking.east) .. controls (3.4,-4.6) and (6.8,-4.6) .. (audit.south);
+\end{tikzpicture}%
+}
+\caption{Kiến trúc logic mục tiêu. API là ranh giới xác thực; lọc loại hồ sơ
+không đạt điều kiện trước khi ranker chạy; shortlist đi qua coordinator rồi
+mới đến gia đình/học sinh. Kho dữ liệu và worker trong hình chưa được triển khai.}
+\label{fig:target-architecture}
+\end{figure}
+
+\clearpage
+\subsubsection{Các module và hợp đồng dữ liệu}
+
+\begin{tabularx}{\textwidth}{p{2.8cm}p{5.1cm}Y}
+\toprule
+\textbf{Module} & \textbf{Input/output mục tiêu} & \textbf{Quyền và kiểm soát} \\
+\midrule
+Learner request & Môn, khối lớp, mục tiêu, lịch, địa bàn/mode, ngân sách và
+điều chỉnh học tập do gia đình/học sinh chọn. & Guardian chỉ khai báo cho học
+sinh mình quản lý; trường nhạy cảm là tùy chọn và không mặc định bắt buộc. \\
+Tutor registry & Danh tính, môn/lớp, lịch trống, phạm vi địa bàn, kinh nghiệm
+có thể xác minh, ngôn ngữ và điều chỉnh tutor tự nguyện cung cấp. & Coordinator
+xác minh, hết hạn/xem lại hồ sơ; tutor tự cập nhật lịch và từ chối ca. \\
+Eligibility filter & Tập tutor đã xác minh và còn nhận ca; trả về tập đủ điều
+kiện hoặc lý do không có ứng viên. & Điều kiện bắt buộc do vận hành duyệt; không
+để AI bỏ qua yêu cầu môn, lịch, an toàn hoặc quyền. \\
+Ranker + explanation & Ứng viên hợp lệ, tiêu chí liên quan, điểm/tín hiệu thiếu
+dữ liệu; trả shortlist có lý do truy ngược tới trường dữ liệu. & Không đưa chẩn
+đoán, mức độ tự kỷ, ảnh, giọng nói hay suy luận cảm xúc vào ranking. \\
+Coordinator review & Shortlist, lý do xếp hạng, ngoại lệ và khoảng trống thông
+tin; trả quyết định duyệt/override/không ghép cùng lý do. & Coordinator giữ
+quyền quyết định; mọi thay đổi trạng thái phải lưu người thao tác/thời điểm. \\
+Consent and audit & Chủ thể, mục đích, phạm vi chia sẻ, thời hạn, lần rút
+consent; sự kiện xem/sửa/đề xuất/duyệt/ghép lại. & Quyền theo vai trò, audit
+không sửa, thời hạn lưu/xóa theo chính sách và rà soát pháp lý. \\
+\bottomrule
+\end{tabularx}
+
+\clearpage
+\subsubsection{Hợp đồng API tham khảo}
+
+\begin{tabularx}{\textwidth}{p{5.0cm}p{3.2cm}Y}
+\toprule
+\textbf{Endpoint đề xuất (chưa tồn tại)} & \textbf{Ai gọi} &
+\textbf{Kết quả và kiểm soát} \\
+\midrule
+\shortstack[l]{\textbf{POST}\\\texttt{/api/matching/requests}} &
+Phụ huynh/người giám hộ hoặc coordinator
+được phân quyền & Tạo yêu cầu tối thiểu; kiểm tra quyền quản lý học sinh và
+consent trước khi lưu. \\
+\shortstack[l]{\textbf{GET}\\\texttt{/api/matching/}\\\texttt{:id/shortlist}} &
+Coordinator được giao
+case & Trả candidates hợp lệ, tiêu chí, thiếu dữ liệu, phiên bản ranking;
+không trả dữ liệu trẻ không cần thiết. \\
+\shortstack[l]{\textbf{POST}\\\texttt{/api/matching/}\\\texttt{:id/review}} &
+Coordinator & Lưu approve,
+override, yêu cầu bổ sung hoặc no-match cùng lý do; không có thao tác “AI tự
+ghép” bỏ qua người duyệt. \\
+\shortstack[l]{\textbf{POST}\\\texttt{/api/matching/}\\\texttt{:id/choice}} &
+Guardian / học sinh theo
+quyền & Ghi đồng ý buổi giới thiệu, từ chối hoặc yêu cầu phương án khác; tutor
+chỉ nhận thông tin tối thiểu đã được phép chia sẻ. \\
+\shortstack[l]{\textbf{POST}\\\texttt{/api/sessions/}\\\texttt{:id/feedback}} &
+Guardian, học sinh phù hợp độ
+tuổi, tutor & Ghi feedback theo consent, yêu cầu đổi/dừng hoặc báo sự cố vào
+luồng được phân quyền riêng. \\
+\bottomrule
+\end{tabularx}
+
+\textbf{Triển khai theo nấc:} trong pilot concierge, coordinator có thể dùng
+quy trình và hồ sơ được bảo vệ thay vì tạo model. MVP app gọi matching domain
+trong backend hiện có; kho JSON hiện tại chỉ là persistence prototype, không
+nên xem là nơi lưu mặc định cho dữ liệu nhạy cảm của trẻ. Trước khi có pilot
+thật, cần chọn kho dữ liệu bền vững có kiểm soát truy cập, backup/xóa, mã hóa
+và audit đã được rà soát. Chỉ tách worker/queue khi cần xử lý bất đồng bộ hoặc
+quản trị model; không thêm cơ sở dữ liệu hay provider chỉ để gắn nhãn “AI”.
+
+\subsection{Luồng vận hành đề xuất}
+
+\begin{enumerate}
+  \item \textbf{Tiếp nhận nhu cầu:} phụ huynh và học sinh chọn môn, khối lớp,
+  mục tiêu, thời gian, online/trực tiếp, ngân sách và các điều chỉnh hữu ích
+  cho buổi học. Cho phép bỏ qua thông tin chẩn đoán nếu không cần.
+  \item \textbf{Kiểm tra consent và quyền truy cập:} người giám hộ cung cấp
+  consent theo luồng được tư vấn pháp lý duyệt; học sinh được giải thích ở
+  ngôn ngữ/cách thức phù hợp và có thể nêu ý kiến.
+  \item \textbf{Xác minh tutor:} coordinator kiểm tra danh tính, năng lực theo
+  môn/khối lớp, kinh nghiệm liên quan, tham chiếu và tiêu chuẩn bảo vệ trẻ em
+  phù hợp quy trình vận hành.
+  \item \textbf{Lọc điều kiện bắt buộc:} loại các hồ sơ sai môn, không phù hợp
+  lịch/hình thức/địa bàn, chưa xác minh hoặc không thể nhận ca. AI không được
+  dùng để bỏ qua điều kiện này.
+  \item \textbf{Xếp hạng có giải thích:} hệ thống hiển thị vài hồ sơ và nêu
+  yếu tố phù hợp như kinh nghiệm dạy đúng môn, lịch trùng, khả năng đáp ứng
+  cách giao tiếp đã chọn. Mỗi yếu tố cần truy về dữ liệu hồ sơ cụ thể; không
+  đưa ra kết luận lâm sàng hay suy đoán năng lực của trẻ.
+  \item \textbf{Coordinator duyệt:} người điều phối xem cả ứng viên được đề
+  xuất và lý do, có thể bỏ qua/đổi thứ tự, liên hệ hỏi thêm hoặc từ chối ghép.
+  Hệ thống lưu người duyệt, thời điểm, phiên bản mô hình/luật và lý do override.
+  \item \textbf{Gia đình/học sinh quyết định:} chỉ sau khi coordinator duyệt,
+  gia đình nhận thông tin tối thiểu cần thiết để chọn buổi giới thiệu/thử.
+  Không tự động đặt lịch hoặc chia sẻ toàn bộ hồ sơ cho tutor.
+  \item \textbf{Theo dõi và ghép lại:} sau buổi đầu và theo mốc đã đồng ý,
+  hỏi gia đình, học sinh và tutor về mức phù hợp; cho phép dừng hoặc yêu cầu đổi
+  tutor mà không bị phạt vì phản hồi an toàn.
+\end{enumerate}
+
+\subsection{AI nên làm gì và không làm gì}
+
+\begin{tabularx}{\textwidth}{p{3.2cm}Y Y}
+\toprule
+\textbf{AI có thể hỗ trợ} & \textbf{Quy tắc thiết kế} & \textbf{Không giao cho
+AI} \\
+\midrule
+Tạo shortlist tutor đủ điều kiện; xếp hạng theo môn, lịch, modality, kinh
+nghiệm dạy được xác minh và cách hỗ trợ học tập gia đình đã chọn. &
+Ưu tiên dữ liệu có cấu trúc; nêu tiêu chí dẫn đến đề xuất; cho thấy thiếu dữ
+liệu/độ bất định; coordinator có quyền override và ghi lý do. &
+Chẩn đoán tự kỷ; đánh giá mức độ tự kỷ; quyết định học sinh có được nhận dịch
+vụ hay không; quyết định tutor nào được nhận một em mà không qua người duyệt. \\
+Tóm tắt yêu cầu dài thành checklist cho coordinator. &
+Nếu dùng mô hình ngôn ngữ, chỉ tạo bản nháp để con người xác nhận; không gửi
+hồ sơ sức khỏe, video hay ghi âm trẻ tới nhà cung cấp ngoài khi chưa có căn cứ,
+consent và đánh giá dữ liệu. &
+Suy diễn khả năng, hành vi hoặc mức độ rủi ro từ ảnh, giọng nói, cảm xúc hay
+nhãn chẩn đoán; tự gửi tin nhắn/đề xuất cho trẻ. \\
+\bottomrule
+\end{tabularx}
+
+\subsubsection{Đặc tả nghiên cứu ranking}
+
+Chỉ xếp hạng sau khi áp dụng điều kiện bắt buộc. Một baseline minh bạch có thể
+được biểu diễn:
+\[
+S(t,u)=w_sS_s+w_aS_a+w_mS_m+w_pS_p+w_eS_e,
+\qquad \sum_i w_i=1.
+\]
+Trong đó $u$ là yêu cầu học tập, $t$ là hồ sơ tutor; các hạng lần lượt là
+môn/lớp, lịch, hình thức/địa bàn, điều chỉnh đã chọn và kinh nghiệm đã xác
+minh. Trọng số chưa được đo hay chốt; cần cùng gia đình, tutor và coordinator
+xác định tiêu chí/ưu tiên,
+ghi rõ trade-off và kiểm tra xem dữ liệu có chứng minh được tiêu chí hay không.
+Không đưa tình trạng tự kỷ hoặc chẩn đoán làm “điểm phù hợp”; ưu tiên nhu cầu
+thực tế và sự điều chỉnh do người học chọn. Nếu thiếu dữ liệu quan trọng, trả
+“chưa đủ căn cứ” hoặc no-match để coordinator hỏi thêm, thay vì đoán.
+
+\begin{tabularx}{\textwidth}{p{3.1cm}p{5.0cm}Y}
+\toprule
+\textbf{Chỉ số pilot} & \textbf{Định nghĩa đo} & \textbf{Cách diễn giải} \\
+\midrule
+Thời gian tới shortlist duyệt & Trung vị và p90 từ lúc nhận yêu cầu đủ consent
+đến khi coordinator có shortlist chấp nhận được. & Đo hiệu suất vận hành; không
+phải chất lượng học tập. Báo riêng case chờ tutor/thiếu dữ liệu. \\
+Tỷ lệ có tutor nhận ca & Yêu cầu có ít nhất một tutor đủ điều kiện, được đề
+xuất và xác nhận nhận buổi đầu / tổng yêu cầu đủ điều kiện. & Phân rã theo
+môn, lịch, địa bàn, hình thức và lý do không ghép; đừng che no-match bằng cách
+loại ca khó khỏi mẫu. \\
+Tỷ lệ override & Shortlist coordinator đổi thứ tự, bỏ ứng viên hoặc yêu cầu
+bổ sung / tổng shortlist được xem. & Tỷ lệ cao không mặc định là xấu; phân loại
+lý do để tìm thiếu dữ liệu hoặc tiêu chí chưa đúng. \\
+Chấp nhận và buổi đầu & Gia đình chọn ít nhất một ứng viên; sau đó theo dõi
+buổi đầu được đặt/hoàn tất, đổi tutor, dừng dịch vụ. & Chấp nhận hồ sơ khác với
+chất lượng tutor hay hiệu quả học tập; báo các outcome riêng. \\
+Công bằng và an toàn & So sánh no-match, thời gian chờ, override, chấp nhận và
+sự cố theo nhóm đủ cỡ mẫu và có consent phù hợp. & Không kết luận parity từ
+nhóm quá nhỏ; không công bố phân nhóm có thể tái nhận diện trẻ. \\
+\bottomrule
+\end{tabularx}
+
+MVP nên bắt đầu bằng lọc điều kiện và bảng điểm luật minh bạch, có thể giải
+thích từng tiêu chí. Giai đoạn sau mới so sánh mô hình xếp hạng với quyết định
+của coordinator ở chế độ shadow. Chỉ cân nhắc học từ dữ liệu outcome khi có
+đủ consent, chất lượng nhãn, kiểm tra sai lệch theo nhóm và đánh giá tác động
+đến quyền trẻ em. Không có ngưỡng số mẫu được khẳng định trong báo cáo này;
+ngưỡng phải được xác định cùng chuyên gia dữ liệu và chuyên gia giáo dục.
+
+\section{Quyền riêng tư, an toàn và quản trị}
+
+Thông tin về chẩn đoán, điều chỉnh học tập, hành vi hoặc sức khỏe có thể nhạy
+cảm và gắn với trẻ em. Thiết kế cần mặc định thu thập ít nhất có thể: thường
+ưu tiên mục tiêu học tập, cách giao tiếp, lịch, sở thích và điều chỉnh mà gia
+đình tự chọn, thay vì lưu hồ sơ y tế đầy đủ. Cần xác định ai được xem từng
+trường dữ liệu, mục đích sử dụng, thời hạn giữ, cách sửa/xóa, quy trình khi rút
+consent và ứng phó khi có sự cố.
+
+Tại ngày lập báo cáo, Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 và Nghị định
+356/2025/NĐ-CP đã có hiệu lực từ 01/01/2026; Luật Trí tuệ nhân tạo số
+134/2025/QH15 có hiệu lực từ 01/03/2026 \cite{pdpl2025,decree356,ailaw2025}.
+Trước pilot, cần luật sư/chuyên gia tuân thủ xác nhận vai trò xử lý dữ liệu,
+consent với trẻ và người đại diện, thông báo, chia sẻ với nhà cung cấp AI,
+đánh giá tác động và nghĩa vụ cụ thể theo văn bản hiện hành. Báo cáo này không
+thay thế ý kiến pháp lý.
+
+UNICEF khuyến nghị hệ thống AI hướng đến trẻ em phải quan tâm an toàn, riêng
+tư, công bằng, khả năng giải thích, trách nhiệm giải trình, quyền trẻ em và
+giám sát \cite{unicef2025ai}. Các điểm chuyển thành yêu cầu sản phẩm:
+
+\begin{itemize}
+  \item Không dùng thông tin tự kỷ như một biến điểm làm giảm cơ hội được ghép.
+  Hãy mô tả nhu cầu hỗ trợ cụ thể và cho gia đình quyền chỉnh/sửa.
+  \item Tách thông tin nhận dạng khỏi dữ liệu dùng để đánh giá matching; không
+  dùng nội dung hồ sơ để train model ngoài mục đích đã thông báo/cho phép.
+  \item Không để AI là người liên hệ trực tiếp với trẻ. Giao tiếp về matching
+  đi qua người giám hộ và coordinator theo quy trình.
+  \item Có nút báo lo ngại, dừng ghép, liên hệ coordinator, sửa hồ sơ và yêu
+  cầu xem lại. Sự cố bảo vệ trẻ em phải có luồng xử lý riêng.
+  \item Đánh giá chênh lệch về số đề xuất, tỷ lệ được nhận và tỷ lệ ghép thành
+  công; không lấy một chỉ số tổng thể làm bằng chứng công bằng.
+\end{itemize}
+
+\section{Kế hoạch kiểm chứng và tiêu chí quyết định}
+
+Khung sau là \textbf{kế hoạch lấy dữ liệu đề xuất}, không phải số liệu đã thu:
+phỏng vấn định tính 15--20 gia đình/người giám hộ, 10--15 tutor, và 3--5
+đại diện trung tâm/trường/coordinator tại một địa bàn; mời học sinh tham gia
+theo cách phù hợp độ tuổi, giao tiếp, consent và mong muốn của các em. Chọn mẫu
+có chủ đích để khám phá rào cản và tiêu chí, không tuyên bố đại diện dân số.
+Pilot concierge gợi ý 20--30 yêu cầu ghép trong 8--12 tuần; nếu mẫu nhỏ hoặc
+chỉ đến từ một đối tác, kết quả chỉ có tính mô tả và không chứng minh quy mô
+quốc gia hay hiệu quả học tập.
+
+\begin{tabularx}{\textwidth}{p{2.55cm}p{3.15cm}Y}
+\toprule
+\textbf{Giai đoạn} & \textbf{Việc làm} & \textbf{Bằng chứng/đầu ra} \\
+\midrule
+Discovery &
+Phỏng vấn định tính theo khung 15--20 gia đình, 10--15 tutor, 3--5 đối tác/
+coordinator; ít nhất một địa bàn. &
+Bản đồ cách tìm tutor hiện tại; 5--7 tiêu chí ghép thực tế; nhu cầu về riêng
+tư/an toàn; ai trả tiền; phản ứng với thẻ giá giả định; danh sách nguồn tutor
+có thể xác minh. Không tính là khảo sát đại diện. \\
+\addlinespace
+Concierge pilot &
+Coordinator tự quản lý khoảng 20--30 yêu cầu ghép trong 8--12 tuần; không cần
+AI ra quyết định. &
+Tỷ lệ chấp nhận đề xuất; số ngày đến shortlist/buổi đầu; buổi hoàn tất/hủy;
+tỷ lệ ghép lại; phút coordinator cho mỗi ca; chi phí và willingness-to-pay;
+mọi sự cố/an toàn. \\
+\addlinespace
+Shadow ranking &
+Chạy ranking trên bản sao dữ liệu tối thiểu, không hiển thị kết quả cho gia
+đình và không tác động quyết định. &
+So khớp với shortlist coordinator; lý do chênh lệch; thiếu dữ liệu; kiểm tra
+phân phối kết quả theo nhóm; đánh giá khả năng giải thích và an toàn. \\
+\addlinespace
+Thử nghiệm có kiểm soát &
+Chỉ khi đã qua privacy/child-rights review; coordinator duyệt mọi shortlist;
+gia đình/học sinh vẫn chọn. &
+So sánh với concierge baseline về thời gian và mức phù hợp, kiểm tra khiếu
+nại, đổi tutor và các khác biệt giữa nhóm; dừng nếu xuất hiện rủi ro không
+kiểm soát được. \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Câu hỏi go/no-go}
+
+\begin{enumerate}
+  \item Gia đình có vấn đề tìm tutor đủ lớn để thử dịch vụ, và có đồng ý cho
+  một coordinator trung gian hỗ trợ không?
+  \item Có tutor đạt chuẩn và đủ lịch cho \emph{từng môn/địa bàn} hay chỉ có
+  nhiều hồ sơ đăng ký nhưng không thể nhận ca?
+  \item Coordinator có thể phục vụ số ca cần thiết với chất lượng và chi phí
+  bền vững không?
+  \item Gia đình, tutor hoặc đối tác có sẵn lòng trả tiền cho phần điều phối,
+  xác minh và hỗ trợ đổi tutor không?
+  \item Matching dựa trên mục tiêu/cách hỗ trợ mà gia đình chọn có được chấp
+  nhận hơn ghép theo môn và lịch đơn thuần không?
+  \item AI có cải thiện thời gian tìm shortlist mà không làm giảm quyền lựa
+  chọn, niềm tin, an toàn hoặc công bằng không?
+\end{enumerate}
+
+\textbf{Điều kiện mở rộng:} cần thấy cả nhu cầu lặp lại, nguồn cung tutor đã
+xác minh, kinh tế đơn vị không âm sau khi tính đủ lao động điều phối, cùng quy
+trình privacy/safeguarding có thể kiểm tra. Chưa nên scale chỉ vì tỷ lệ chấp
+nhận top-k cao hoặc vì mô hình AI chạy được.
+
+\section{Rủi ro chính}
+
+\begin{tabularx}{\textwidth}{p{3.1cm}Y Y}
+\toprule
+\textbf{Rủi ro} & \textbf{Hậu quả có thể xảy ra} & \textbf{Cách giảm thiểu} \\
+\midrule
+Thiếu mật độ cung-cầu &
+Không có đủ tutor đúng môn/lịch tại từng địa bàn; trải nghiệm chờ lâu. &
+Bắt đầu ở một khu vực/đối tác có nguồn cung thật; nhận đăng ký có kiểm soát;
+đưa lựa chọn online/chờ danh sách với consent rõ. \\
+Thiên lệch từ dữ liệu thiếu &
+Ranking ưu tiên hồ sơ phổ biến, ngôn ngữ/địa bàn hoặc nhóm đã có nhiều ca;
+đề xuất không công bằng cho nhu cầu ít gặp. &
+Giữ điều kiện minh bạch; hiển thị thiếu dữ liệu; theo dõi kết quả phân nhóm;
+cho coordinator override; không train sớm trên dataset nhỏ. \\
+Kỳ vọng quá mức về AI &
+Gia đình hiểu ranking là bảo chứng tutor phù hợp hoặc kết quả giáo dục. &
+Gọi đúng là gợi ý; giải thích giới hạn; coordinator trao đổi kỳ vọng và kiểm
+tra sau buổi đầu. \\
+Rò rỉ dữ liệu trẻ em &
+Thông tin nhạy cảm bị xem/chia sẻ/lưu lâu hơn mục đích. &
+Tối thiểu hóa dữ liệu, quyền theo vai trò, audit, thời hạn xóa, consent phù
+hợp và thẩm định luồng nhà cung cấp trước khi bật AI. \\
+Kinh tế đơn vị không đủ &
+Chi phí coordinator vượt phí hoa hồng; tutor/gia đình giao dịch ngoài nền
+tảng sau khi được giới thiệu. &
+Đo phút/ca và tỷ lệ duy trì; định giá phần điều phối có giá trị; thử hợp đồng
+với tổ chức trước khi mở rộng B2C. \\
+\bottomrule
+\end{tabularx}
+
+\section{Kết luận}
+
+Ý tưởng có cơ sở để \textbf{thử như một dịch vụ kết nối tutor do con người điều
+phối}, tập trung vào đúng môn, lịch, sở thích học tập và hỗ trợ cá nhân mà gia
+đình/học sinh lựa chọn. Các số liệu về tự kỷ và khuyết tật tạo bối cảnh cho
+nhu cầu hòa nhập, nhưng không xác định số khách hàng trả phí. Vì thế, viability
+thương mại vẫn là câu hỏi cần trả lời bằng discovery và pilot tại địa bàn cụ
+thể.
+
+Vai trò coordinator là một phần thiết yếu của dịch vụ: xác minh tutor, hiểu
+ngữ cảnh, xem lại shortlist AI, xin xác nhận của gia đình/học sinh, theo dõi
+buổi học và xử lý đổi ghép. AI chỉ nên xếp hạng các hồ sơ đã qua điều kiện bắt
+buộc, giải thích vì sao, báo thiếu dữ liệu và chịu kiểm soát bởi con người.
+Đây là ranh giới vừa hợp với sản phẩm trẻ em vừa làm rõ giá trị của app: không
+chỉ tìm người theo môn, mà tổ chức một quy trình ghép nối có thể giải thích,
+điều chỉnh và chịu trách nhiệm.
+
+\section*{Ghi chú phương pháp}
+\addcontentsline{toc}{section}{Ghi chú phương pháp}
+
+Đây là desk research được mở rộng trong vòng này, chốt ngày 02/10/2026. Số liệu được giữ nguyên
+phạm vi tuổi/địa bàn/method do nguồn công bố. Không có phỏng vấn khách hàng,
+khảo sát willingness-to-pay, dữ liệu vận hành hay chi phí kế toán được cung
+cấp trong repository; mọi phần kinh doanh phụ thuộc những dữ liệu này đều là
+giả thuyết hoặc kịch bản minh họa. Các chức năng AI trong báo cáo là thiết kế
+đề xuất, chưa được xác nhận đã triển khai.
+
+\begin{thebibliography}{99}
+\footnotesize
+\setlength{\itemsep}{1pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+
+\bibitem{vui2022}
+Le Thi Vui, Duc Duong Minh, Nguyen Thuy Quynh, Nguyen Thi Huong Giang,
+Vu Thi Thanh Mai, Bui Thi Thu Ha, \& Hoang Van Minh.
+(2022).
+\newblock Early screening and diagnosis of autism spectrum disorders in Vietnam:
+A population-based cross-sectional survey.
+\newblock \emph{Journal of Public Health Research, 11}(2), 2460.
+\newblock \href{https://doi.org/10.4081/jphr.2021.2460}{doi:10.4081/jphr.2021.2460}.
+
+\bibitem{tran2024}
+Tran, T.~T., Nguyen, V.~T., Nguyen, M.~P., Huynh Nguyen, P.~Q., Le, T.~T.~H.,
+Nguyen, H.~Y., Nguyen, T.~H., Nguyen, T.~L., Le, C.~T., \& Nguyen, V.~T.
+(2024).
+\newblock Prevalence of autism spectrum disorder diagnosed according to DSM-5
+criteria and associated factors in preschoolers in southern Vietnam.
+\newblock \emph{La Clinica Terapeutica, 175}(6), 405--411.
+\newblock \href{https://doi.org/10.7417/CT.2024.5147}{doi:10.7417/CT.2024.5147}.
+
+\bibitem{who2025}
+World Health Organization.
+(2025, September 17).
+\newblock Autism.
+\newblock \url{https://www.who.int/westernpacific/newsroom/fact-sheets/detail/autism-spectrum-disorders}.
+
+\bibitem{unicef2025inclusive}
+United Nations Children's Fund.
+(2025, June).
+\newblock Viet Nam: Making inclusive education a reality for every child.
+\newblock In \emph{Core Resources Impact Companion: For Every Child, Everywhere,
+Annual Report 2024}.
+\newblock \url{https://www.unicef.org/media/171656/file/UNICEF-Core-Resources-Annual-Report-2024-Impact-Companion.pdf}.
+
+\bibitem{unicef2025ai}
+United Nations Children's Fund, Office of Strategy and Evidence -- Innocenti.
+(2025, December).
+\newblock \emph{Guidance on AI and children: Version 3.0}.
+\newblock \url{https://www.unicef.org/innocenti/reports/policy-guidance-ai-children}.
+
+\bibitem{pdpl2025}
+Quốc hội nước Cộng hòa xã hội chủ nghĩa Việt Nam.
+(2025).
+\newblock Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15, hiệu lực 01/01/2026.
+\newblock \url{https://chinhphu.vn/?docid=214590&pageid=27160&typegroupid=3}.
+
+\bibitem{decree356}
+Chính phủ nước Cộng hòa xã hội chủ nghĩa Việt Nam.
+(2025).
+\newblock Nghị định 356/2025/NĐ-CP hướng dẫn Luật Bảo vệ dữ liệu cá nhân,
+hiệu lực 01/01/2026.
+\newblock \url{https://vanban.chinhphu.vn/?classid=1&docid=216387&pageid=27160}.
+
+\bibitem{ailaw2025}
+Quốc hội nước Cộng hòa xã hội chủ nghĩa Việt Nam.
+(2025).
+\newblock Luật Trí tuệ nhân tạo số 134/2025/QH15, hiệu lực 01/03/2026.
+\newblock \url{https://vanban.chinhphu.vn/?classid=1&docid=216334&pageid=27160}.
+
+\bibitem{cdc2025}
+Kelly A. Shaw et al.
+(2025).
+\newblock Prevalence and Early Identification of Autism Spectrum Disorder Among
+Children Aged 4 and 8 Years --- Autism and Developmental Disabilities Monitoring
+Network, 16 Sites, United States, 2022.
+\newblock \emph{Morbidity and Mortality Weekly Report, 74}(2), 1--22.
+\newblock \url{https://www.cdc.gov/mmwr/volumes/74/ss/ss7402a1.htm}.
+
+\bibitem{gso2023}
+Tổng cục Thống kê Việt Nam.
+(2024).
+\newblock Thông cáo báo chí về kết quả Điều tra người khuyết tật năm 2023.
+\newblock \url{https://www.nso.gov.vn/tin-tuc-thong-ke/2024/11/thong-cao-bao-chi-ve-ket-qua-dieu-tra-nguoi-khuyet-tat-nam-2023/}.
+
+\bibitem{unescoai2025}
+UNESCO.
+(2025, October 24).
+\newblock \emph{Viet Nam: Artificial Intelligence Readiness Assessment Report}.
+\newblock \url{https://articles.unesco.org/sites/default/files/medias/fichiers/2025/10/Viet%20Nam%20Artificial%20Intelligence%20Readiness%20Assessment%20Report.pdf}.
+
+\bibitem{unescoedtech2026}
+UNESCO SDG 4 Knowledge Hub.
+(2026).
+\newblock Advancing equitable and inclusive digital transformation in education
+in Viet Nam (program period 2022--2026).
+\newblock \url{https://www.unesco.org/sdg4education2030/en/knowledge-hub/advancing-equitable-and-inclusive-digital-transformation-education-viet-nam?hub=25}.
+
+\bibitem{worldbankdeaf2023}
+Noah Yarrow, Lauri Pynnonen, Chuyu Song, Riaz Bhardwaj, \& Mario Spiezio.
+(2023).
+\newblock \emph{Use of Assistive Education Technologies to Support Children
+with Visual and Hearing Difficulties in the East Asia and Pacific Region}.
+\newblock World Bank.
+\newblock \url{https://documents1.worldbank.org/curated/en/099062923221035313/pdf/P17621707c0e430980bc600f762c5761c85.pdf}.
+
+\bibitem{spmarchitecture2026}
+SPM Mobile project.
+(2026, October 2).
+\newblock \emph{Kiến trúc hệ thống SPM}.
+\newblock Tài liệu nội bộ trong repository, \texttt{docs/architecture/system-architecture.md},
+đối chiếu mã nguồn ngày 02/10/2026.
+
+\end{thebibliography}
+
+\end{document}
