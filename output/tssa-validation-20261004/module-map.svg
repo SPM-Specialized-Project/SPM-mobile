@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1140" viewBox="0 0 1500 1140">
+<rect width="1500" height="1140" fill="#f5f7fb"/>
+<text x="38" y="62" font-family="Segoe UI, sans-serif" font-size="38" font-weight="700" fill="#24334d">SPM-mobile · Bản đồ module</text>
+<text x="38" y="99" font-family="Segoe UI, sans-serif" font-size="21" font-weight="400" fill="#60708b">Source hiện tại và kiểm thử ngày 04/10/2026 · Flutter + Node modular monolith</text>
+<rect x="38" y="123" width="1424" height="63" rx="16" fill="#17345a" stroke="#17345a" stroke-width="2"/>
+<text x="58" y="165" font-family="Segoe UI, sans-serif" font-size="25" font-weight="700" fill="#ffffff">main.dart  →  MyApp / Auth gate  →  SPM shell hoặc TssaScreen  →  Dio + Bearer  →  Node API</text>
+<text x="38" y="239" font-family="Segoe UI, sans-serif" font-size="24" font-weight="700" fill="#1c5c9c">DÙNG CHUNG</text>
+<text x="389" y="239" font-family="Segoe UI, sans-serif" font-size="24" font-weight="700" fill="#1c5c9c">NGHIỆP VỤ FLUTTER</text>
+<text x="1139" y="239" font-family="Segoe UI, sans-serif" font-size="24" font-weight="700" fill="#1c5c9c">BACKEND / DỮ LIỆU</text>
+<rect x="38" y="262" width="321" height="135" rx="16" fill="#eaf1ff" stroke="#d9e1ed" stroke-width="2"/>
+<text x="56" y="298" font-family="Segoe UI, sans-serif" font-size="22" font-weight="700" fill="#24334d">App + theme</text>
+<text x="56" y="330" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">ProviderScope · auth gate</text>
+<text x="56" y="357" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Reset route khi mất phiên</text>
+<text x="56" y="384" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Giảm chuyển động</text>
+<rect x="38" y="415" width="321" height="135" rx="16" fill="#eaf1ff" stroke="#d9e1ed" stroke-width="2"/>
+<text x="56" y="451" font-family="Segoe UI, sans-serif" font-size="22" font-weight="700" fill="#24334d">Auth + session</text>
+<text x="56" y="483" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Login / restore / logout</text>
+<text x="56" y="510" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Role SPM và TSSA riêng</text>
+<text x="56" y="537" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Server kiểm tra quyền thật</text>
+<rect x="38" y="568" width="321" height="135" rx="16" fill="#eaf1ff" stroke="#d9e1ed" stroke-width="2"/>
+<text x="56" y="604" font-family="Segoe UI, sans-serif" font-size="22" font-weight="700" fill="#24334d">Networking</text>
+<text x="56" y="636" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Dio · API_BASE_URL</text>
+<text x="56" y="663" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Bearer · 401 / account lock</text>
+<text x="56" y="690" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Epoch cho từng phiên</text>
+<rect x="38" y="721" width="321" height="135" rx="16" fill="#eaf1ff" stroke="#d9e1ed" stroke-width="2"/>
+<text x="56" y="757" font-family="Segoe UI, sans-serif" font-size="22" font-weight="700" fill="#24334d">Secure storage</text>
+<text x="56" y="789" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Token · nháp mã hóa</text>
+<text x="56" y="816" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Nháp TTL 24 giờ</text>
+<text x="56" y="843" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Không cache profile offline</text>
+<rect x="38" y="874" width="321" height="142" rx="16" fill="#eaf1ff" stroke="#d9e1ed" stroke-width="2"/>
+<text x="56" y="910" font-family="Segoe UI, sans-serif" font-size="22" font-weight="700" fill="#24334d">Navigation + common</text>
+<text x="56" y="942" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">SPM: IndexedStack</text>
+<text x="56" y="969" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">TSSA: trang theo tab</text>
+<text x="56" y="996" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Form · polling · lifecycle</text>
+<rect x="389" y="262" width="719" height="342" rx="16" fill="#ffffff" stroke="#d9e1ed" stroke-width="2"/>
+<text x="410" y="299" font-family="Segoe UI, sans-serif" font-size="24" font-weight="700" fill="#24334d">SPM · lớp và môn học</text>
+<rect x="408" y="322" width="327" height="110" rx="16" fill="#eaf1ff" stroke="#d9e1ed" stroke-width="2"/>
+<text x="426" y="358" font-family="Segoe UI, sans-serif" font-size="22" font-weight="700" fill="#24334d">Student</text>
+<text x="426" y="390" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Lớp · lịch · bài nộp</text>
+<text x="426" y="417" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Đăng ký học</text>
+<rect x="754" y="322" width="335" height="110" rx="16" fill="#eaf1ff" stroke="#d9e1ed" stroke-width="2"/>
+<text x="772" y="358" font-family="Segoe UI, sans-serif" font-size="22" font-weight="700" fill="#24334d">Tutor SPM</text>
+<text x="772" y="390" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Sửa môn · roster · điểm</text>
+<text x="772" y="417" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Thống kê · đánh giá · DSA</text>
+<rect x="408" y="447" width="327" height="110" rx="16" fill="#eaf1ff" stroke="#d9e1ed" stroke-width="2"/>
+<text x="426" y="483" font-family="Segoe UI, sans-serif" font-size="22" font-weight="700" fill="#24334d">Management</text>
+<text x="426" y="515" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Courses · sessions</text>
+<text x="426" y="542" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Registrations · requests</text>
+<rect x="754" y="447" width="335" height="110" rx="16" fill="#eaf1ff" stroke="#d9e1ed" stroke-width="2"/>
+<text x="772" y="483" font-family="Segoe UI, sans-serif" font-size="22" font-weight="700" fill="#24334d">Admin CodePulse</text>
+<text x="772" y="515" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Term · classroom</text>
+<text x="772" y="542" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Assignment · LAB</text>
+<text x="411" y="590" font-family="Segoe UI, sans-serif" font-size="18" font-weight="400" fill="#60708b">Learning: model chung · Account: AuthSession · Health / showcase riêng</text>
+<rect x="389" y="626" width="719" height="416" rx="16" fill="#ffffff" stroke="#d9e1ed" stroke-width="2"/>
+<text x="410" y="663" font-family="Segoe UI, sans-serif" font-size="24" font-weight="700" fill="#24334d">TSSA · theo báo cáo Autism</text>
+<rect x="408" y="682" width="327" height="110" rx="16" fill="#e8f5ef" stroke="#d9e1ed" stroke-width="2"/>
+<text x="426" y="718" font-family="Segoe UI, sans-serif" font-size="22" font-weight="700" fill="#24334d">Profiles + links</text>
+<text x="426" y="750" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Learner / guardian</text>
+<text x="426" y="777" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Tutor + verification</text>
+<rect x="754" y="682" width="335" height="110" rx="16" fill="#e8f5ef" stroke="#d9e1ed" stroke-width="2"/>
+<text x="772" y="718" font-family="Segoe UI, sans-serif" font-size="22" font-weight="700" fill="#24334d">Consent + privacy</text>
+<text x="772" y="750" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Purpose / field / expiry</text>
+<text x="772" y="777" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Export / delete / inventory</text>
+<rect x="408" y="799" width="327" height="110" rx="16" fill="#e8f5ef" stroke="#d9e1ed" stroke-width="2"/>
+<text x="426" y="835" font-family="Segoe UI, sans-serif" font-size="22" font-weight="700" fill="#24334d">Matching + review</text>
+<text x="426" y="867" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Request · hard constraints</text>
+<text x="426" y="894" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Coordinator → family choice</text>
+<rect x="754" y="799" width="335" height="110" rx="16" fill="#e8f5ef" stroke="#d9e1ed" stroke-width="2"/>
+<text x="772" y="835" font-family="Segoe UI, sans-serif" font-size="22" font-weight="700" fill="#24334d">Bookings + sessions</text>
+<text x="772" y="867" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Xác nhận hai bên · đổi lịch</text>
+<text x="772" y="894" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Notes · feedback · rematch</text>
+<rect x="408" y="916" width="327" height="110" rx="16" fill="#e8f5ef" stroke="#d9e1ed" stroke-width="2"/>
+<text x="426" y="952" font-family="Segoe UI, sans-serif" font-size="22" font-weight="700" fill="#24334d">Safety + inbox</text>
+<text x="426" y="984" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Case / handler / receipt</text>
+<text x="426" y="1011" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Notifications · preferences</text>
+<rect x="754" y="916" width="335" height="110" rx="16" fill="#e8f5ef" stroke="#d9e1ed" stroke-width="2"/>
+<text x="772" y="952" font-family="Segoe UI, sans-serif" font-size="22" font-weight="700" fill="#24334d">Governance + quality</text>
+<text x="772" y="984" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Policy · role · audit · metrics</text>
+<text x="772" y="1011" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Model card / AI kill switch</text>
+<rect x="1139" y="262" width="323" height="135" rx="16" fill="#eaf1ff" stroke="#d9e1ed" stroke-width="2"/>
+<text x="1157" y="298" font-family="Segoe UI, sans-serif" font-size="22" font-weight="700" fill="#24334d">Node REST</text>
+<text x="1157" y="330" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">server / routes / auth</text>
+<text x="1157" y="357" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">SPM: /api/*</text>
+<text x="1157" y="384" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">TSSA: /api/v1/*</text>
+<rect x="1139" y="415" width="323" height="135" rx="16" fill="#eaf1ff" stroke="#d9e1ed" stroke-width="2"/>
+<text x="1157" y="451" font-family="Segoe UI, sans-serif" font-size="22" font-weight="700" fill="#24334d">TSSA domain</text>
+<text x="1157" y="483" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">access · profiles</text>
+<text x="1157" y="510" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">workflows · governance</text>
+<text x="1157" y="537" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Group / link / consent gates</text>
+<rect x="1139" y="568" width="323" height="135" rx="16" fill="#eaf1ff" stroke="#d9e1ed" stroke-width="2"/>
+<text x="1157" y="604" font-family="Segoe UI, sans-serif" font-size="22" font-weight="700" fill="#24334d">Matching worker</text>
+<text x="1157" y="636" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">SQLite job + lease</text>
+<text x="1157" y="663" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Hard filters · TF-IDF / manual</text>
+<text x="1157" y="690" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">AI có gate · fallback / rollback</text>
+<rect x="1139" y="721" width="323" height="135" rx="16" fill="#eaf1ff" stroke="#d9e1ed" stroke-width="2"/>
+<text x="1157" y="757" font-family="Segoe UI, sans-serif" font-size="22" font-weight="700" fill="#24334d">Persistence</text>
+<text x="1157" y="789" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">SPM: seed + JSON files</text>
+<text x="1157" y="816" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">TSSA: SQLite WAL + AES-GCM</text>
+<text x="1157" y="843" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Revision · idempotency · audit</text>
+<rect x="1139" y="874" width="323" height="142" rx="16" fill="#fff3dd" stroke="#d9e1ed" stroke-width="2"/>
+<text x="1157" y="910" font-family="Segoe UI, sans-serif" font-size="22" font-weight="700" fill="#24334d">Dịch vụ tùy chọn</text>
+<text x="1157" y="942" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">BGE-M3 qua HTTP adapter</text>
+<text x="1157" y="969" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Đã test provider mô phỏng</text>
+<text x="1157" y="996" font-family="Segoe UI, sans-serif" font-size="19" font-weight="400" fill="#24334d">Chưa xác nhận model thật</text>
+<text x="38" y="1101" font-family="Segoe UI, sans-serif" font-size="20" font-weight="400" fill="#60708b">Bản đồ cấu trúc source. Kiểm thử không thay thế usability đại diện, phê duyệt tổ chức hoặc backup/retention review.</text>
+</svg>
