@@ -67,24 +67,45 @@ class CourseSection {
     required this.id,
     required this.type,
     required this.title,
+    this.data = const {},
+    this.description = '',
   });
 
   final String id;
   final String type;
   final String title;
+  final Map<String, dynamic> data;
+  final String description;
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'type': type,
+    'title': title,
+    'data': data,
+    if (description.isNotEmpty) 'description': description,
+  };
 
   factory CourseSection.fromJson(Map<String, dynamic> json) => CourseSection(
     id: _requiredId(json['id'], 'content id'),
     type: _optionalString(json['type']) ?? 'other',
     title: _optionalString(json['title']) ?? 'Nội dung khóa học',
+    data: _optionalMap(json['data']) ?? const {},
+    description: _optionalString(json['description']) ?? '',
   );
 }
 
 class CourseDetail {
-  const CourseDetail({required this.course, required this.sections});
+  const CourseDetail({
+    required this.course,
+    required this.sections,
+    this.canEdit = false,
+    this.contentRevision = 0,
+  });
 
   final Course course;
   final List<CourseSection> sections;
+  final bool canEdit;
+  final int contentRevision;
 
   factory CourseDetail.fromJson(Map<String, dynamic> json) {
     final course = _requiredMap(json['course'], 'course');
@@ -95,6 +116,8 @@ class CourseDetail {
     }
     return CourseDetail(
       course: Course.fromJson(course),
+      canEdit: _optionalMap(detail['permissions'])?['canEdit'] == true,
+      contentRevision: _optionalInt(detail['contentRevision']) ?? 0,
       sections: [
         for (final section in rawSections)
           CourseSection.fromJson(_requiredMap(section, 'course section')),
