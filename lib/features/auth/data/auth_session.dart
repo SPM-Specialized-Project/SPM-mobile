@@ -4,6 +4,9 @@ enum UserRole {
   coordinator,
   chairman,
   admin,
+  tssaLearner,
+  tssaGuardian,
+  tssaTutor,
   unknown;
 
   static UserRole fromApi(String value) {
@@ -19,6 +22,12 @@ enum UserRole {
         return UserRole.chairman;
       case 'admin':
         return UserRole.admin;
+      case 'tssa_learner':
+        return UserRole.tssaLearner;
+      case 'tssa_guardian':
+        return UserRole.tssaGuardian;
+      case 'tssa_tutor':
+        return UserRole.tssaTutor;
       default:
         return UserRole.unknown;
     }

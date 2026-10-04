@@ -159,6 +159,9 @@ List<AppDestination> destinationsForRole(UserRole role) {
       _profile,
     ],
     UserRole.admin => [_courses, _codePulse, _profile],
-    UserRole.unknown => [_profile],
+    UserRole.unknown ||
+    UserRole.tssaLearner ||
+    UserRole.tssaGuardian ||
+    UserRole.tssaTutor => [_profile],
   };
 }
