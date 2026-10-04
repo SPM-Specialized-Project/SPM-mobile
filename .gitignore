@@ -43,3 +43,28 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Local previews, device copies, and extracted report files
+/tmp/
+/devtools_options.yaml
+/output/*
+
+# Reviewed report deliverables
+!/output/pdf/
+/output/pdf/*
+!/output/pdf/business-feasibility-autism-tutor-matching-vi.pdf
+!/output/pdf/tutor-support-system-autism-main.pdf
+
+# Final validation evidence referenced by documentation
+!/output/tssa-validation-20261004/
+/output/tssa-validation-20261004/*
+!/output/tssa-validation-20261004/module-map.png
+!/output/tssa-validation-20261004/module-map.svg
+!/output/tssa-validation-20261004/browser-agenda-saved.png
+!/output/tssa-validation-20261004/flutter-coverage.json
+!/output/tssa-validation-20261004/summary.json
+!/output/tssa-validation-20261004/flutter-final.log
+!/output/tssa-validation-20261004/backend-final.log
+!/output/tssa-validation-20261004/analyze-final.log
+!/output/tssa-validation-20261004/apk-build-final.log
+!/output/tssa-validation-20261004/android-integration-final.log
