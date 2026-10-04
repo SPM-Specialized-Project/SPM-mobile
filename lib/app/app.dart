@@ -4,17 +4,49 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/auth/application/auth_controller.dart';
 import '../features/auth/presentation/login_screen.dart';
 import '../features/navigation/presentation/authenticated_app_shell.dart';
+import '../features/auth/data/auth_session.dart';
+import '../features/tssa/presentation/tssa_screen.dart';
+import '../features/tssa/data/tssa_repository.dart';
 
 import 'theme/app_theme.dart';
 
-class MyApp extends StatelessWidget {
+final _navigatorKey = GlobalKey<NavigatorState>();
+
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final signedIn = ref.watch(authControllerProvider).value != null;
+    final reduceMotion =
+        signedIn &&
+        ref.watch(tssaPreferencesProvider).value?['reduceMotion'] == true;
+    ref.listen(authControllerProvider, (previous, next) {
+      if (previous?.value != null && !next.isLoading && next.value == null) {
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _navigatorKey.currentState?.pushAndRemoveUntil(
+            MaterialPageRoute<void>(
+              builder: (_) => const _AuthenticationGate(),
+            ),
+            (_) => false,
+          ),
+        );
+      }
+    });
     return MaterialApp(
+      navigatorKey: _navigatorKey,
       title: 'Tutor Support System',
       theme: AppTheme.light,
+      themeAnimationDuration: reduceMotion
+          ? Duration.zero
+          : kThemeAnimationDuration,
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          disableAnimations:
+              reduceMotion || MediaQuery.of(context).disableAnimations,
+        ),
+        child: child!,
+      ),
       home: const _AuthenticationGate(),
     );
   }
@@ -30,7 +62,16 @@ class _AuthenticationGate extends ConsumerWidget {
     if (authState.isLoading) return const _AuthenticationLoadingScreen();
 
     final session = authState.value;
-    if (session != null) return AuthenticatedAppShell(session: session);
+    if (session != null) {
+      if ([
+        UserRole.tssaLearner,
+        UserRole.tssaGuardian,
+        UserRole.tssaTutor,
+      ].contains(session.role)) {
+        return const TssaScreen();
+      }
+      return AuthenticatedAppShell(session: session);
+    }
 
     if (authState.error is SessionRestoreException) {
       return _SessionRestoreErrorScreen(
