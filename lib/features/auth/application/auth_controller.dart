@@ -2,6 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/security/token_storage.dart';
+import '../../../core/security/session_events.dart';
+import '../../../core/security/draft_storage.dart';
 import '../data/auth_session.dart';
 import 'auth_providers.dart';
 
@@ -17,6 +19,7 @@ class AuthController extends AsyncNotifier<AuthSession?> {
 
   @override
   Future<AuthSession?> build() async {
+    ref.watch(sessionExpiryProvider);
     final tokenStorage = ref.read(tokenStorageProvider);
 
     try {
@@ -52,6 +55,9 @@ class AuthController extends AsyncNotifier<AuthSession?> {
               .saveAccessToken(session.accessToken);
         }
       });
+      if (requestId == _loginRequestId) {
+        ref.read(apiSessionEpochProvider.notifier).advance();
+      }
 
       if (requestId != _loginRequestId) return null;
       return session;
@@ -66,6 +72,11 @@ class AuthController extends AsyncNotifier<AuthSession?> {
   Future<void> logout() async {
     // Invalidate pending login requests so they cannot restore the session.
     final requestId = ++_loginRequestId;
+    try {
+      await ref.read(authRepositoryProvider).logout();
+    } catch (_) {
+      /* Local sign out must still work offline. */
+    }
     await _enqueueTokenOperation(() async {
       if (requestId == _loginRequestId) {
         await ref.read(tokenStorageProvider).clearAccessToken();
@@ -73,6 +84,8 @@ class AuthController extends AsyncNotifier<AuthSession?> {
     });
 
     if (requestId != _loginRequestId) return;
+    await DraftStorage.clear();
+    ref.read(apiSessionEpochProvider.notifier).advance();
     state = const AsyncData<AuthSession?>(null);
   }
 

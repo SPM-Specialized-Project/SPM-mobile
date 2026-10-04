@@ -7,6 +7,10 @@ class AuthRepository {
 
   final Dio _dio;
 
+  Future<void> logout() async {
+    await _dio.post<void>('/api/auth/logout');
+  }
+
   Future<AuthSession> login({
     required String email,
     required String password,
