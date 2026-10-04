@@ -8,7 +8,9 @@ import '../widgets/tutor_ui.dart';
 enum _SubmissionFilter { all, waiting, graded }
 
 class TutorSubmissionsScreen extends ConsumerStatefulWidget {
-  const TutorSubmissionsScreen({super.key});
+  const TutorSubmissionsScreen({this.courseId, super.key});
+
+  final String? courseId;
 
   @override
   ConsumerState<TutorSubmissionsScreen> createState() =>
@@ -29,12 +31,14 @@ class _TutorSubmissionsScreenState
 
   @override
   Widget build(BuildContext context) {
-    final submissionsState = ref.watch(tutorSubmissionsProvider);
+    final submissionsState = widget.courseId == null
+        ? ref.watch(tutorSubmissionsProvider)
+        : ref.watch(tutorCourseSubmissionsProvider(widget.courseId!));
     return submissionsState.when(
       loading: () => const TutorLoadingView(),
       error: (error, _) => TutorErrorView(
         message: tutorErrorMessage(error),
-        onRetry: () => ref.invalidate(tutorSubmissionsProvider),
+        onRetry: _invalidate,
       ),
       data: _buildList,
     );
@@ -66,16 +70,26 @@ class _TutorSubmissionsScreenState
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
-            await ref
-                .refresh(tutorSubmissionsProvider.future)
-                .then<void>((_) {});
+            if (widget.courseId == null) {
+              await ref
+                  .refresh(tutorSubmissionsProvider.future)
+                  .then<void>((_) {});
+            } else {
+              await ref
+                  .refresh(
+                    tutorCourseSubmissionsProvider(widget.courseId!).future,
+                  )
+                  .then<void>((_) {});
+            }
           },
           child: ListView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
             children: [
               TutorPageHeading(
-                title: 'Bài cần chấm',
+                title: widget.courseId == null
+                    ? 'Bài cần chấm'
+                    : 'Bài nộp trong môn',
                 subtitle: waitingCount == 0
                     ? 'Bài nộp của sinh viên trong các lớp được giao.'
                     : '$waitingCount bài đang chờ bạn xem.',
@@ -164,11 +178,19 @@ class _TutorSubmissionsScreenState
       builder: (_) => _GradeSubmissionSheet(submission: submission),
     );
     if (saved == true) {
-      ref.invalidate(tutorSubmissionsProvider);
+      _invalidate();
+      ref.invalidate(tutorCourseSubmissionsProvider(submission.courseId));
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Đã lưu điểm và nhận xét.')));
+    }
+  }
+
+  void _invalidate() {
+    ref.invalidate(tutorSubmissionsProvider);
+    if (widget.courseId != null) {
+      ref.invalidate(tutorCourseSubmissionsProvider(widget.courseId!));
     }
   }
 }

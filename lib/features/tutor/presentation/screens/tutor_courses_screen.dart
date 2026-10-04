@@ -69,7 +69,7 @@ class _TutorCoursesScreenState extends ConsumerState<TutorCoursesScreen> {
           const SizedBox(height: 26),
           TutorPageHeading(
             title: 'Khóa học của tôi',
-            subtitle: 'Các lớp được backend phân công cho tài khoản này.',
+            subtitle: 'Các môn học được phân công cho bạn.',
             trailing: Icon(
               Icons.menu_book_rounded,
               color: Theme.of(context).colorScheme.primary,

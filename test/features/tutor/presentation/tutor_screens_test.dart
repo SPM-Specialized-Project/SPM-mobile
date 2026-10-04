@@ -5,6 +5,7 @@ import 'package:spm_mobile/app/theme/app_theme.dart';
 import 'package:spm_mobile/features/auth/data/auth_session.dart';
 import 'package:spm_mobile/features/tutor/application/tutor_providers.dart';
 import 'package:spm_mobile/features/tutor/domain/tutor_course.dart';
+import 'package:spm_mobile/features/tutor/domain/tutor_course_workspace.dart';
 import 'package:spm_mobile/features/tutor/presentation/screens/tutor_course_detail_screen.dart';
 import 'package:spm_mobile/features/tutor/presentation/screens/tutor_courses_screen.dart';
 import 'package:spm_mobile/features/tutor/presentation/screens/tutor_registrations_screen.dart';
@@ -76,6 +77,21 @@ void main() {
           tutorCourseDetailProvider.overrideWith(
             (ref, courseId) async => _courseDetail,
           ),
+          tutorCourseRosterProvider.overrideWith(
+            (ref, id) async => const CourseRoster(
+              members: [
+                CourseMember(
+                  id: 'member-1',
+                  name: 'Student One',
+                  email: 'student@example.com',
+                  status: 'ACTIVE',
+                  canEdit: false,
+                ),
+              ],
+              availableStudents: [],
+              canCreate: false,
+            ),
+          ),
         ],
         child: _testApp(child: TutorCoursesScreen(session: _session)),
       ),
@@ -91,7 +107,7 @@ void main() {
     expect(find.byType(TutorCourseDetailScreen), findsOneWidget);
     expect(find.text('Widget cơ bản'), findsOneWidget);
 
-    await tester.tap(find.text('Sinh viên'));
+    await tester.tap(find.text('Danh sách lớp'));
     await tester.pumpAndSettle();
     expect(find.text('Student One'), findsOneWidget);
     expect(find.text('student@example.com'), findsOneWidget);
