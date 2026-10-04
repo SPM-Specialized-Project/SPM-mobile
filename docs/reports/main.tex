@@ -1,0 +1,1046 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[utf8]{inputenc}
+  \usepackage[T5,T1]{fontenc}
+  \usepackage[english,vietnamese]{babel}
+\else
+  \usepackage{fontspec}
+  \usepackage{polyglossia}
+  \setdefaultlanguage{vietnamese}
+  \setotherlanguage{english}
+\fi
+\usepackage[a4paper,margin=2.0cm,headheight=15pt]{geometry}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{array,booktabs,tabularx,longtable}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,calc}
+\usepackage{hyperref}
+\usepackage{xurl}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tocloft}
+
+\definecolor{ink}{HTML}{19324D}
+\definecolor{teal}{HTML}{087E8B}
+\definecolor{sky}{HTML}{EAF4F7}
+\definecolor{mint}{HTML}{EAF5F0}
+\definecolor{amber}{HTML}{FFF4D6}
+\definecolor{rose}{HTML}{FCECEC}
+\definecolor{linegray}{HTML}{D7E0E7}
+\definecolor{muted}{HTML}{526273}
+\hypersetup{
+  colorlinks=true,linkcolor=teal,citecolor=teal,urlcolor=teal,
+  pdftitle={Tutor Support System for Autism - Yeu cau san pham va kien truc},
+  pdfauthor={SPM Mobile},
+  pdfsubject={User stories, AC, matching AI va kien truc ung dung ho tro hoc tap cho hoc sinh tu ky}
+}
+\urlstyle{same}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{4pt}
+\setlength{\emergencystretch}{3em}
+\setlength{\cftsubsecnumwidth}{6.4em}
+\setlist[itemize]{leftmargin=1.35em,itemsep=2pt,topsep=3pt}
+\setlist[enumerate]{leftmargin=1.55em,itemsep=3pt,topsep=3pt}
+\renewcommand{\arraystretch}{1.18}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcommand{\statuscurrent}{\textcolor{teal}{\textbf{HIỆN CÓ}}}
+\newcommand{\statusproposal}{\textcolor{ink}{\textbf{ĐỀ XUẤT}}}
+\newcommand{\statusopen}{\textcolor{muted}{\textbf{CẦN XÁC NHẬN}}}
+\newcommand{\ac}[1]{\textbf{\currentstory-AC-#1.}}
+\newcommand{\storytitle}[2]{\subsection{#1 — #2}\def\currentstory{#1}}
+\newcommand{\story}[1]{\textbf{User Story.} #1\par}
+\newcommand{\acceptance}{\textbf{Acceptance Criteria}\par}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\small\textcolor{muted}{SPM Mobile \textbar\ Tutor Support System}}
+\rhead{\small\textcolor{muted}{Product, backend \& Flutter architecture}}
+\cfoot{\small\textcolor{muted}{\thepage}}
+\titleformat{\section}{\Large\bfseries\color{ink}}{\thesection}{0.65em}{}
+\titleformat{\subsection}{\large\bfseries\color{teal}}{\thesubsection}{0.65em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{ink}}{\thesubsubsection}{0.65em}{}
+
+\begin{document}
+
+\begin{center}
+{\large\textcolor{teal}{ĐẶC TẢ SẢN PHẨM, KIẾN TRÚC VÀ YÊU CẦU}}\\[7pt]
+{\LARGE\bfseries\color{ink}Tutor Support System for Autism}\\[5pt]
+{\large Ứng dụng mobile kết nối học sinh tự kỷ với tutor phù hợp}\\[10pt]
+\rule{0.84\textwidth}{0.7pt}\\[7pt]
+\textcolor{muted}{SPM Mobile \quad|\quad Bản yêu cầu mục tiêu và source review \quad|\quad 03/10/2026}
+\end{center}
+
+\vspace{4pt}
+\colorbox{sky}{\parbox{\dimexpr\textwidth-2\fboxsep\relax}{
+\textbf{Định hướng sản phẩm.} Ứng dụng giúp học sinh tự kỷ và gia đình mô tả mục tiêu học tập, tìm tutor theo môn/lớp/lịch/phương thức hỗ trợ, nhận shortlist có giải thích, được coordinator kiểm tra, rồi để học sinh và gia đình quyết định. Đây là dịch vụ giáo dục và điều phối tutor; không chẩn đoán tự kỷ, không đưa ra khuyến nghị lâm sàng, không thay thế giáo viên/chuyên gia, và không để AI tự quyết định ghép cặp.
+}}
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Mục tiêu, phạm vi và cách đọc}
+
+Tài liệu này là nguồn yêu cầu mục tiêu cho ứng dụng mobile \emph{Tutor Support System for Autism} (TSSA). Nó chuyển ý tưởng từ một khu vực sản phẩm CodePulse/DSA sang dịch vụ hỗ trợ học tập, ghép tutor--student và điều phối có con người kiểm soát. User Story và Acceptance Criteria (AC) được nhóm theo năng lực sản phẩm, không theo sprint, backlog hay trạng thái Scrum.
+
+\subsection{Tài liệu này trả lời những câu hỏi nào?}
+\begin{itemize}
+  \item Ứng dụng phục vụ ai, giúp việc gì và giới hạn ở đâu?
+  \item Mobile app hiện có gì có thể dùng lại; phần nào chỉ là thiết kế mục tiêu?
+  \item Những module, dữ liệu, luồng AI, quyền và vai trò cần có là gì?
+  \item User Story và AC nào dùng làm đầu vào cho thiết kế, phát triển và kiểm thử?
+  \item Pilot cần đo chỉ số nào để biết dịch vụ có phù hợp, an toàn và vận hành được?
+\end{itemize}
+
+\subsection{Cách đánh dấu bằng chứng}
+\begin{itemize}
+  \item \statuscurrent{}: tìm thấy trong source mobile hoặc tài liệu repository đã đối chiếu.
+  \item \statusproposal{}: yêu cầu/kiến trúc đề xuất; chưa khẳng định đã chạy trong app.
+  \item \statusopen{}: quyết định sản phẩm, vận hành hoặc pháp lý cần nhóm dự án xác nhận.
+\end{itemize}
+
+\textbf{Ranh giới CodePulse.} Trong source hiện tại, CodePulse vẫn là chức năng DSA/LAB dành cho admin. Tài liệu này xác định \emph{định hướng sản phẩm mục tiêu} là hỗ trợ học tập và ghép tutor cho học sinh tự kỷ; định hướng đó chưa tự đổi tên hay hành vi CodePulse trong binary. Không dùng Jira Story CodePulse như thể chúng là yêu cầu của dịch vụ TSSA. Các yêu cầu TSSA được viết lại thành User Story và Acceptance Criteria trong phần có tiêu đề tương ứng, không chia theo sprint. Mã ứng dụng chưa được sửa trong phạm vi báo cáo này.
+
+\section{Tóm tắt sản phẩm và tiêu chí thành công}
+
+\subsection{Vấn đề sản phẩm cần giải quyết}
+Gia đình hiện phải tự tìm tutor, giải thích cách học và điều chỉnh cần thiết, kiểm tra mức phù hợp, thu xếp lịch và xử lý việc đổi tutor. Tutor lại khó biết trước mục tiêu học, cách giao tiếp nên dùng, điều gì giúp người học tiếp cận bài, và ai là đầu mối điều phối. TSSA tạo một quy trình có cấu trúc để giảm phần tìm kiếm/trao đổi lặp lại, đồng thời giữ quyền lựa chọn của người học và gia đình.
+
+\subsection{Mục tiêu có thể quan sát}
+\begin{enumerate}
+  \item Thu nhận yêu cầu học tập đủ rõ để coordinator hiểu môn, khối lớp, lịch, hình thức và điều chỉnh mà gia đình muốn chia sẻ.
+  \item Chỉ đưa tutor đã qua bước xác minh nội bộ vào shortlist có thể xem xét.
+  \item Giải thích vì sao mỗi ứng viên được gợi ý và điểm nào chưa khớp; cho phép coordinator loại, thêm hoặc sắp xếp lại.
+  \item Để gia đình/học sinh chấp nhận, từ chối hoặc yêu cầu tìm người khác trước khi tạo kết nối.
+  \item Theo dõi buổi học, phản hồi, đổi tutor và báo cáo an toàn mà không biến dữ liệu app thành hồ sơ chẩn đoán.
+\end{enumerate}
+
+\subsection{Ngoài phạm vi}
+\begin{itemize}
+  \item Sàng lọc, chẩn đoán, phân loại mức độ tự kỷ hoặc quyết định điều trị.
+  \item Chấm điểm giá trị, hành vi, mức độ tuân thủ hoặc khả năng học của trẻ bằng AI.
+  \item Chatbot AI đóng vai bạn bè/nhà trị liệu/gia sư độc lập để trò chuyện riêng với trẻ.
+  \item Ghi âm, ghi hình buổi học mặc định; thu dữ liệu sức khỏe để huấn luyện mô hình.
+  \item Cam kết tutor có chứng chỉ/chuyên môn trước khi chương trình xác minh cụ thể tiêu chí, bằng chứng và phạm vi hành nghề.
+  \item Khẳng định doanh thu, quy mô thị trường, kết quả học tập hoặc độ chính xác AI khi chưa có pilot đo được.
+\end{itemize}
+
+\section{Bằng chứng, dữ liệu thị trường và giới hạn suy luận}
+
+Các con số dưới đây giúp hiểu bối cảnh thiết kế, không phải số khách hàng tiềm năng hay chứng minh sản phẩm có thể sinh lời. Nghiên cứu feasibility độc lập nằm tại \href{business-feasibility-autism-tutor-matching-vi.tex}{báo cáo feasibility}; bảng này chỉ trích các kết quả cần thiết cho product requirements.
+
+\begin{longtable}{p{3.0cm}p{5.4cm}p{6.3cm}}
+\toprule
+\textbf{Nguồn/phạm vi} & \textbf{Số liệu được báo cáo} & \textbf{Cách diễn giải an toàn cho sản phẩm} \\
+\midrule
+\endhead
+Việt Nam, khảo sát quần thể 7 tỉnh/thành 2017--2018 \cite{vui2022} &
+40.243 trẻ 18--30 tháng; 305 trường hợp được xác định; prevalence 0,758\% (xấp xỉ 1/132). Sàng lọc M-CHAT, sau đó đánh giá theo DSM-IV. &
+Là số liệu ở trẻ rất nhỏ, không đo học sinh phổ thông cần tutor. Không nhân tỷ lệ này với số học sinh để tính thị trường. \\
+\addlinespace
+Miền Nam Việt Nam, nghiên cứu 41 trường mầm non 2021--2022, công bố 2024 \cite{tran2024} &
+9.397 trẻ 24--72 tháng; tỷ lệ được báo cáo 1,2\% (xấp xỉ 1/84); chẩn đoán bởi bác sĩ tâm thần nhi theo DSM-5. &
+Là nghiên cứu khu vực và nhóm tuổi mầm non, không phải ước lượng quốc gia hay nhu cầu thuê gia sư. Không gộp trực tiếp với khảo sát 2017--2018. \\
+\addlinespace
+WHO, toàn cầu, ước tính dữ liệu 2021 \cite{who2025} &
+Khoảng 1/127 người trên thế giới được ước tính có tự kỷ. &
+Chỉ đặt bối cảnh quốc tế; định nghĩa, nhận diện và dịch vụ khác nhau theo nơi. Không áp vào Việt Nam để suy quy mô thương mại. \\
+\addlinespace
+CDC/ADDM, Hoa Kỳ, 16 địa điểm, trẻ 8 tuổi năm giám sát 2022 \cite{cdc2025} &
+32,2 trên 1.000 (khoảng 1/31); khoảng giữa địa điểm 9,7--53,1 trên 1.000. &
+Hệ thống giám sát hồ sơ của Hoa Kỳ không tương đương khảo sát Việt Nam. Không xem là tỷ lệ Việt Nam. \\
+\addlinespace
+Điều tra người khuyết tật Việt Nam 2023 \cite{gso2023} &
+Tỷ lệ khuyết tật được báo cáo: 1,98\% ở trẻ 2--17 tuổi; 1,51\% ở trẻ 5--17; 1,56\% ở trẻ 5--15. Đi học đúng tuổi: tiểu học 68,1\% trẻ khuyết tật và 95,2\% trẻ không khuyết tật; THCS 53,0\% và 90,0\%. &
+Là dữ liệu khuyết tật nói chung, không riêng tự kỷ. Chênh lệch đi học đúng tuổi nhắc nhóm sản phẩm cần xem khả năng tiếp cận, nhưng không chứng minh nhu cầu mua dịch vụ tutor. \\
+\addlinespace
+Điều tra người khuyết tật Việt Nam 2023, tiếp cận số \cite{gso2023} &
+Người khuyết tật từ 6 tuổi có dùng Internet trong 3 tháng: 33,6\%, so với 83,7\% ở người không khuyết tật; sở hữu điện thoại: 53,7\% và 89,2\%. &
+Không đại diện riêng cho trẻ tự kỷ. Đây là tín hiệu cần app nhẹ, khả năng dùng không liên tục và kênh trợ giúp ngoài app. \\
+\addlinespace
+UNICEF, Việt Nam, báo cáo kết quả 2024 \cite{unicef2025inclusive} &
+Báo cáo nêu hơn 400.000 trẻ khuyết tật chưa đến trường; 3\% trường tiếp cận được về mặt thể chất; 1/10 trường THCS có giáo viên được đào tạo giáo dục hòa nhập. &
+Chỉ là số liệu về trẻ khuyết tật nói chung và thông tin chương trình. Không quy thành số học sinh tự kỷ có nhu cầu ghép tutor. \\
+\addlinespace
+UNESCO, đánh giá mức sẵn sàng AI Việt Nam 2025 \cite{unescoai2025} &
+Báo cáo nêu khoảng 90\% trường có Internet cho giảng dạy, gần 1 máy tính/3 học sinh và gần 40\% trường thiếu học liệu số. &
+Số liệu cấp trường không cho biết thiết bị riêng, kết nối hộ gia đình hay khả năng dùng app của một học sinh cụ thể. \\
+\addlinespace
+UNICEF, AI and Children 3.0, 12/2025 \cite{unicefai2025} &
+10 yêu cầu quản trị AI lấy quyền trẻ em làm trung tâm và 48 khuyến nghị trong checklist. &
+Đưa an toàn, riêng tư, công bằng, minh bạch, giải trình, lợi ích tốt nhất và bao trùm vào thiết kế; không coi checklist là chứng nhận tuân thủ. \\
+\addlinespace
+Tổng quan hệ thống về điều chỉnh môi trường học cho trẻ tự kỷ 5--19 tuổi \cite{accommodation2020} &
+Tìm 6.102 trích dẫn; 37 nghiên cứu đủ điều kiện, trong đó 14 đáp ứng chuẩn What Works Clearinghouse; kết quả tổng hợp còn không đồng nhất. &
+Bằng chứng về điều chỉnh môi trường học còn hạn chế/không đồng nhất. App nên ghi nhận điều chỉnh do người học/gia đình/tutor cùng chọn và đo khả năng chấp nhận; không khẳng định một biện pháp hiệu quả cho tất cả. \\
+\addlinespace
+Tổng quan 233 nghiên cứu thực nghiệm về hỗ trợ học hòa nhập \cite{perrelet2025} &
+233 nghiên cứu được đưa vào; tổng quan ghi nhận thiếu đồng thuận về cách đo hòa nhập và nhiều nghiên cứu thiếu đánh giá yếu tố triển khai. &
+Chọn chỉ số product pilot gồm mức phù hợp, cảm nhận của học sinh/gia đình, thực thi điều chỉnh, tham gia và duy trì; không lấy một chỉ số duy nhất làm bằng chứng tác động. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Hàm ý feasibility}
+Hai nghiên cứu Việt Nam về tự kỷ được trích ở đây tập trung trẻ nhỏ. Dữ liệu hiện có chưa cho biết số học sinh tự kỷ tuổi đi học đang muốn tìm tutor, số tutor đủ năng lực, mức phí chấp nhận được, mức gia đình sẵn lòng chia sẻ hồ sơ hay chi phí điều phối. Vì thế, TAM/SAM/SOM và doanh thu chưa thể kết luận từ prevalence. Công thức pilot nên dựa trên nhu cầu thật:
+\[
+N_{\mathrm{phục\ vụ}}=\min(N_{\mathrm{gia\ đình\ phù\ hợp}},N_{\mathrm{suất\ tutor\ đã\ xác\ minh}},N_{\mathrm{suất\ coordinator}}).
+\]
+Mỗi số hạng phải được ghi nhận từ địa bàn pilot, kèm thời gian đo và định nghĩa. Feasibility chi tiết, cách kiểm chứng mô hình thu phí và các kịch bản kinh tế nằm ở báo cáo nghiên cứu riêng.
+
+\section{Đối chiếu mobile hiện tại và sản phẩm đích}
+
+Bảng dưới được đối chiếu với source SPM-mobile và backend sibling repository ngày 03/10/2026. Đây là phân biệt giữa source và yêu cầu, không xác nhận máy chủ hoặc API production đang hoạt động.
+
+\begin{tabularx}{\textwidth}{p{3.0cm}p{5.9cm}Y}
+\toprule
+\textbf{Năng lực} & \textbf{Hiện có trong mobile} & \textbf{Khoảng trống theo sản phẩm mục tiêu} \\
+\midrule
+Ứng dụng & Flutter, app shell có xác thực và điều hướng theo role. & Xây luồng học tập TSSA; chốt tên/brand sản phẩm với nhóm. \\
+Phiên và user & AuthSession đọc access token, user id/email/tên/avatar. Token lưu trong secure storage theo architecture doc. & Bổ sung profile domain cụ thể và cách liên kết guardian--learner có kiểm soát. \\
+Vai trò & student, lecturer, coordinator, chairman, admin. API role tutor hiện ánh xạ thành lecturer. & Guardian chưa có role; tutor cần quyền và profile đúng miền; phân biệt learner, người đại diện, coordinator. \\
+Điều hướng & Student, lecturer, coordinator/chairman, admin có danh sách destination riêng; admin thấy CodePulse. & Thêm màn hình hỗ trợ học, yêu cầu ghép, shortlist, quyết định coordinator, gia đình và tutor. \\
+Môn học/lịch & Có feature courses, sessions, submissions, registrations. & Dùng lại chỉ sau khi xác nhận data/API phù hợp ca học tutor 1:1 và lịch riêng. \\
+Ghép nối & Backend đã có \texttt{/api/matching/*}, hard filters, xếp hạng TF-IDF; tùy chọn BGE-M3 qua service embedding local; recommendation, coordinator decision, assignment và feedback được lưu JSON. & Là matching tổng quát theo registration, chưa có hồ sơ autism/support need, guardian consent, learner/family choice hay coordinator scope theo tổ chức. Flutter chưa gọi các route matching. \\
+CodePulse & Feature DSA/LAB ở khu vực admin theo source mobile/architecture doc. & Không đồng nghĩa với TSSA. Cần quyết định sản phẩm riêng nếu muốn gỡ/đổi nhãn feature DSA trong app. \\
+\bottomrule
+\end{tabularx}
+
+\textbf{Kết luận hiện trạng:} có thể tái dùng nền Flutter, auth session, cấu trúc role-aware navigation và một matching backend tổng quát. Backend đã có TF-IDF và adapter tùy chọn tới local BGE-M3, nhưng Flutter chưa nối matching workflow; dữ liệu và registration hiện tại cũng chưa tạo thành hồ sơ learner tự kỷ có consent, guardian link, tutor verification, lựa chọn của gia đình/người học hay safeguarding. Những phần TSSA còn thiếu được mô tả bên dưới là yêu cầu mục tiêu, không phải tính năng đã triển khai. Phần 5--6 ghi lại kiến trúc backend và cách các lớp Flutter hiện tại vận hành theo source đã đối chiếu.
+
+\section{Kiến trúc backend hiện có -- đối chiếu mã nguồn}
+
+\subsection{Runtime, module và ranh giới tin cậy}
+Backend được xem xét nằm trong sibling repository \texttt{SPM-frontend/backend/}. \texttt{package.json} khai báo Node.js từ phiên bản 20, ECMAScript modules và chạy server bằng \texttt{node server.mjs}; server dùng \texttt{node:http}, không phải Express. \texttt{server.mjs} nhận request, gọi \texttt{handleRequest} trong \texttt{routes.mjs} và chuyển lỗi đã chuẩn hóa thành JSON qua \texttt{http.mjs}. Port mặc định là 4000, bind vào \texttt{127.0.0.1}; CORS mặc định cho \texttt{http://localhost:3000}. Đây là cấu hình phát triển/self-host hiện trong source, không phải bằng chứng về endpoint HTTPS công khai.
+
+\begin{figure}[ht]
+\centering
+\resizebox{0.96\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\small,>=Latex,
+  box/.style={draw=ink,rounded corners=2mm,fill=white,text width=3.0cm,minimum height=0.88cm,align=center,line width=0.8pt},
+  client/.style={box,fill=sky,draw=teal},
+  data/.style={box,fill=mint,draw=muted},
+  optional/.style={box,fill=amber,dashed,draw=muted},
+  flow/.style={-{Latex[length=2.1mm]},draw=teal,line width=0.8pt},
+  back/.style={{Latex[length=2.1mm]}-{Latex[length=2.1mm]},draw=teal,line width=0.8pt}
+]
+\node[client] (flutter) at (0,0.4) {Flutter app\\Dio + Bearer token};
+\node[box] (http) at (4,0.4) {Node.js HTTP server\\server.mjs / http.mjs};
+\node[box] (routes) at (8,0.4) {routes.mjs\\auth + role/resource checks};
+\node[box] (domain) at (12,1.8) {Existing learning domain\\courses / sessions / registrations};
+\node[box] (matching) at (12,-0.5) {Matching module\\eligibility + ranking\\reasons + version};
+\node[data] (json) at (16,0.7) {JSON collections\\seed + serialized file writes};
+\node[optional] (embed) at (16,-1.3) {Optional Python service\\local BGE-M3 embeddings};
+\node[box] (codepulse) at (8,-1.8) {codepulse.mjs\\separate DSA/LAB domain};
+\draw[flow] (flutter) -- (http);
+\draw[flow] (http) -- (routes);
+\draw[flow] (routes) -- (domain);
+\draw[flow] (routes) -- (matching);
+\draw[flow] (routes) -- (codepulse);
+\draw[back] (domain.east) -- ++(0.6,0) |- (json.north);
+\draw[back] (matching.east) -- ++(0.45,0) |- (json.south);
+\draw[flow] (matching.east) -- (embed.west);
+\draw[flow] (codepulse.east) -- ++(0.3,0) |- (13.8,-2.0) |- (json.west);
+\end{tikzpicture}%
+}
+\caption{Kiến trúc source hiện có: một tiến trình Node.js, các module nghiệp vụ trong process, JSON file storage; BGE-M3 là adapter local tùy cấu hình.}
+\label{fig:backend-current}
+\end{figure}
+
+\begin{longtable}{p{3.1cm}p{4.6cm}p{6.9cm}}
+\toprule
+\textbf{Thành phần} & \textbf{File nguồn} & \textbf{Trách nhiệm hiện có} \\
+\midrule
+\endhead
+HTTP entrypoint & \path{server.mjs}, \path{http.mjs} & Tạo HTTP server, đọc JSON body, trả JSON headers/CORS và bắt lỗi toàn request. \\
+API/authz & \path{routes.mjs}, \path{auth.mjs} & Dispatch route, xác minh Bearer session, chuẩn hóa role, kiểm tra role, ownership và membership theo endpoint. \\
+Catalog/domain & \path{domain/backend-data.mjs}, \path{data/seeds.mjs} & Catalog và fixtures, chuẩn hóa role tutor thành lecturer, dựng resource views và permission fields. \\
+Matching & \path{matching/contracts.mjs}, \path{matching/hard-constraints.mjs}, \path{matching/features.mjs}, \path{matching/service.mjs} & Chuẩn hóa registration, loại ứng viên không đủ điều kiện, tính đặc trưng, xếp hạng và tạo lý do có thể đọc lại. \\
+Embedding tùy chọn & \path{matching/embedding-provider.mjs}, \path{ai-service/app.py} & Node gọi endpoint nội bộ để lấy embedding BGE-M3 khi cấu hình; service Python nạp checkpoint local-only. \\
+CodePulse & \path{codepulse.mjs} & Module DSA/LAB độc lập với matching tutor tổng quát và sản phẩm TSSA. \\
+Persistence & \path{config.mjs}, \path{data/storage.mjs} & Đọc/ghi seed và collection JSON; một Promise queue trong process tuần tự hóa các lần ghi file. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Authentication, role và resource authorization}
+\begin{enumerate}
+  \item \texttt{POST /api/auth/login} so khớp email/password với danh sách user trong \texttt{data/seeds.mjs}; tài khoản không hoạt động bị từ chối.
+  \item Backend tạo token ngẫu nhiên 32 byte và lưu trong \texttt{Map} của process, thời hạn 8 giờ. Response gồm \texttt{accessToken}, \texttt{user}, \texttt{role}.
+  \item Flutter lưu access token qua \texttt{flutter\_secure\_storage}; interceptor Dio gắn \texttt{Authorization: Bearer ...} cho request.
+  \item Khi khởi động lại app, Flutter gọi \texttt{GET /api/auth/me}. 401 làm client xóa token và đưa người dùng về login; lỗi mạng khác được giữ thành lỗi khôi phục phiên có nút thử lại.
+  \item \texttt{routes.mjs} lấy user từ token rồi kiểm tra role và phạm vi resource. Role trong app chỉ điều khiển navigation; không thay thế kiểm tra server.
+\end{enumerate}
+
+Token không nằm trong database/session store bền vững; restart backend làm mất phiên dù token còn trên thiết bị. Demo password trong README là fixture phát triển. Danh sách user seed và xác thực mật khẩu dạng rõ không đáp ứng yêu cầu identity production. Hiện route matching cấp quyền coordinator/chairman ở mức role; chưa thấy tenant/group scope cho từng coordinator trong route đó.
+
+\subsection{API backend đã thấy trong source}
+\begin{longtable}{p{4.3cm}p{2.2cm}p{8.1cm}}
+\toprule
+\textbf{Route} & \textbf{Vai trò chính} & \textbf{Hành vi hiện có / lưu ý} \\
+\midrule
+\endhead
+\texttt{GET}~\path{/api/health} & Public & Health response cho tiến trình backend. \\
+\texttt{POST}~\path{/api/auth/login} & Public & Đăng nhập fixture; trả token, user và normalized role. \\
+\texttt{GET}~\path{/api/auth/me} & Signed-in & Xác minh session Bearer hiện tại. \\
+\path{/api/courses}, \path{/api/sessions}, \path{/api/registrations}, \path{/api/course-requests} & Theo route & Danh sách/tạo/cập nhật theo các role student, lecturer, coordinator, chairman; phạm vi một số tài nguyên dựa trên owner/membership. \\
+\path{/api/courses/:id/submissions}, \path{/api/submissions/:id} & Student / lecturer & Xem bài nộp theo khóa, student gửi hoặc lecturer chấm/nhận xét. \\
+\texttt{POST}~\path{/api/matching/recommendations} & Coordinator / chairman & Chọn đăng ký student, topK 1--50 và mô hình TFIDF hoặc BGE-M3; chỉ chọn tutor registration đã approved. \\
+\texttt{GET}~\path{/api/matching/recommendations}; \texttt{GET}~\path{/api/matching/assignments} & Coordinator / chairman & Xem recommendations hoặc assignment; query có thể lọc theo registration ID. \\
+\texttt{POST}~\path{/api/matching/recommendations/:id/decision} & Coordinator / chairman & Chọn candidate trong recommendation; ACCEPT tạo assignment ACTIVE; REJECT yêu cầu lý do. Coordinator là người quyết định trong luồng hiện tại. \\
+\texttt{POST}~\path{/api/matching/feedback} & Participant / coordinator & Student, lecturer, coordinator hoặc chairman gửi outcome SUCCESSFUL/PARTIAL/UNSUCCESSFUL; participant phải thuộc assignment. \\
+\path{/api/codepulse/*} & Policy riêng & API DSA/LAB, classroom, membership, workspace, assignment và bài nộp; không phải TSSA. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Matching backend: pipeline, score và bằng chứng}
+Matching là một module backend tổng quát đã có trong source, được gọi đồng bộ trong request HTTP. Route tìm student registration còn mở, từ chối hồ sơ student đã có assignment ACTIVE, lọc tutor registration có trạng thái APPROVED rồi gọi \path{matchingService.recommend}. Response recommendation có \path{matchingSchemaVersion}, \path{extractionVersion}, \path{modelVersion}, ranking identifier, warnings, candidate reasons, excluded reasons và counts; score được gắn nghĩa \path{ranking_score_not_probability}.
+
+\begin{enumerate}
+  \item \textbf{Chuẩn hóa profile.} \path{contracts.mjs} chuyển delivery mode sang ONLINE/ONSITE/HYBRID, đọc môn, ngôn ngữ, địa điểm, lịch, capacity và topic IDs. \path{profile-extractor.mjs} áp dụng taxonomy/regex trên trường text registration để trích chủ đề, teaching preference và một số cụm lịch; đây không phải chẩn đoán hoặc hiểu ngữ cảnh tự do.
+  \item \textbf{Hard constraints trước inference.} \path{hard-constraints.mjs} kiểm tra môn trùng, ngôn ngữ trùng, phương thức dạy chung, địa điểm nếu dạy trực tiếp, khung giờ chồng nhau/timezone khi learner khai báo availability và capacity tutor. Ứng viên không đạt bị loại kèm constraint reason. Source có chú thích rằng chỉ gửi ứng viên đã qua filter sang embedding adapter.
+  \item \textbf{Ranking.} Mặc định là TF-IDF word/bigram trong Node. Nếu request chọn BGE\_M3, service gọi \path{MATCHING_EMBEDDING_URL/v1/embeddings} để lấy vectors rồi tính cosine. Vector này đóng góp cùng topic-fit Jaccard và teaching-style-fit Jaccard; các feature khả dụng được lấy trung bình trọng số bằng nhau. Khi thiếu text/feature, score có thể null hoặc average chỉ các feature còn sẵn.
+  \item \textbf{Lý do.} Candidate trả shared subject/language/mode/location, overlap availability, topic/style match và evidence span do extractor cung cấp. Đây là dấu vết giải thích rule/feature trong code, chưa chứng minh độ chính xác hoặc độ phù hợp cảm nhận của learner.
+  \item \textbf{Quyết định và feedback.} Coordinator ACCEPT/REJECT ghi decision; ACCEPT tạo assignment ACTIVE. Sau đó participant có thể gửi feedback. Chưa có bước family/learner accept trước khi assignment active, booking/rematch/safeguarding workflow hoặc notification trong các route matching này.
+\end{enumerate}
+
+\textbf{Hai lựa chọn kỹ thuật hiện có.} TF-IDF có version \path{tfidf-word-bigram-v1} và chạy trong Node. BGE-M3 dùng model id \path{BAAI/bge-m3}, revision được pin trong code; Python FastAPI chỉ tải model từ local cache với \path{local_files_only=True}, cung cấp \path{/health} và \path{/v1/embeddings}. Node đặt timeout adapter 15 giây và xác minh model/revision trong response. Không có bằng chứng ở source rằng checkpoint đã có trong môi trường, service đang chạy, hay matching request BGE-M3 đã hoàn thành thành công. TF-IDF là lựa chọn mặc định khi request không truyền model.
+
+\textbf{Đánh giá hiện có và giới hạn.} \path{matching/evaluate.mjs}, schema dataset và \path{ranking-metrics.mjs} cung cấp khuôn offline evaluation với judged candidate, precision/recall/ranking metrics và kiểm tra dataset không chứa một số trường định danh. Việc có script đánh giá không đồng nghĩa đã có benchmark kết quả. Không dùng kết quả synthetic unit test làm chất lượng model; chưa có evidence dataset đại diện học sinh tự kỷ, đánh giá accessibility/fairness, calibration, hiệu quả sau ghép hoặc review từ learner/family/coordinator. Không gọi BGE-M3 là model được fine-tune cho autism tutor matching: code đang dùng embedding để so text.
+
+\subsection{Lưu trữ và tính nhất quán hiện tại}
+\path{data/storage.mjs} tạo thư mục dữ liệu, khởi tạo collection từ seed khi JSON file chưa tồn tại và ghi lại toàn bộ collection. Matching dùng các file \path{matching-recommendations.json}, \path{matching-assignments.json}, \path{matching-decisions.json} và \path{matching-feedback.json}. Write queue và lock decision đều chỉ trong một process; đây không phải transaction database, distributed lock, backup strategy hay optimistic versioning. Nếu triển khai nhiều replica, các process không chia sẻ lock. Việc ACCEPT ghi nhiều collection theo các bước có thể để lại trạng thái dở dang nếu process dừng giữa chừng. Hệ thống TSSA cần transactional storage, unique constraints, audit trail bền vững và chính sách backup/retention trước pilot có dữ liệu thật.
+
+\section{Cấu trúc code Flutter hiện có và luồng chạy}
+
+\subsection{Stack và quy tắc tổ chức feature}
+Ứng dụng trong repository \texttt{SPM-mobile/} khởi chạy từ \texttt{lib/main.dart}. Các phụ thuộc khai báo trong \texttt{pubspec.yaml} gồm Flutter, Riverpod 3, Dio 5 và \texttt{flutter\_secure\_storage}; chưa thấy router package hoặc generated API client. Code chia theo feature và một số lớp dùng tên \texttt{application/}, \texttt{data/}, \texttt{domain/}, \texttt{presentation/}. Đây là cấu trúc feature-first có ranh giới tương đối rõ, không phải toàn bộ domain đã được tách khỏi widget.
+
+\begin{figure}[ht]
+\centering
+\resizebox{0.94\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\small,>=Latex,
+  layer/.style={draw=ink,rounded corners=2mm,fill=white,text width=3.3cm,minimum height=0.92cm,align=center,line width=0.8pt},
+  app/.style={layer,fill=sky,draw=teal},
+  flow/.style={-{Latex[length=2.1mm]},draw=teal,line width=0.8pt}
+]
+\node[app] (main) at (0,0) {main.dart\\ProviderScope};
+\node[app] (app) at (4,0) {MyApp / AuthenticationGate\\theme + login or app shell};
+\node[layer] (auth) at (8,1.65) {AuthController\\AsyncNotifier + AuthSession};
+\node[layer] (shell) at (8,-1.65) {Authenticated\\AppShell\\role destinations + IndexedStack};
+\node[layer] (features) at (12,-1.65) {Feature providers / screens\\student, tutor, management, admin};
+\node[layer] (repos) at (16,-1.65) {Repositories + typed models\\parse JSON to Dart};
+\node[layer] (core) at (12,1.65) {Core network/security\\Dio + token storage};
+\node[layer] (api) at (16,1.65) {Node REST API\\auth + resource permissions};
+\draw[flow] (main) -- (app);
+\draw[flow] (app) -- (auth);
+\draw[flow] (auth) -- (core);
+\draw[flow] (auth) -- (shell);
+\draw[flow] (shell) -- (features);
+\draw[flow] (features) -- (repos);
+\draw[flow] (repos) -- (core);
+\draw[flow] (core) -- (api);
+\end{tikzpicture}%
+}
+\caption{Đường đi của code Flutter từ entrypoint đến màn hình feature, repository, client HTTP và API backend.}
+\label{fig:flutter-current}
+\end{figure}
+
+\subsection{Từ entrypoint đến request HTTP}
+\begin{enumerate}
+  \item \texttt{main()} gọi \texttt{runApp(ProviderScope(child: MyApp()))}; Riverpod scope bọc toàn app.
+  \item \texttt{MyApp} tạo \texttt{MaterialApp}, theme và \texttt{\_AuthenticationGate}. Gate watch \texttt{authControllerProvider}: loading thì hiện progress, có session thì dựng shell, chưa đăng nhập thì hiển thị login, lỗi restore mạng thì hiển thị trạng thái thử lại.
+  \item \texttt{AuthController.build()} đọc secure token. Có token thì repository gọi \texttt{GET /api/auth/me}; 401 xóa token, lỗi khác được bọc \texttt{SessionRestoreException}. Login gọi API, serialize thao tác token để login cũ không ghi đè phiên mới hoặc phiên logout.
+  \item \texttt{apiClientProvider} tạo Dio với base URL \texttt{AppConfig.apiBaseUrl}, timeout connect/receive 10 giây và interceptor đọc secure storage để gắn Bearer token.
+  \item Feature provider lấy repository qua Riverpod. Màn hình watch \texttt{FutureProvider.autoDispose}; repository gọi route, kiểm tra shape response và parse model Dart. Widget phản ánh loading/data/error state; thao tác ghi gọi method của repository rồi invalidate/refetch provider tương ứng.
+\end{enumerate}
+
+\path{AppConfig} mặc định \path{http://10.0.2.2:4000} cho Android Emulator và nhận override bằng \path{--dart-define=API_BASE_URL=...}. Cấu hình này dùng HTTP và không phải production endpoint đã xác nhận. Dio hiện có request interceptor gắn token; không thấy response interceptor chung để tự refresh token, tự logout mọi 401, retry/backoff hay telemetry tập trung.
+
+\subsection{Bản đồ module và trách nhiệm Flutter}
+\begin{longtable}{p{3.4cm}p{5.0cm}p{6.4cm}}
+\toprule
+\textbf{Đường dẫn} & \textbf{Vai trò trong code} & \textbf{Giới hạn khi áp vào TSSA} \\
+\midrule
+\endhead
+\path{lib/main.dart}, \path{lib/app/} & Bootstrap, MaterialApp, theme, auth gate. & Có thể giữ làm app foundation; product flow TSSA chưa được cài vào gate. \\
+\path{lib/core/config/}, \path{lib/core/networking/}, \path{lib/core/security/} & Base URL, Dio client/interceptor, secure token interface. & Cần HTTPS, environment config, token lifecycle/error policy và test contract với production identity. \\
+\path{features/auth/} & Login, AuthController, AuthSession/UserRole mapping. & Chưa có guardian account, family link, consent hoặc learner assent. \\
+\path{features/navigation/} & Role-based destinations và shell tab; UI filter là trải nghiệm điều hướng. & Vai trò guardian/coordinator scope TSSA chưa được mô hình hóa; server vẫn phải authorize resource. \\
+\path{features/student/}, \path{features/learning/} & Courses, sessions, submissions, registrations và model học tập hiện có. & Dữ liệu course/class không tương đương learner support profile, goals, preferences hoặc consent. \\
+\path{features/tutor/} & Course, session, submission và tutor registration flows cho API role lecturer. & Chưa có verification evidence, capacity/safeguarding workflow và chỉ xem hồ sơ đã được chia sẻ. \\
+\path{features/management/} & Coordinator/chairman quản lý course requests, registrations, sessions, courses. & Chưa có matching recommendation inbox/decision UI hoặc audit view cho TSSA. \\
+\path{features/admin/} & Admin CodePulse terms/classrooms. & DSA/LAB UI cần được giữ tách biệt hoặc thay đổi bằng migration/product decision rõ ràng. \\
+\path{features/backend_status/} & Health check \path{/api/health}. & Chỉ health endpoint, không xác nhận AI model/provider status. \\
+\path{features/component_catalog/} & Showcase dữ liệu tĩnh cho màn hình tham khảo. & Không phải nguồn API hoặc module matching đang chạy. \\
+\bottomrule
+\end{longtable}
+
+\subsection{Role shell và API mapping hiện tại}
+\texttt{UserRole.fromApi} nhận \texttt{student}, \texttt{lecturer}/\texttt{tutor}, \texttt{coordinator}, \texttt{chairman}, \texttt{admin}; role lạ thành \texttt{unknown}. \texttt{destinationsForRole} quyết định tab: student thấy khóa học/lịch/bài nộp/đăng ký; lecturer dùng các màn tutor; coordinator/chairman dùng màn quản lý; admin thấy khóa học và CodePulse; unknown chỉ thấy profile. \texttt{AuthenticatedAppShell} khởi tạo page theo nhu cầu rồi giữ page trong \texttt{IndexedStack} khi đổi tab. Đây là UI scope; backend mới là nơi kiểm tra quyền thật.
+
+Repository hiện gọi các nhóm route sau: \texttt{AuthRepository} dùng login/me; \texttt{StudentRepository} và \texttt{TutorRepository} dùng courses/detail/sessions/submissions/registrations; \texttt{ManagementRepository} dùng courses/sessions/registrations/course-requests; \texttt{CodePulseRepository} dùng terms/classrooms. Trong \texttt{lib/} không thấy repository/provider/screen gọi \texttt{/api/matching}; do đó matching backend chưa có mặt trong luồng thao tác mobile dù API đã tồn tại.
+
+\subsection{Các luồng code quan trọng để đọc tiếp}
+\begin{itemize}
+  \item \textbf{Đăng nhập.} \path{features/auth/presentation/login_screen.dart} gọi \path{AuthController.login}; \path{AuthRepository.login} gửi \path{POST /api/auth/login}. Response thành \path{AuthSession} và access token được lưu trong secure storage.
+  \item \textbf{Khôi phục phiên.} \path{MyApp} theo dõi auth provider; token storage cung cấp token cho \path{GET /api/auth/me}, rồi app mở shell hoặc login/retry.
+  \item \textbf{Đọc dữ liệu feature.} Screen theo dõi Riverpod provider; repository gọi Dio, nhận JSON từ role/resource API, parse typed model rồi render widget.
+  \item \textbf{Ghép tutor hiện có trên server.} Coordinator route đọc registration, chạy hard filters, TF-IDF hoặc BGE-M3 tùy chọn, lưu recommendation và decision/assignment JSON. Luồng này hiện chưa có Flutter UI.
+\end{itemize}
+
+\subsection{Ranh giới tái sử dụng và các phần cần xây cho TSSA}
+Có thể giữ app bootstrap, theme, secure-token abstraction, Dio client, Riverpod wiring, loading/error patterns, role-aware shell và một số màn/lịch học làm nền. Backend có thể tái sử dụng cách đặt hard eligibility trước ranking, candidate reason, model/schema version, coordinator decision và feedback. Cần kiểm tra lại authorization và persistence trước khi đưa dữ liệu người học thật vào.
+
+TSSA cần module riêng cho guardian-learner link, learner learning/support profile, consent/assent versions, tutor identity/qualification/safeguarding verification, support request, recommendation review, family/learner choice, booking/rematch, session feedback và safety case. Flutter cần repository/provider/model/screen cho từng luồng; matching request phải gửi tới backend, không chạy riêng ở client. Backend matching cần gắn consent/field scope vào đầu vào, coordinator theo địa bàn/tổ chức, decision audit, learner/family choice trước assignment và transactional persistence. Không đổi tên lớp CodePulse thành TSSA rồi coi các màn DSA/LAB là đã đáp ứng nghiệp vụ autism support.
+
+\section{Người dùng, vai trò và quyền}
+
+\begin{tabularx}{\textwidth}{p{2.5cm}p{4.4cm}p{3.4cm}Y}
+\toprule
+\textbf{Vai trò} & \textbf{Mục tiêu} & \textbf{Dữ liệu mặc định} & \textbf{Quyền cốt lõi mục tiêu} \\
+\midrule
+Học sinh/learner & Thể hiện sở thích, mục tiêu và lựa chọn tutor/buổi học theo cách phù hợp. & Thông tin học, sở thích giao tiếp; chỉ phần được chia sẻ. & Xem thông tin phù hợp lứa tuổi, bày tỏ đồng ý/không thoải mái khi có thể; không bị ép nhận tutor do AI gợi ý. \\
+Phụ huynh/người giám hộ & Tạo yêu cầu, quản lý consent, phối hợp lịch và phản hồi. & Thông tin liên kết người đại diện và học sinh; quyền cấp theo phạm vi. & Chỉ truy cập learner đã liên kết và còn được cấp quyền; thu hồi/chỉnh sửa consent. \\
+Tutor & Nhận ca phù hợp chuyên môn, chuẩn bị buổi học và ghi nhận nội dung học tập. & Hồ sơ tutor, môn/khối, xác minh, lịch; learner data tối thiểu cho ca đã nhận. & Không duyệt user ngoài ca được phân; chỉ mở profile học tập theo consent và giai đoạn ghép. \\
+Coordinator & Đảm bảo yêu cầu đủ dữ liệu, xem gợi ý, kiểm tra và điều phối ghép. & Queue yêu cầu, hồ sơ liên quan, lý do/nhật ký quyết định. & Xem shortlist, từ chối/thêm/đổi thứ tự, ghi lý do, yêu cầu bổ sung; không chẩn đoán. \\
+Admin / privacy & Quản lý cấu hình, role, audit, retention và giám sát dịch vụ. & Metadata vận hành; truy cập hồ sơ nhạy cảm chỉ khi có nhiệm vụ được cấp. & Cấu hình và xử lý hỗ trợ theo quyền; mọi lần truy cập đặc quyền cần audit. \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Nguyên tắc phân quyền}
+\begin{itemize}
+  \item API backend kiểm tra role \emph{và} phạm vi tài nguyên ở mỗi request; ẩn tab trên app không phải kiểm soát an ninh.
+  \item Guardian--learner là quan hệ có trạng thái, quyền cụ thể và thời điểm hết hiệu lực; không suy ra từ email/trùng họ tên.
+  \item Coordinator chỉ thấy ca thuộc nhóm/địa bàn được phân công. Tutor chỉ thấy dữ liệu learner sau khi gia đình đồng ý cho xem hồ sơ ghép.
+  \item Chairman hoặc admin hiện có không tự động được xem hồ sơ trẻ; vai trò tổ chức cần quyền riêng, mục đích rõ và audit.
+  \item Quyền truy cập, consent, quyết định ghép và thay đổi profile đều có actor, thời gian, phạm vi và lý do.
+\end{itemize}
+
+\section{Module mobile mục tiêu}
+
+\begin{tabularx}{\textwidth}{p{3.2cm}p{5.9cm}Y}
+\toprule
+\textbf{Module} & \textbf{Chức năng} & \textbf{Người dùng chính} \\
+\midrule
+Identity \,\&\, link & Đăng nhập, khôi phục phiên, liên kết guardian--learner, trạng thái consent và role. & Tất cả \\
+Learner profile & Mục tiêu môn học, khối lớp, sở thích, cách giao tiếp, điều chỉnh do gia đình/người học chọn, lịch và giới hạn chia sẻ. & Learner, guardian, coordinator theo phạm vi \\
+Tutor profile \,\&\, verification & Môn/khối dạy, kinh nghiệm, hình thức, ngôn ngữ, cách dạy tự mô tả, lịch, giấy tờ và kết quả xác minh. & Tutor, coordinator \\
+Support request & Tạo yêu cầu theo môn, mức độ hỗ trợ mong muốn, địa bàn/học trực tuyến, lịch, người liên hệ và consent. & Guardian/learner \\
+Matching orchestrator & Kiểm tra điều kiện, tạo shortlist, giải thích tiêu chí, version thuật toán và trạng thái hàng đợi. & Backend, coordinator \\
+Coordinator workspace & Review hồ sơ tối thiểu, kiểm tra rủi ro/tương thích, chọn/no-match/đề nghị thêm dữ liệu, ghi lý do. & Coordinator \\
+Choice and booking & Gia đình/học sinh xem giới thiệu phù hợp, chấp nhận/từ chối, chọn buổi thử, xác nhận hoặc đổi lịch. & Guardian/learner/tutor \\
+Learning session & Agenda trước buổi, trạng thái buổi, ghi chú mục tiêu học tập, phản hồi sau buổi. & Tutor, learner, guardian theo consent \\
+Safety and support & Báo vấn đề riêng tư, hành vi, lịch hoặc chất lượng; điều phối đến người phụ trách. & Tất cả vai trò được xác thực \\
+Notifications & Báo trạng thái yêu cầu, booking, nhắc lịch, cập nhật consent và thông báo an toàn. & Tùy role \\
+Governance & Audit, quyền dữ liệu, retention, model/config version, fairness và chỉ số dịch vụ. & Admin/privacy, coordinator được phân quyền \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Điều hướng gợi ý}
+\begin{itemize}
+  \item \textbf{Learner/guardian:} Tổng quan \(\rightarrow\) Hồ sơ học \(\rightarrow\) Yêu cầu ghép \(\rightarrow\) Chọn tutor \(\rightarrow\) Lịch/buổi học \(\rightarrow\) Hỗ trợ.
+  \item \textbf{Tutor:} Ca được mời \(\rightarrow\) Hồ sơ ca đã được chia sẻ \(\rightarrow\) Lịch \(\rightarrow\) Chuẩn bị buổi \(\rightarrow\) Ghi nhận/feedback.
+  \item \textbf{Coordinator:} Queue mới \(\rightarrow\) Kiểm tra hồ sơ \(\rightarrow\) shortlist \(\rightarrow\) quyết định \(\rightarrow\) theo dõi ghép/đổi tutor.
+  \item \textbf{Admin/privacy:} role \& consent audit, cấu hình quy tắc, chất lượng matching, lỗi/sự cố, data retention.
+\end{itemize}
+
+\section{Luồng nghiệp vụ và kiến trúc đích}
+
+\subsection{Luồng ghép có coordinator kiểm soát}
+\begin{enumerate}
+  \item Guardian/learner đăng nhập, liên kết learner, xem giải thích dữ liệu cần thiết và chọn phạm vi consent.
+  \item Người đại diện cùng người học tạo mục tiêu học tập: môn, khối lớp, hình thức, lịch, địa bàn và hỗ trợ/điều chỉnh họ muốn chia sẻ.
+  \item Backend kiểm tra tính đầy đủ, trạng thái consent và xác minh tutor. Hệ thống áp dụng điều kiện bắt buộc trước khi xếp hạng.
+  \item Matching engine tạo danh sách ứng viên đủ điều kiện, lý do phù hợp, điểm không khớp và độ không chắc chắn. Nếu không có ứng viên phù hợp, trả trạng thái \emph{no match}; không bịa shortlist.
+  \item Coordinator xem hồ sơ tối thiểu, xác nhận/loại/đổi thứ tự/thêm ứng viên hoặc yêu cầu bổ sung thông tin; mỗi hành động có lý do.
+  \item Gia đình và learner phù hợp độ tuổi/cách tham gia xem thông tin tutor được phép chia sẻ, đặt câu hỏi và chấp nhận/từ chối.
+  \item Sau consent cuối, tutor được xem phần profile cần để chuẩn bị. Hai bên thống nhất buổi đầu và lịch.
+  \item Sau buổi, tutor và gia đình gửi phản hồi theo vai trò. Người học có cách phản hồi đơn giản/tùy chọn; coordinator theo dõi đổi tutor hoặc dừng dịch vụ.
+\end{enumerate}
+
+\begin{figure}[ht]
+\centering
+\resizebox{0.91\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\small,>=Latex,
+  actor/.style={draw=ink,rounded corners=2mm,fill=white,text width=3.05cm,minimum height=0.9cm,align=center,line width=0.8pt},
+  stage/.style={draw=teal,rounded corners=2mm,fill=sky,text width=3.5cm,minimum height=1.05cm,align=center,line width=0.9pt},
+  human/.style={draw=ink,rounded corners=2mm,fill=amber,text width=3.5cm,minimum height=1.05cm,align=center,line width=0.9pt},
+  arrow/.style={-{Latex[length=2.3mm]},draw=teal,line width=0.9pt}
+]
+\node[actor] (family) at (0,0) {Guardian + learner\\mục tiêu, consent, lựa chọn};
+\node[actor] (tutor) at (12,0) {Tutor đã xác minh\\môn, lịch, phương thức};
+\node[stage] (request) at (0,-2.0) {Mobile: tạo yêu cầu\\hồ sơ tối thiểu};
+\node[stage] (eligibility) at (4,-2.0) {Backend: consent + hard filters\\đủ điều kiện / no-match};
+\node[stage] (rank) at (8,-2.0) {AI/rule ranking\\lý do + uncertainty};
+\node[human] (coord) at (8,-4.15) {Coordinator duyệt\\override / bổ sung / từ chối};
+\node[stage] (choice) at (4,-4.15) {Gia đình và learner\\chọn / từ chối / hỏi thêm};
+\node[stage] (session) at (0,-4.15) {Booking và buổi học\\feedback / rematch};
+\draw[arrow] (family) -- (request);
+\draw[arrow] (tutor) -- (rank);
+\draw[arrow] (request) -- (eligibility);
+\draw[arrow] (eligibility) -- (rank);
+\draw[arrow] (rank) -- (coord);
+\draw[arrow] (coord) -- (choice);
+\draw[arrow] (choice) -- (session);
+\draw[arrow] (session.west) -- ++(-1.1,0) |- (request.west);
+\node[font=\footnotesize,text=muted,align=center] at (6,-5.35) {Audit, phân quyền, consent, lý do quyết định và giám sát an toàn chạy xuyên suốt};
+\end{tikzpicture}%
+}
+\caption{Luồng mục tiêu: AI hỗ trợ shortlist, coordinator duyệt và gia đình/người học quyết định.}
+\label{fig:matching-flow}
+\end{figure}
+
+\subsection{Component architecture}
+\begin{figure}[ht]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\small,>=Latex,
+  client/.style={draw=teal,rounded corners=2mm,fill=sky,text width=2.8cm,minimum height=0.9cm,align=center},
+  svc/.style={draw=ink,rounded corners=2mm,fill=white,text width=2.9cm,minimum height=0.82cm,align=center},
+  data/.style={draw=muted,rounded corners=2mm,fill=mint,text width=2.65cm,minimum height=0.82cm,align=center},
+  external/.style={draw=muted,rounded corners=2mm,fill=amber,dashed,text width=2.55cm,minimum height=0.82cm,align=center},
+  flow/.style={-{Latex[length=2.1mm]},draw=teal,line width=0.8pt},
+  exchange/.style={{Latex[length=2.1mm]}-{Latex[length=2.1mm]},draw=teal,line width=0.8pt}
+]
+\node[client] (family) at (0,1.45) {Flutter mobile\\learner / guardian};
+\node[client] (tutor) at (0,-0.45) {Flutter mobile\\tutor / coordinator / admin};
+\node[svc] (api) at (4.25,0.5) {API gateway\\auth + resource RBAC};
+\node[svc] (profiles) at (8.1,2.45) {Profiles + consent\\support request};
+\node[svc] (match) at (8.1,0.5) {Matching orchestrator\\eligibility + explanations};
+\node[svc] (coord) at (8.1,-1.45) {Coordinator workflow\\decision + audit};
+\node[svc] (booking) at (8.1,-3.4) {Tutor booking\\session + feedback};
+\node[external] (queue) at (12.0,0.5) {Durable job queue\\retry / idempotency};
+\node[external] (model) at (15.75,0.5) {Model adapter\\versioned inference};
+\node[data] (audit) at (12.0,-1.45) {Append-only audit\\access / decisions};
+\node[data] (db) at (12.0,-3.4) {Relational data store\\consent / domain records};
+\node[data] (monitor) at (15.75,-1.45) {Metrics + fairness\\quality / drift};
+\draw[flow] (family.east) -- (api.west);
+\draw[flow] (tutor.east) -- (api.west);
+\draw[flow] (api.east) -- (profiles.west);
+\draw[flow] (profiles) -- (match);
+\draw[flow] (match) -- (coord);
+\draw[flow] (coord) -- (booking);
+\draw[exchange] (match.east) -- (queue.west);
+\draw[exchange] (queue.east) -- (model.west);
+\draw[flow] (coord.east) -- (audit.west);
+\draw[flow] (booking.east) -- (db.west);
+\coordinate (monitorbus) at (15.75,-2.35);
+\draw[flow] (match.east) -- ++(0.45,0) |- (monitorbus) -- (monitor.south);
+\end{tikzpicture}%
+}
+\caption{Kiến trúc đích TSSA. Backend source đã có matching đồng bộ, TF-IDF và adapter tùy chọn đến local BGE-M3; durable queue, worker bất đồng bộ, DB quan hệ, audit governance và fairness monitoring trong sơ đồ là phần đề xuất.}
+\label{fig:architecture}
+\end{figure}
+
+\textbf{Lựa chọn thiết kế khởi điểm:} giữ backend modular monolith nếu đội hiện tại phù hợp; đặt TSSA thành domain module rõ ranh giới thay vì tách microservice chỉ vì có AI. Matching backend hiện tại đã gọi BGE-M3 tùy cấu hình qua local embedding adapter; chưa có durable queue hoặc worker cho matching. Chỉ thêm worker/hàng đợi khi yêu cầu latency, retry hoặc scale được đo. Dùng kho dữ liệu giao dịch thay JSON files trước khi vận hành nhiều người dùng thật; chốt công nghệ qua threat model và vận hành. Mọi inference tiếp tục chạy sau API, giới hạn trường được gửi, có version, audit và cơ chế tắt.
+
+\subsection{Đối tượng dữ liệu mục tiêu}
+\begin{tabularx}{\textwidth}{p{3.4cm}p{4.6cm}Y}
+\toprule
+\textbf{Entity} & \textbf{Trường chính dự kiến} & \textbf{Quy tắc truy cập/ghi chú} \\
+\midrule
+Account / RoleBinding & accountId, role, status, tenant/group scope & Tách danh tính đăng nhập khỏi liên kết guardian--learner. Backend kiểm tra mọi lần truy cập. \\
+GuardianLink / ConsentGrant & guardianId, learnerId, purpose, fields, grantedAt, expiresAt, revokedAt, evidenceRef & Quyền có mục đích, phạm vi và thời hạn; thu hồi phải ngăn chia sẻ mới. \\
+Learner profile & learnerId, grade, subjects, goals, preferred format, learner-chosen supports, schedule, share scope & Không bắt buộc chẩn đoán; mục sức khỏe (nếu thực sự cần) tách riêng, hạn chế trường người xem. \\
+TutorProfile / Verification & subjects, grades, modalities, availability, experience claims, verification status/evidence & Chỉ tutor đủ điều kiện nội bộ vào pool. Không hiển thị bản sao giấy tờ cho guardian. \\
+SupportRequest & requester, learner, criteria, consentVersion, status, createdAt & Có state transitions; không ghi nhận khi consent thiếu/hết hạn. \\
+MatchRun / Candidate & runId, algorithmVersion, filters, candidateId, reasonCodes, uncertainty, timestamps & Lưu đủ để tái kiểm tra; xóa/tách dữ liệu nhận dạng khỏi phân tích khi có thể. \\
+Coordinator decision & actor, candidate, decision, rationale, time & Bắt buộc lý do cho override/no-match; audit không cho sửa lặng lẽ. \\
+Booking / SessionNote & parties, time, status, learning objective, summary, feedback & Nội dung học, không phải hồ sơ trị liệu; không ghi âm/video mặc định. \\
+SafetyCase / AuditEvent & case type, priority, handler, status, access/action log & Truy cập hạn chế; retention và quy trình tiếp nhận cần nhóm vận hành chốt. \\
+\bottomrule
+\end{tabularx}
+
+\section{Matching AI: phạm vi, luật và human oversight}
+
+\subsection{AI-native trong tài liệu này nghĩa là gì?}
+AI-native ở đây nghĩa là thiết kế domain, dữ liệu, workflow và giao diện để đánh giá gợi ý máy có kiểm soát. Backend SPM hiện đã có matching general-purpose: hard eligibility, TF-IDF word/bigram làm mặc định, tùy chọn BGE-M3 embeddings, feature score có lý do, model/version metadata và feedback. Đây là source capability, chưa phải matching đã được xác nhận cho TSSA hoặc cho hồ sơ autism-specific. Nó không có nghĩa là generative AI ở mọi màn hình, tự động hóa consent hay trao quyền quyết định cho mô hình. Phần 5 mô tả pipeline hiện tại; phần này đặc tả cách phát triển từ baseline đó sang quy trình TSSA có family/learner choice và bảo vệ dữ liệu.
+
+\subsection{Hai giai đoạn matching}
+\textbf{Bước A — điều kiện đủ/không đủ.} TSSA yêu cầu tutor đang hoạt động, được xác minh theo policy đã duyệt; đúng môn và khối lớp; có lịch phù hợp; đúng phương thức/địa bàn; sẵn sàng với các điều chỉnh learner/gia đình đã chọn chia sẻ; không có trạng thái hạn chế. Backend hiện đã kiểm tra registration status APPROVED ở route, rồi kiểm môn/ngôn ngữ/mode/location/availability/capacity trong hard-constraint module; chưa có tutor verification/safeguarding evidence hoặc support-adjustment consent trong contract đó. Khi chuyển sang TSSA cần bổ sung các điều kiện domain này trước ranking. Nếu điều kiện bắt buộc thiếu, ứng viên bị loại hoặc đưa coordinator xem; không dùng AI để vượt filter.
+
+\textbf{Bước B — xếp hạng ứng viên đủ điều kiện.} Ban đầu dùng scorecard giải thích được. Các yếu tố có thể thử nghiệm: kinh nghiệm dạy môn/khối, cách dạy và giao tiếp được tutor tự mô tả, lịch, phương thức, khoảng cách, điều chỉnh ưa thích, mức sẵn có và phản hồi của các bên. Trọng số là cấu hình thử nghiệm được review, không phải hằng số khoa học. Chẩn đoán, IQ, giới, thu nhập, địa chỉ chính xác, hành vi suy luận và dữ liệu không cần thiết không là đặc trưng mặc định.
+
+\[
+\operatorname{eligible}(t,s)=V_t\land S_t\land G_t\land A_t\land M_t\land C_s,
+\qquad
+\operatorname{rankScore}(t,s)=\sum_{k=1}^{K}w_k\,m_k(t,s),\quad \sum_k w_k=1.
+\]
+Ở đây $V_t$ là tutor đã xác minh; $S_t,G_t$ là môn/lớp thỏa điều kiện; $A_t$ là lịch, $M_t$ là phương thức/địa bàn, $C_s$ là consent đang có. $m_k$ là mức phù hợp của một tiêu chí mềm. Công thức chỉ là baseline để đặc tả; trọng số, chuẩn hóa và thang đo cần được pilot đánh giá với chuyên gia giáo dục hòa nhập, gia đình và người tự kỷ tham gia thiết kế.
+
+\subsection{Giải thích kết quả và trường hợp không có match}
+Mỗi ứng viên trong shortlist cần hiển thị: các điều kiện bắt buộc đạt; 2--4 lý do phù hợp dựa trên profile đã chia sẻ; điểm chưa khớp; ngày cập nhật availability; trạng thái xác minh; version scorecard/model; độ không chắc chắn hoặc cảnh báo dữ liệu thiếu. Không diễn giải score thành xác suất thành công hay đảm bảo tutor phù hợp. Khi chưa đủ dữ liệu, trả \emph{cần bổ sung/điều phối xem}; khi không ai qua filter, trả \emph{chưa có ứng viên phù hợp} cùng tùy chọn sửa lịch/phương thức/yêu cầu hoặc chờ coordinator.
+
+\subsection{Quyền quyết định}
+\begin{itemize}
+  \item Coordinator có quyền duyệt, bỏ qua, xếp lại, đề nghị bổ sung dữ liệu, chọn no-match và ghi lý do.
+  \item Gia đình/người đại diện và learner khi có thể tham gia là bên lựa chọn cuối trước khi chia sẻ hồ sơ đầy đủ/đặt buổi học.
+  \item Tutor có thể từ chối ca. Hệ thống không phạt tutor vì từ chối theo giới hạn lịch/năng lực được khai báo.
+  \item Không tự gửi profile nhạy cảm cho model provider nếu chưa đánh giá vendor, retention, vùng xử lý và mục đích; ưu tiên feature token/field tối thiểu phía server.
+  \item Không dùng mô hình để chẩn đoán, đánh giá nguy cơ lâm sàng, đọc nét mặt/giọng nói hay suy luận trạng thái tâm lý của trẻ.
+\end{itemize}
+
+\subsection{Lộ trình đánh giá AI}
+\begin{enumerate}
+  \item \textbf{Concierge/manual:} coordinator ghép bằng tiêu chí ghi thành checklist; đo nhu cầu, thiếu dữ liệu, thời gian/ca, chấp nhận, rematch và sự cố.
+  \item \textbf{Rule-based baseline:} lọc điều kiện, xếp hạng minh bạch trên dữ liệu đã consent; coordinator xem và ghi override.
+  \item \textbf{Shadow mode:} chạy model song song, không ảnh hưởng lựa chọn/shortlist mà gia đình nhìn thấy; so sánh với baseline và quyết định của coordinator.
+  \item \textbf{Pilot có kiểm soát:} chỉ mở gợi ý sau review an toàn/fairness, tài liệu giải thích, cách tắt/rollback và kế hoạch xử lý lỗi.
+  \item \textbf{Theo dõi liên tục:} chất lượng dữ liệu, độ lệch theo nhóm, tỷ lệ no-match, override, khiếu nại, drift, phiên bản và sự cố; rollback nếu vượt ngưỡng nhóm phê duyệt.
+\end{enumerate}
+
+\section{Riêng tư, an toàn trẻ em và accessibility}
+
+\subsection{Nguyên tắc dữ liệu}
+Hồ sơ học tập có thể chứa thông tin trẻ em, khuyết tật/sức khỏe, ảnh và mối quan hệ gia đình. Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15 và Nghị định 356/2025/NĐ-CP có hiệu lực từ 01/01/2026 theo Cơ sở dữ liệu quốc gia về văn bản pháp luật; Luật Trí tuệ nhân tạo số 134/2025/QH15 có hiệu lực từ 01/03/2026 \cite{pdpLaw,decree356,aiLaw}. Tài liệu này không thay thế tư vấn pháp lý; trước pilot, nhóm cần rà soát nghĩa vụ cụ thể, consent của người đại diện, quyền của trẻ, hồ sơ đánh giá tác động, bên xử lý dữ liệu, chuyển dữ liệu và thời hạn lưu.
+
+\begin{itemize}
+  \item Thu trường dữ liệu phục vụ mục đích đã giải thích; trường nhạy cảm là tùy chọn trừ khi có lý do sản phẩm cụ thể đã duyệt.
+  \item Phân tách hồ sơ học tập khỏi ghi chú sức khỏe; có quyền xem, sửa, xuất và yêu cầu xóa theo quy trình áp dụng.
+  \item Lưu consent theo mục đích và trường; khi thu hồi, chặn chia sẻ mới, hủy job chưa chạy nếu có thể, và thông báo bên đã nhận dữ liệu theo quy trình.
+  \item Mặc định không upload chẩn đoán, thuốc, báo cáo lâm sàng hoặc video/voice. Cho phép profile chỉ ghi nhu cầu học và điều chỉnh do người dùng chủ động chọn.
+  \item Hạn chế PII trong log, analytics, push notification và prompt; mã hóa truyền/lưu trữ, quản lý secret server-side, backup có retention, audit truy cập đặc quyền.
+  \item Không dùng dữ liệu learner để huấn luyện model general-purpose theo mặc định. Mọi secondary use cần căn cứ, consent và thẩm định riêng.
+\end{itemize}
+
+\subsection{An toàn người học}
+\begin{itemize}
+  \item Có kênh báo vấn đề từ guardian, learner và tutor; phân loại sự cố, giao người xử lý, log hành động và kết quả.
+  \item Giảm trao đổi riêng ngoài nền tảng; hiển thị người giám hộ/đầu mối đã chọn và quy tắc liên lạc. Không bật chat riêng trẻ--AI.
+  \item Không công khai vị trí chính xác, trường/lớp, lịch cố định hoặc ảnh trẻ cho người chưa được ghép/ủy quyền.
+  \item Mọi gợi ý AI có nhãn là gợi ý máy; cung cấp lý do có thể hiểu, người chịu trách nhiệm và cách phản hồi/khiếu nại.
+  \item Safety case khẩn cấp không được xử lý như ticket hỗ trợ thông thường; hiện app không cam kết trực 24/7. UI phải nêu kênh liên hệ khẩn cấp mà đơn vị vận hành xác minh trước launch.
+\end{itemize}
+
+\subsection{Accessibility cần thiết kế và kiểm thử}
+\begin{itemize}
+  \item Giao diện có cấu trúc nhất quán, câu ngắn, từ cụ thể, tránh hình ảnh gây quá tải; người dùng kiểm soát âm thanh/animation.
+  \item Hỗ trợ text scaling, screen reader semantics, tương phản, focus order, chạm mục tiêu đủ lớn, mô tả icon, lỗi gắn rõ với trường.
+  \item Luồng nhiều bước có tiến độ, save draft và nút quay lại; không đặt time limit bất ngờ; minh họa trước khi gửi dữ liệu nhạy cảm.
+  \item Cho phép người dùng chọn phương thức phản hồi phù hợp; không bắt buộc giao tiếp bằng lời hoặc hoàn thành feedback dài.
+  \item Kiểm thử usability với người tự kỷ ở độ tuổi phù hợp, gia đình, tutor và chuyên gia accessibility; không coi một profile đại diện mọi người tự kỷ.
+\end{itemize}
+
+\section{User Stories và Acceptance Criteria}
+
+Các Story dưới đây mô tả dịch vụ mobile mục tiêu. Chúng không được sắp theo Scrum. Mỗi AC dùng để tạo test case sau này; mọi hành vi backend/AI chỉ trở thành sản phẩm khi được implement và kiểm chứng.
+
+\storytitle{US-TSS-01}{Đăng nhập và xem đúng chức năng theo vai trò}
+\story{Là người dùng, tôi muốn đăng nhập và chỉ nhìn thấy chức năng thuộc vai trò/phạm vi được cấp để bảo vệ thông tin học tập.}
+\acceptance
+\begin{itemize}
+  \item \ac{01a} Với thông tin xác thực hợp lệ, app tạo phiên và gọi API hồ sơ; thông tin sai trả lỗi chung không xác nhận tài khoản có tồn tại.
+  \item \ac{01b} Khi token hết hạn/không hợp lệ, app yêu cầu xác thực lại và không hiển thị dữ liệu cache đã hết quyền.
+  \item \ac{01c} API từ chối truy cập resource không thuộc account, learner link hoặc scope coordinator; thay đổi URL/request body ở client không vượt quyền.
+  \item \ac{01d} Role không nhận diện được chỉ xem màn hình an toàn tối thiểu; app không tự nâng quyền.
+  \item \ac{01e} API role tutor được phân biệt trong domain TSSA; việc hiện tại ánh xạ tutor sang lecturer không được xem là kiểm soát đủ cho release.
+\end{itemize}
+
+\storytitle{US-TSS-02}{Liên kết phụ huynh/người giám hộ với learner}
+\story{Là người đại diện của trẻ, tôi muốn liên kết learner bằng quy trình được xác minh để quản lý yêu cầu và consent đúng phạm vi.}
+\acceptance
+\begin{itemize}
+  \item \ac{02a} App yêu cầu bằng chứng/liên kết theo quy trình tổ chức đã chọn; không tự liên kết bằng họ tên hoặc email giống nhau.
+  \item \ac{02b} Guardian chỉ mở learner đang có link còn hiệu lực; link bị thu hồi chặn request tiếp theo và chia sẻ mới.
+  \item \ac{02c} Tổ chức có thể cấp quyền theo mục đích (hồ sơ, lịch, feedback); mỗi quyền hiển thị trạng thái và thời hạn.
+  \item \ac{02d} Learner thấy thông tin giải thích phù hợp độ tuổi/cách giao tiếp và có thể bày tỏ không muốn chia sẻ khi quy trình cho phép.
+  \item \ac{02e} Thay đổi người đại diện hoặc tranh chấp quyền sở hữu được chuyển coordinator xử lý, không tự động giải quyết bằng AI.
+\end{itemize}
+
+\storytitle{US-TSS-03}{Tạo hồ sơ mục tiêu và cách học}
+\story{Là learner và gia đình, tôi muốn mô tả mục tiêu môn học, sở thích và điều chỉnh tôi chọn để tutor chuẩn bị cách hỗ trợ phù hợp.}
+\acceptance
+\begin{itemize}
+  \item \ac{03a} Profile có môn, khối lớp, mục tiêu học, format, lịch và các điều chỉnh tự chọn; các trường bắt buộc được ghi rõ trước khi lưu.
+  \item \ac{03b} Chẩn đoán lâm sàng không bắt buộc để tạo yêu cầu; nếu trường nhạy cảm được thêm sau này, nó có mục đích, consent, visibility riêng.
+  \item \ac{03c} Guardian/learner xem trước những trường sẽ chia sẻ với coordinator, ứng viên và tutor ở từng giai đoạn.
+  \item \ac{03d} Người có quyền sửa profile nhìn thấy thời điểm và nội dung thay đổi; sửa profile không tự chia sẻ trường mới khi chưa được consent.
+  \item \ac{03e} Màn hình cho phép lưu nháp và quay lại mà không mất dữ liệu đã nhập.
+\end{itemize}
+
+\storytitle{US-TSS-04}{Đăng ký và xác minh tutor}
+\story{Là tutor, tôi muốn khai báo năng lực, lịch và phạm vi hỗ trợ để coordinator đánh giá trước khi nhận lời mời ghép.}
+\acceptance
+\begin{itemize}
+  \item \ac{04a} Profile tách môn/khối, hình thức dạy, availability, kinh nghiệm khai báo và minh chứng được yêu cầu.
+  \item \ac{04b} Trạng thái xác minh là pending/verified/rejected/expired; chỉ verified và active mới vào danh sách ứng viên.
+  \item \ac{04c} Guardian không xem giấy tờ gốc/PII verification; chỉ xem thông tin tutor được duyệt để giới thiệu.
+  \item \ac{04d} Tutor được sửa availability, tạm dừng hồ sơ và từ chối lời mời với lý do tùy chọn.
+  \item \ac{04e} Tiêu chí xác minh, người duyệt, ngày duyệt và ngày hết hạn có thể kiểm tra trong audit.
+\end{itemize}
+
+\storytitle{US-TSS-05}{Tạo yêu cầu tìm tutor}
+\story{Là guardian/learner, tôi muốn gửi yêu cầu theo môn, lớp, lịch và cách học để coordinator tìm tutor đáp ứng nhu cầu thực tế.}
+\acceptance
+\begin{itemize}
+  \item \ac{05a} Request lưu được môn, khối lớp, format, khoảng lịch, địa bàn ở mức cần thiết, mục tiêu và consentVersion.
+  \item \ac{05b} Nếu thiếu trường bắt buộc hoặc consent hết hạn, backend không đưa yêu cầu vào matching và app nói rõ việc cần làm.
+  \item \ac{05c} Request có trạng thái: nháp, đã gửi, chờ bổ sung, matching, coordinator review, chờ gia đình chọn, đã đặt lịch hoặc đã đóng.
+  \item \ac{05d} Guardian có thể xem trạng thái và sửa yêu cầu trước khi coordinator bắt đầu review; thay đổi được version hóa.
+  \item \ac{05e} Gửi lặp do mất mạng không tạo duplicate request; client có thể thử lại an toàn.
+\end{itemize}
+
+\storytitle{US-TSS-06}{Lọc điều kiện tutor trước khi xếp hạng}
+\story{Là coordinator, tôi muốn hệ thống loại ứng viên không đáp ứng điều kiện bắt buộc trước khi gợi ý để shortlist không làm mờ rào cản an toàn hoặc lịch.}
+\acceptance
+\begin{itemize}
+  \item \ac{06a} Chỉ tutor active, verified, đúng môn và khối lớp theo rule đã duyệt mới đủ điều kiện.
+  \item \ac{06b} Lịch, format/địa bàn, consent và giới hạn ca được kiểm tra theo dữ liệu hiện hành; mỗi lượt ghi timestamp/snapshot cần thiết.
+  \item \ac{06c} Candidate bị loại có reason code; thiếu dữ liệu tạo trạng thái review thay vì mặc định là phù hợp.
+  \item \ac{06d} Nếu không còn candidate hợp lệ, kết quả là no-match; không nới hard filter ngầm để đủ số lượng.
+  \item \ac{06e} Quy tắc hard filter có owner/version và không thể sửa bởi model inference.
+\end{itemize}
+
+\storytitle{US-TSS-07}{Nhận shortlist có giải thích}
+\story{Là coordinator, tôi muốn xem ứng viên, lý do và dữ liệu còn thiếu để đánh giá gợi ý trước khi giới thiệu cho gia đình.}
+\acceptance
+\begin{itemize}
+  \item \ac{07a} Mỗi candidate có reason codes gắn với field đã chia sẻ; không hiển thị score đơn độc như xác suất thành công.
+  \item \ac{07b} Kết quả lưu algorithm/model version, input field versions, thời điểm, trạng thái và uncertainty/data gaps.
+  \item \ac{07c} Nếu AI provider lỗi, timeout hoặc trả output sai schema, workflow giữ trạng thái; coordinator có baseline/manual fallback.
+  \item \ac{07d} UI gắn nhãn gợi ý AI và nói rõ coordinator chưa duyệt/đã duyệt.
+  \item \ac{07e} Không có AI-generated diagnosis, personality trait hoặc kết luận về năng lực trẻ trong output.
+\end{itemize}
+
+\storytitle{US-TSS-08}{Duyệt, override hoặc dừng ghép}
+\story{Là coordinator, tôi muốn duyệt, đổi thứ tự, thêm/bỏ ứng viên, yêu cầu thông tin hoặc dừng ghép để chịu trách nhiệm về bước giới thiệu.}
+\acceptance
+\begin{itemize}
+  \item \ac{08a} Coordinator có thể approve, reject, reorder, request-info, no-match và close theo quyền được cấp.
+  \item \ac{08b} Mọi quyết định/override lưu actor, thời gian, candidate/run, lý do và dữ liệu/version dùng lúc quyết định.
+  \item \ac{08c} Khi consent không còn hiệu lực, hồ sơ chi tiết và hành động giới thiệu bị khóa cho đến khi có consent mới.
+  \item \ac{08d} Tutor chưa xác minh bị chặn khỏi shortlist chính thức.
+  \item \ac{08e} Queue cho biết tuổi yêu cầu, trạng thái, người phụ trách, chờ bổ sung hay lỗi; role khác không thể xem toàn bộ queue.
+\end{itemize}
+
+\storytitle{US-TSS-09}{Chọn hoặc từ chối tutor}
+\story{Là learner và gia đình, tôi muốn xem hồ sơ giới thiệu vừa đủ, hỏi thêm, đồng ý hoặc từ chối để quyết định người đồng hành học tập.}
+\acceptance
+\begin{itemize}
+  \item \ac{09a} Chỉ candidate đã coordinator duyệt được trình bày cho gia đình.
+  \item \ac{09b} Thông tin hiển thị gồm môn/lớp, cách dạy do tutor khai báo, hình thức, lịch phù hợp và trạng thái xác minh; không lộ PII dư thừa.
+  \item \ac{09c} Gia đình/learner có lựa chọn accept, decline, ask-question hoặc request-another; decline không làm mất quyền tiếp tục dịch vụ.
+  \item \ac{09d} Chưa có accept cuối thì tutor chưa nhận hồ sơ chi tiết và không tạo booking.
+  \item \ac{09e} Mọi phản hồi chuyển trạng thái request và thông báo cho coordinator theo quyền.
+\end{itemize}
+
+\storytitle{US-TSS-10}{Đặt lịch và xử lý thay đổi}
+\story{Là guardian, tutor và learner, tôi muốn xác nhận lịch, đổi hoặc hủy buổi để tránh nhầm lịch và biết rõ trách nhiệm mỗi bên.}
+\acceptance
+\begin{itemize}
+  \item \ac{10a} Booking chỉ được xác nhận khi tutor chấp thuận khung giờ và gia đình chọn; backend kiểm tra không trùng lịch trong scope hệ thống.
+  \item \ac{10b} Mỗi bên nhìn thấy múi giờ, địa điểm/format và chính sách thay đổi trước khi xác nhận.
+  \item \ac{10c} Hủy/đổi lịch lưu actor, timestamp và trạng thái; không xóa lịch sử booking.
+  \item \ac{10d} Khi tutor rút khỏi ca, request quay về coordinator review/rematch; app không tự gán người mới.
+\end{itemize}
+
+\storytitle{US-TSS-11}{Chuẩn bị và ghi nhận buổi học}
+\story{Là tutor, tôi muốn xem mục tiêu và hỗ trợ đã được chia sẻ, rồi ghi ngắn gọn nội dung học để buổi kế tiếp có thể tiếp nối.}
+\acceptance
+\begin{itemize}
+  \item \ac{11a} Tutor chỉ đọc phần learner profile còn consent và gắn với booking được nhận.
+  \item \ac{11b} Agenda/summary tập trung vào môn học, hoạt động, điều chỉnh được dùng và bước tiếp theo; không bắt tutor đưa chẩn đoán/lời khuyên điều trị.
+  \item \ac{11c} Không ghi âm/video mặc định; nếu tổ chức sau này cần ghi, phải là feature riêng có consent, mục đích và retention review.
+  \item \ac{11d} Summary lưu người tạo, thời gian và lịch sử chỉnh sửa; guardian nhìn thấy đúng phần đã chia sẻ.
+  \item \ac{11e} Tutor có thể đánh dấu buổi không diễn ra và nêu lý do mà không giả tạo kết quả học.
+\end{itemize}
+
+\storytitle{US-TSS-12}{Gửi phản hồi và yêu cầu ghép lại}
+\story{Là gia đình/learner, tôi muốn phản hồi sau buổi và yêu cầu đổi tutor khi cần mà không phải tiết lộ nhiều dữ liệu hơn mức cần thiết.}
+\acceptance
+\begin{itemize}
+  \item \ac{12a} Feedback hỏi rõ trải nghiệm, mức phù hợp lịch/cách học, điều gì nên tiếp tục/thay đổi; không bắt chấm điểm tính cách trẻ.
+  \item \ac{12b} Learner có lựa chọn phản hồi ngắn/phi ngôn ngữ nếu thiết kế hỗ trợ và guardian không trả lời thay mọi lựa chọn.
+  \item \ac{12c} Request rematch tạo case mới liên kết booking cũ nhưng không xóa lịch sử hoặc chia sẻ feedback ngoài scope.
+  \item \ac{12d} Coordinator xem lý do và điều phối; model chỉ dùng field feedback được phép, không tự loại tutor hay gắn nhãn learner.
+\end{itemize}
+
+\storytitle{US-TSS-13}{Báo vấn đề an toàn hoặc chất lượng}
+\story{Là learner, guardian hoặc tutor, tôi muốn báo vấn đề tới đầu mối phù hợp để có người tiếp nhận, theo dõi và phản hồi.}
+\acceptance
+\begin{itemize}
+  \item \ac{13a} Form có loại sự cố, mô tả, booking liên quan tùy chọn, mức riêng tư và cách liên hệ; chỉ thu nội dung cần xử lý.
+  \item \ac{13b} Sau khi gửi, app xác nhận đã nhận và cung cấp mã case; không hứa đã giải quyết nếu chưa có handler.
+  \item \ac{13c} Case chỉ hiển thị cho người xử lý được phân công và privacy/safety role được cấp; tất cả lần xem/chuyển trạng thái được audit.
+  \item \ac{13d} UI phân biệt hỗ trợ vận hành thông thường với trường hợp cần hỗ trợ khẩn; kênh khẩn phải được tổ chức xác minh trước khi phát hành.
+  \item \ac{13e} Report không làm mất quyền yêu cầu rematch/đóng dịch vụ; policy chống trả đũa được hiển thị.
+\end{itemize}
+
+\storytitle{US-TSS-14}{Nhận thông báo đúng vai trò}
+\story{Là người dùng, tôi muốn nhận thông báo về thay đổi có liên quan đến mình để phối hợp mà không lộ thông tin nhạy cảm trên màn hình khóa.}
+\acceptance
+\begin{itemize}
+  \item \ac{14a} Thông báo gửi theo event: trạng thái request, hỏi bổ sung, quyết định, booking, đổi lịch, consent và case được phép xem.
+  \item \ac{14b} Push preview không chứa diagnosis, learner note, chi tiết incident hoặc địa điểm riêng tư.
+  \item \ac{14c} Người dùng có thể tắt nhóm thông báo không bắt buộc; thông báo an toàn quan trọng dùng kênh đã được policy xác nhận.
+  \item \ac{14d} Mất/nhận trùng event không tạo booking hoặc quyết định trùng; trạng thái chính đọc từ API.
+\end{itemize}
+
+\storytitle{US-TSS-15}{Dùng app với nhu cầu accessibility và mạng yếu}
+\story{Là learner/guardian, tôi muốn hiểu từng bước và tiếp tục công việc khi mạng không ổn định để không bị loại khỏi dịch vụ vì cách dùng app.}
+\acceptance
+\begin{itemize}
+  \item \ac{15a} Form có nhãn screen reader, text scaling, focus order, tương phản và lỗi gắn với trường; hành động chính không chỉ dựa màu.
+  \item \ac{15b} Luồng hỗ trợ câu ngắn, thông báo tiến độ, điều khiển animation/âm thanh và nút quay lại.
+  \item \ac{15c} Draft có thể lưu cục bộ an toàn và gửi lại có idempotency; app không hiển thị “đã gửi” khi server chưa xác nhận.
+  \item \ac{15d} Nếu offline, người dùng vẫn xem được dữ liệu public/static cần thiết nhưng profile nhạy cảm cache có thời hạn và bị xóa khi logout/revoke theo policy.
+  \item \ac{15e} Release gate bao gồm usability review với người dùng đại diện; accessibility không được chỉ xác nhận bằng checklist tự động.
+\end{itemize}
+
+\storytitle{US-TSS-16}{Quản lý consent và vòng đời dữ liệu}
+\story{Là guardian/người dùng có quyền, tôi muốn xem, sửa, xuất, thu hồi hoặc yêu cầu xóa dữ liệu theo policy để hiểu dữ liệu của trẻ được dùng ra sao.}
+\acceptance
+\begin{itemize}
+  \item \ac{16a} Consent UI tách mục đích chia sẻ với coordinator, tutor, matching, thông báo và nghiên cứu/analytics nếu có.
+  \item \ac{16b} Màn hình privacy hiển thị data category, ai đã xem/nhận, thời điểm và retention policy có thể áp dụng.
+  \item \ac{16c} Thu hồi consent chặn hành động chia sẻ mới; job còn chờ được hủy hoặc cách ly và kết quả được log.
+  \item \ac{16d} Yêu cầu export/delete có trạng thái, người xử lý và phạm vi ngoại lệ được giải thích; API không xóa bừa audit bắt buộc giữ theo policy đã duyệt.
+  \item \ac{16e} Backup, logs, model provider và analytics nằm trong data inventory và có quy tắc retention/xóa được xác minh.
+\end{itemize}
+
+\storytitle{US-TSS-17}{Giám sát chất lượng và fairness của matching}
+\story{Là admin/privacy lead, tôi muốn theo dõi hiệu quả, no-match, override, khiếu nại và độ lệch để quyết định giữ, sửa hoặc tắt matching.}
+\acceptance
+\begin{itemize}
+  \item \ac{17a} Dashboard tách baseline/manual, rule-based, shadow và model-assisted; hiển thị số ca, khoảng thời gian, coverage và missingness.
+  \item \ac{17b} Chỉ số gồm tỷ lệ đủ điều kiện/no-match, thời gian shortlist, override, gia đình chấp nhận, hoàn tất buổi đầu, rematch, sự cố và tỷ lệ phản hồi.
+  \item \ac{17c} So sánh subgroup chỉ dùng dữ liệu có căn cứ/consent, cỡ mẫu đủ và review quyền riêng tư; không công bố nhóm nhỏ có thể tái nhận dạng.
+  \item \ac{17d} Từng release model có version, owner, model card, test cases, rollback path, incident contact và phê duyệt vận hành.
+  \item \ac{17e} Khi fairness/safety threshold vi phạm hoặc model output không kiểm chứng được, hệ thống tắt gợi ý AI và về manual/rule baseline.
+\end{itemize}
+
+\storytitle{US-TSS-18}{Xem audit và quản trị truy cập đặc quyền}
+\story{Là privacy/admin lead, tôi muốn kiểm tra ai truy cập dữ liệu learner và vì sao để xử lý khiếu nại, sự cố và rà soát quyền.}
+\acceptance
+\begin{itemize}
+  \item \ac{18a} Sự kiện login, xem profile nhạy cảm, đổi consent, export/delete, match decision và safety case ghi actor, time, action, resource id và result.
+  \item \ac{18b} Log không ghi access token, mật khẩu, toàn bộ prompt hoặc dữ liệu profile không cần thiết.
+  \item \ac{18c} Coordinator/admin có thể rà lại quyết định nhưng không sửa/xóa dấu vết gốc; correction tạo event mới có tham chiếu.
+  \item \ac{18d} Review role định kỳ có danh sách quyền hiện hành, người duyệt và ngày hết hạn; tài khoản bị khóa thu hồi quyền truy cập theo thời hạn vận hành xác định.
+\end{itemize}
+
+\section{Yêu cầu chất lượng và chỉ số pilot}
+
+Các ngưỡng dưới đây là \textbf{mục tiêu đề xuất để nhóm chốt trước pilot}, không phải kết quả đã đo hay cam kết SLA. Không nên tối ưu tốc độ ghép bằng cách hạ tiêu chí an toàn/phù hợp.
+
+\begin{tabularx}{\textwidth}{p{3.0cm}p{5.0cm}Y}
+\toprule
+\textbf{Nhóm} & \textbf{Mục tiêu khởi điểm} & \textbf{Đo bằng} \\
+\midrule
+Độ tin cậy dịch vụ & Pilot đề xuất availability API tháng \(\ge 99,5\%\); RPO \(\le 24\) giờ, RTO \(\le 8\) giờ nếu có dữ liệu production. & Uptime monitor, backup/restore rehearsal, incident log. \\
+Hiệu năng & API đọc profile/list P95 \(\le 1\) giây; matching shortlist P95 \(\le 3\) giây sau khi có dữ liệu đầy đủ; app hiển thị trạng thái queue khi xử lý lâu hơn. & Tracing theo endpoint; tách thời gian queue và inference. \\
+Bảo mật & 100\% API protected resource có auth + resource-scope check; không có secret/token trong log; role admin/coordinator review theo lịch. & Security review, access tests, log scan, role audit. \\
+Consent & 100\% match run và profile share gắn consent version hợp lệ tại thời điểm chạy/gửi. & Query đối soát consent lineage trên toàn bộ pilot case. \\
+Safety & 100\% safety case có người nhận xử lý, status và thời điểm hành động; target thời gian phản hồi do đơn vị vận hành đặt trước launch. & Case audit, escalation drill; không giả định đội trực 24/7. \\
+Matching & Đo eligibility, no-match, candidate coverage, coordinator override, accept/decline, rematch; không đặt target conversion trước baseline. & Theo cohort/thời điểm/algorithm version; báo missingness và mẫu số. \\
+Trải nghiệm & Đo thời gian hoàn thành form, bỏ dở, usability issue, gia đình/learner/tutor hài lòng và cảm nhận quyền lựa chọn. & Quan sát usability, survey ngắn tùy chọn, phỏng vấn đồng thuận. \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Metric definitions để tránh báo cáo sai}
+\begin{itemize}
+  \item \textbf{Time-to-shortlist:} thời điểm coordinator nhận shortlist trừ thời điểm request đủ trường/consent; báo median, P90 và số ca bị loại vì chưa đủ hồ sơ.
+  \item \textbf{No-match rate:} request no-match chia request đã chạy eligibility, không chia tổng user đăng ký.
+  \item \textbf{First-session completion:} booking có buổi đầu được xác nhận là đã diễn ra chia booking đã nhận; không quy thành cải thiện học tập.
+  \item \textbf{Family acceptance:} số request chấp nhận ít nhất một candidate sau review chia số request có shortlist được giới thiệu; kèm số decline/không phản hồi.
+  \item \textbf{Coordinator override:} run có thứ tự/ứng viên/quyết định thay đổi bởi coordinator chia tổng run có review; phân biệt thay đổi safety với thay đổi score.
+  \item \textbf{Rematch:} số yêu cầu đổi tutor sau buổi đầu chia số yêu cầu đã bắt đầu; phân loại môn, lịch, cách học, an toàn hoặc khác.
+\end{itemize}
+
+\section{API contract đề xuất}
+
+Đây là contract cho domain TSSA, không phải contract đang chạy. Backend đã có route matching tổng quát ở phần 5, nhưng các route bên dưới cần consent scope, hồ sơ learner/tutor riêng, lựa chọn gia đình/người học và coordinator scope. Prefix dự kiến là \texttt{/api/v1}; backend xác thực role và resource; thao tác ghi idempotent; response lỗi có mã ổn định và không làm lộ hồ sơ người khác.
+
+\begin{tabularx}{\textwidth}{p{4.9cm}p{2.7cm}Y}
+\toprule
+\textbf{Route dự kiến} & \textbf{Vai trò} & \textbf{Mục đích/điểm kiểm soát} \\
+\midrule
+POST\\\texttt{/guardian-links} & Guardian & Tạo liên kết; coordinator xác minh và cấp consent. \\
+GET\\\texttt{/learners/:id/profile} & Family/tutor ca & Trả field theo consent, mục đích và booking. \\
+PATCH\\\texttt{/learners/:id/profile} & Family & Version profile; field mới không tự thêm vào consent cũ. \\
+POST\\\texttt{/consents} & Representative & Grant/revoke theo mục đích, field và thời gian; audit. \\
+POST\\\texttt{/tutors} & Tutor & Tạo/cập nhật profile, khởi động verification. \\
+POST\\\texttt{/requests} & Family & Tạo yêu cầu; kiểm consent và completeness. \\
+POST\\\texttt{/requests/:id/matches} & Backend & Eligibility, ranking, version và async job state. \\
+GET\\\texttt{/matches/:id} & Coordinator & Candidate reasons, gaps, version; ẩn trước duyệt. \\
+POST\\\texttt{/matches/:id/decision} & Coordinator & Approve/reject/reorder/no-match/request-info, rationale. \\
+POST\\\texttt{/requests/:id/choice} & Family/learner & Accept/decline/question; chuyển trạng thái chia sẻ. \\
+POST\\\texttt{/bookings} & Guardian/tutor & Xác nhận giờ sau khi hai bên đồng ý và API cho phép. \\
+POST\\\texttt{/safety-cases} & Signed-in user & Báo vấn đề; trả case id và hướng dẫn tiếp theo. \\
+GET\\\texttt{/privacy/requests/:id} & Representative & Xem trạng thái yêu cầu export/delete. \\
+\bottomrule
+\end{tabularx}
+
+\subsection{Trạng thái job AI}
+Job matching gợi ý dùng state \texttt{QUEUED}, \texttt{RUNNING}, \texttt{COMPLETED}, \texttt{NO\_MATCH}, \texttt{NEEDS\_REVIEW}, \texttt{FAILED}, \texttt{CANCELLED}. Mỗi request có idempotency key; retry không tạo thêm quyết định/shortlist; model timeout/error chuyển fallback rõ; revoke consent có thể cancel queued work. Không dùng trạng thái \texttt{QUEUED} như thể inference đã hoàn tất.
+
+\section{Traceability, nguồn yêu cầu và quyết định còn mở}
+
+\subsection{Nguồn đã đối chiếu}
+\begin{itemize}
+  \item Flutter source: \path{lib/main.dart}, \path{lib/app/app.dart}, \path{lib/core/}, \path{lib/features/auth/}, \path{lib/features/navigation/}; bootstrap, session, API client và role navigation.
+  \item Flutter repositories/providers/screens: \path{lib/features/student/}, \path{lib/features/tutor/}, \path{lib/features/management/}, \path{lib/features/admin/}; API use và giới hạn feature đang có.
+  \item Backend source sibling: \path{SPM-frontend/backend/server.mjs}, \path{routes.mjs}, \path{auth.mjs}, \path{data/storage.mjs}, \path{matching/}, \path{ai-service/}; authentication, route/RBAC, JSON persistence và matching pipeline.
+  \item Test/source schema hiện có được đọc để hiểu contract và evaluation harness; trong lượt lập báo cáo này không chạy test hay benchmark.
+  \item \path{docs/architecture/system-architecture.md}: bản tóm tắt kiến trúc được cập nhật đồng bộ với source review trong báo cáo này.
+  \item Feasibility report: thị trường, economics scenarios, tutor matching và coordinator.
+  \item \href{https://hcmut1.atlassian.net/jira/software/projects/SCRUM/boards/1}{Jira board SCRUM}: backlog CodePulse DSA/LAB thuộc domain khác; User Story và AC TSSA trong phần có tiêu đề tương ứng không được nhóm theo sprint.
+\end{itemize}
+
+\subsection{Decision log cần chủ sản phẩm xác nhận}
+\begin{longtable}{p{1.4cm}p{5.2cm}p{8.2cm}}
+\toprule
+\textbf{ID} & \textbf{Quyết định} & \textbf{Câu hỏi cần trả lời trước pilot} \\
+\midrule
+\endhead
+D-01 & Độ tuổi/địa bàn & Pilot ở quận/tỉnh nào, learner trong nhóm tuổi nào và có hình thức online/offline? \\
+D-02 & Người trả phí/mô hình dịch vụ & Gia đình, trường/trung tâm, tài trợ hay kết hợp? Refund/cancel/insurance do ai chịu? \\
+D-03 & Tutor standard & Xác minh identity, safeguarding, tham chiếu, bằng cấp, đào tạo và hết hạn hồ sơ theo quy tắc nào? \\
+D-04 & Guardian verification & Tổ chức xác minh quan hệ đại diện bằng chứng gì; khi có tranh chấp thì escalation tới ai? \\
+D-05 & Dữ liệu profile & Có cần chẩn đoán hay đủ mục tiêu học/điều chỉnh? Field nào bắt buộc/tùy chọn, ai xem, giữ bao lâu? \\
+D-06 & Consent và learner participation & Cách xin đồng thuận của guardian, giải thích/assent cho learner, quyền thu hồi và phương án không dùng app? \\
+D-07 & Quy trình safety & Đầu mối, giờ trực, mức độ ưu tiên, kênh khẩn đã được xác minh, SLA phản hồi và lưu hồ sơ? \\
+D-08 & Mobile identity & Guardian role mới hay user account role riêng? Tutor có tách lecturer trong API hay mapping tương thích? \\
+D-09 & Matching measures & Tiêu chí cứng/mềm, người duyệt trọng số, phân tích bias nào được phép theo consent? \\
+D-10 & Hạ tầng production & Backend/DB/queue/provider, data residency, vendor terms, backup, monitoring và incident response? \\
+D-11 & Thay đổi CodePulse & Giữ module DSA riêng, đổi tên trong UI hay gỡ khỏi scope; ai sở hữu backlog và migration? \\
+D-12 & Governance & Ai là product owner, privacy lead, safeguarding lead, model owner và người được quyền rollback? \\
+\bottomrule
+\end{longtable}
+
+\subsection{Điều kiện để đóng đặc tả MVP}
+Trước khi giao build, cần chốt D-01 đến D-08 tối thiểu; chọn tiêu chí verification/safeguarding; duyệt data inventory và nội dung consent; vẽ state transition cuối; gán owner từng metric/AC; và đối chiếu API backend. Trước khi bật AI, hoàn tất baseline thủ công, shadow evaluation, review privacy/security/fairness, dữ liệu test có quyền sử dụng, rollback switch và thông báo minh bạch cho người dùng.
+
+\section{Kế hoạch triển khai và kiểm chứng}
+
+\begin{tabularx}{\textwidth}{p{2.1cm}p{5.2cm}p{4.5cm}Y}
+\toprule
+\textbf{Giai đoạn} & \textbf{Phạm vi} & \textbf{Exit criteria} & \textbf{Quyết định} \\
+\midrule
+Discovery & Phỏng vấn learner/autistic adults, gia đình, tutor, coordinator và tổ chức giáo dục; xác thực profile, consent, mismatch và chi trả. & Có workflow đang dùng, nhu cầu ưu tiên, từ ngữ được người dùng chấp nhận, tiêu chí verification và safety draft. & Tiếp tục/điều chỉnh phạm vi; chưa cần model. \\
+Concierge pilot & Coordinator ghép thủ công bằng form/rule checklist; app có thể chỉ làm intake/status trong lần đầu. & Từng case có consent, tutor verification, owner, feedback, time-to-match, no-match, rematch và safety log. & Có thể tiếp tục nếu tổ chức vận hành an toàn. \\
+Mobile MVP & Guardian/learner intake, tutor profile, coordinator review, family choice, booking, session feedback, privacy. & Story/AC pass; resource RBAC, consent lifecycle, audit, accessibility và backup có evidence. & Chỉ mở nhóm pilot đã định. \\
+Rule-based baseline & Hard filter + scorecard giải thích được; không dùng model inference. & Baseline quality/override/no-match hiểu được; không có lỗi quyền/consent nghiêm trọng. & Chọn feature nào AI có thể cải thiện. \\
+AI shadow & Model xếp hạng ngầm, không thay kết quả user thấy. & Offline + shadow review, calibration/uncertainty, fairness, privacy, robustness và rollback được duyệt. & Go/no-go do hội đồng sản phẩm/safety/privacy quyết định. \\
+Controlled expansion & Gợi ý AI hiển thị có nhãn, human review và support. & Theo dõi theo cohort, incident review, drift, cost/case, coordinator capacity và lựa chọn user. & Mở rộng, điều chỉnh hoặc tắt. \\
+\bottomrule
+\end{tabularx}
+
+\section{Kết luận}
+
+TSSA nên được phát triển thành một hệ thống điều phối hỗ trợ học tập, bắt đầu từ nhu cầu learner, consent, xác minh tutor và workflow coordinator. Flutter hiện có nền auth/navigation theo role cùng course/session/registration screens; chưa có TSSA domain modules hoặc matching UI. Backend đã có matching tổng quát với eligibility filters, TF-IDF mặc định, BGE-M3 local embeddings tùy cấu hình, coordinator decision và feedback, nhưng chưa có guardian/learner consent, family choice, autism support profile, scoped coordinator workflow hay evidence chất lượng cho TSSA. CodePulse vẫn là DSA/LAB riêng và không đại diện cho hệ thống mới.
+
+Định hướng AI-native có thể thử theo trình tự manual \(\rightarrow\) rule baseline \(\rightarrow\) shadow \(\rightarrow\) pilot có người duyệt. Điều kiện thành công không chỉ là đúng môn: learner/gia đình phải thấy quyền lựa chọn, tutor phải được xác minh, giải thích phải dựa trên dữ liệu được chia sẻ, và coordinator phải có năng lực xử lý no-match, override, rematch và safety case. Các tỷ lệ prevalence tạo bối cảnh nghiên cứu nhưng chưa đủ xác lập số khách hàng hay business feasibility; cần dùng pilot để có dữ liệu vận hành/thương mại thật.
+
+\section*{Ghi chú phương pháp}
+\addcontentsline{toc}{section}{Ghi chú phương pháp}
+Nguồn web và văn bản pháp luật được kiểm tra ngày 02/10/2026. Repository Flutter/backend được đọc ngày 03/10/2026; đây là source inspection, không xác nhận deployment, credential an toàn, local model cache, API integration runtime hoặc production data. Không chạy test hay benchmark trong lần cập nhật này. Các nghiên cứu prevalence giữ nguyên nhóm tuổi, địa bàn và phương pháp; không cộng/gộp tỷ lệ khác quần thể. Chỉ số vận hành và ngưỡng NFR là đề xuất, chưa đo. Tài liệu chỉ là product/architecture proposal, không phải hướng dẫn y tế hoặc ý kiến pháp lý.
+
+\begin{thebibliography}{99}
+\footnotesize
+\setlength{\itemsep}{1pt}
+\setlength{\parskip}{0pt}
+\setlength{\parsep}{0pt}
+
+\bibitem{vui2022}
+Le Thi Vui, Duc Duong Minh, Nguyen Thuy Quynh, Nguyen Thi Huong Giang,
+Vu Thi Thanh Mai, Bui Thi Thu Ha, and Hoang Van Minh. (2022).
+\newblock Early screening and diagnosis of autism spectrum disorders in Vietnam:
+A population-based cross-sectional survey.
+\newblock \emph{Journal of Public Health Research, 11}(2), 2460.
+\newblock \href{https://doi.org/10.4081/jphr.2021.2460}{doi:10.4081/jphr.2021.2460}.
+
+\bibitem{tran2024}
+Tran, T.~T., Nguyen, V.~T., Nguyen, M.~P., Huynh Nguyen, P.~Q., Le, T.~T.~H.,
+Nguyen, H.~Y., Nguyen, T.~H., Nguyen, T.~L., Le, C.~T., and Nguyen, V.~T.
+(2024).
+\newblock Prevalence of autism spectrum disorder diagnosed according to DSM-5
+criteria and associated factors in preschoolers in southern Vietnam.
+\newblock \emph{La Clinica Terapeutica, 175}(6), 405--411.
+\newblock \href{https://doi.org/10.7417/CT.2024.5147}{doi:10.7417/CT.2024.5147}.
+
+\bibitem{who2025}
+World Health Organization. (2025, September 17).
+\newblock Autism spectrum disorders.
+\newblock \url{https://www.who.int/westernpacific/newsroom/fact-sheets/detail/autism-spectrum-disorders}.
+
+\bibitem{cdc2025}
+Shaw, K.~A., et al. (2025).
+\newblock Prevalence and early identification of autism spectrum disorder among
+children aged 4 and 8 years---Autism and Developmental Disabilities Monitoring
+Network, 16 sites, United States, 2022.
+\newblock \emph{MMWR Surveillance Summaries, 74}(2), 1--22.
+\newblock \url{https://www.cdc.gov/mmwr/volumes/74/ss/ss7402a1.htm}.
+
+\bibitem{gso2023}
+Tổng cục Thống kê Việt Nam. (2024).
+\newblock Thông cáo báo chí về kết quả Điều tra người khuyết tật năm 2023.
+\newblock \url{https://www.nso.gov.vn/tin-tuc-thong-ke/2024/11/thong-cao-bao-chi-ve-ket-qua-dieu-tra-nguoi-khuyet-tat-nam-2023/}.
+
+\bibitem{unicef2025inclusive}
+United Nations Children's Fund. (2025, June).
+\newblock Viet Nam: Making inclusive education a reality for every child.
+\newblock In \emph{Core Resources Impact Companion: For Every Child, Everywhere,
+Annual Report 2024}.
+\newblock \url{https://www.unicef.org/media/171656/file/UNICEF-Core-Resources-Annual-Report-2024-Impact-Companion.pdf}.
+
+\bibitem{unescoai2025}
+UNESCO. (2025, October 24).
+\newblock \emph{Viet Nam: Artificial Intelligence Readiness Assessment Report}.
+\newblock \url{https://articles.unesco.org/sites/default/files/medias/fichiers/2025/10/Viet%20Nam%20Artificial%20Intelligence%20Readiness%20Assessment%20Report.pdf}.
+
+\bibitem{unicefai2025}
+United Nations Children's Fund, Office of Strategy and Evidence--Innocenti.
+(2025, December).
+\newblock \emph{Guidance on AI and children: Version 3.0}.
+\newblock \url{https://www.unicef.org/innocenti/reports/policy-guidance-ai-children}.
+
+\bibitem{accommodation2020}
+Leifler, E., Carpelan, G., Zakrevska, A., Bölte, S., and Jonsson, U. (2021).
+\newblock Does the learning environment make the grade? A systematic review of
+accommodations for children on the autism spectrum in mainstream school.
+\newblock \emph{Journal of Autism and Developmental Disorders}.
+\newblock \href{https://doi.org/10.1080/11038128.2020.1832145}{doi:10.1080/11038128.2020.1832145}.
+
+\bibitem{perrelet2025}
+Perrelet, V., Veyre, A., Chawki, L., Margot, C., and Cappe, E. (2025).
+\newblock What are we targeting when we support inclusive education for autistic
+students? A systematic review of 233 empirical studies and call for community
+partnerships.
+\newblock \emph{Autism, 29}(12), 2927--2940.
+\newblock \href{https://doi.org/10.1177/13623613251352223}{doi:10.1177/13623613251352223}.
+
+\bibitem{pdpLaw}
+Quốc hội nước Cộng hòa xã hội chủ nghĩa Việt Nam. (2025).
+\newblock Luật Bảo vệ dữ liệu cá nhân số 91/2025/QH15, hiệu lực 01/01/2026.
+\newblock \url{https://vanban.chinhphu.vn/?classid=1&docid=214590&pageid=27160&typegroup=}.
+
+\bibitem{decree356}
+Chính phủ nước Cộng hòa xã hội chủ nghĩa Việt Nam. (2025).
+\newblock Nghị định 356/2025/NĐ-CP quy định chi tiết Luật Bảo vệ dữ liệu cá nhân,
+hiệu lực 01/01/2026.
+\newblock \url{https://vbpl.vn/TW/Pages/vbpq-toanvan.aspx?ItemID=187276}.
+
+\bibitem{aiLaw}
+Quốc hội nước Cộng hòa xã hội chủ nghĩa Việt Nam. (2025).
+\newblock Luật Trí tuệ nhân tạo số 134/2025/QH15, hiệu lực 01/03/2026.
+\newblock \url{https://vanban.chinhphu.vn/?classid=1&docid=216334&pageid=27160&typegroupid=3}.
+
+\bibitem{spmarchitecture2026}
+SPM Mobile project. (2026, October 3).
+\newblock \emph{Kiến trúc hệ thống SPM} và source mobile tại repository hiện hành.
+\newblock Tài liệu nội bộ, \textit{system-architecture.md}; đối chiếu source
+Flutter và sibling backend \texttt{SPM-frontend/backend/}.
+
+\end{thebibliography}
+
+\end{document}
