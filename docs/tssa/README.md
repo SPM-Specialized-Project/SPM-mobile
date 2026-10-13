@@ -2,6 +2,8 @@
 
 Cập nhật 04/10/2026. Đặc tả nguồn: [main.tex](../reports/main.tex) và [business-feasibility-autism-tutor-matching-vi.tex](../reports/business-feasibility-autism-tutor-matching-vi.tex). Bảng đối chiếu: [18 stories / 86 AC](acceptance-traceability.md).
 
+> **Tình trạng tích hợp hiện tại:** Nội dung dưới đây và số liệu kiểm thử 04/10/2026 mô tả snapshot TSSA trước đó. Backend hiện có trong repo này được đưa từ nhánh `fix/private-route-assets`; nó cung cấp `/api/*` và `/api/codepulse/*`, chưa có `backend/tssa/` hoặc `/api/v1/*`. Flutter TSSA hiện vẫn gọi `/api/v1/*`, nên chưa thể xem những route và kết quả kiểm thử lịch sử là bằng chứng backend TSSA đang chạy. Xem [route contract của backend hiện tại](../api/backend-routes.md).
+
 ## Phần đã có trong code
 
 - Tài khoản TSSA riêng cho learner, guardian, tutor; scope coordinator theo nhóm; governance/privacy/safety theo quyền có thời hạn.
@@ -29,14 +31,14 @@ Quản trị hiển thị **D-01…D-12** và release gates từ báo cáo. Các
 
 ## Chạy local
 
-Backend vẫn ở `C:/disk D/SPM-frontend`. Module mới: `backend/tssa/`. Máy hiện tại có Node `24.16.0`; implementation dùng `node:sqlite` và `DatabaseSync` ([Node documentation](https://nodejs.org/api/sqlite.html)).
+Backend hiện tại nằm trong `backend/` của repo này, dùng JSON stores dưới `backend/data/` và yêu cầu Node.js 20 trở lên.
 
 ```powershell
-Set-Location 'C:\disk D\SPM-frontend'
-node backend/server.mjs
+Set-Location 'C:\disk D\SPM-mobile\backend'
+npm run dev
 ```
 
-Nếu backend đang chạy bằng watcher, các thay đổi module được nạp lại khi watcher restart. Session hiện tại dùng Map trong memory và hết hiệu lực sau restart hoặc 8 giờ; endpoint logout mới thu hồi bearer session ngay.
+Backend hiện có session bearer trong bộ nhớ với thời hạn 8 giờ. `POST /api/auth/logout` thu hồi token được gửi; restart server cũng làm session hết hiệu lực.
 
 ```powershell
 Set-Location 'C:\disk D\SPM-mobile'
@@ -57,7 +59,7 @@ APK debug dùng API mặc định `http://10.0.2.2:4000` cho Android emulator. M
 
 ## API và source
 
-Prefix chuẩn `/api/v1`; dùng auth bearer hiện tại, role TSSA và resource checks ở backend.
+Route backend đang được chuyển dùng prefix `/api` và `/api/codepulse`; xem [bảng input/output đầy đủ](../api/backend-routes.md). Các route `/api/v1` dưới đây là contract của TSSA snapshot lịch sử, chưa được cung cấp bởi backend hiện tại.
 
 | Nhóm | Routes chính |
 |---|---|

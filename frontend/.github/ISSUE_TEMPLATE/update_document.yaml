@@ -1,0 +1,17 @@
+name: Documentation
+description: Update or create new documentation files
+title: "Update: <name_of_documentation>"
+labels: documentation
+body:
+- type: textarea
+  attributes:
+    label: Updated documentation
+    description: Which documentation file(s) will be updated ?
+  validations:
+    required: false
+- type: textarea
+  attributes:
+    label: Description
+    description: A clear and concise description of the changes.
+  validations:
+    required: false

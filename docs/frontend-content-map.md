@@ -1,7 +1,6 @@
 # Frontend content reused by the Flutter app
 
-This file records the source and limits of the material copied from
-`C:\disk D\SPM-frontend\frontend`.
+The complete React/Vite source is now included at `../frontend/`. This file records the selected assets and sample labels reused in Flutter, along with limits on what those samples mean.
 
 | Mobile use | Frontend source | Notes |
 | --- | --- | --- |

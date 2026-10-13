@@ -33,6 +33,21 @@ migrate_working_dir/
 /build/
 /coverage/
 
+# Node backend and React/Vite frontend
+node_modules/
+backend/data/*.json
+backend/data/codepulse-student-submissions/
+backend/.env
+frontend/.env
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.production.local
+frontend/dist/
+frontend/.vite/
+frontend/coverage/
+frontend/*.tsbuildinfo
+frontend/.tanstack/tmp/
+
 # Symbolication related
 app.*.symbols
 

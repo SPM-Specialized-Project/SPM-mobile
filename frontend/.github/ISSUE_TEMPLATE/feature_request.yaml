@@ -1,0 +1,17 @@
+name: Feature request
+description: Request for a new feature
+title: "Feature: <title>"
+labels: feature
+body:
+- type: textarea
+  attributes:
+    label: Context
+    description: A clear and concise description of why we need a new feature.
+  validations:
+    required: false
+- type: textarea
+  attributes:
+    label: Requirement
+    description: A clear and concise description of how can we do that.
+  validations:
+    required: false
