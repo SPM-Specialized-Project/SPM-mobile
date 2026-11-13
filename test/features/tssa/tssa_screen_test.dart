@@ -72,11 +72,11 @@ class ScreenRepository extends TssaRepository {
 
 void main() {
   final roles = {
-    'learner': ['Hồ sơ', 'Yêu cầu', 'Lịch', 'Hỗ trợ'],
-    'guardian': ['Hồ sơ', 'Yêu cầu', 'Lịch', 'Hỗ trợ'],
-    'tutor': ['Hồ sơ', 'Ca được mời', 'Lịch', 'Hỗ trợ'],
-    'coordinator': ['Queue', 'Xác minh', 'Lịch', 'Hỗ trợ'],
-    'admin': ['Quản trị', 'Audit', 'Chất lượng', 'Hỗ trợ'],
+    'learner': ['Hồ sơ', 'Yêu cầu', 'Lịch học', 'Hỗ trợ'],
+    'guardian': ['Hồ sơ', 'Yêu cầu', 'Lịch học', 'Hỗ trợ'],
+    'tutor': ['Hồ sơ', 'Lời mời', 'Lịch học', 'Hỗ trợ'],
+    'coordinator': ['Yêu cầu', 'Xác minh tutor', 'Lịch học', 'Hỗ trợ'],
+    'admin': ['Quản trị', 'Nhật ký', 'Chất lượng', 'Hỗ trợ'],
   };
   for (final entry in roles.entries) {
     testWidgets(
@@ -119,7 +119,7 @@ void main() {
         );
         await tester.tap(find.byType(NavigationDestination).at(2));
         await tester.pumpAndSettle();
-        expect(find.text('TSSA · ${entry.value[2]}'), findsOneWidget);
+        expect(find.text('Hỗ trợ học tập'), findsOneWidget);
         expect(tester.takeException(), isNull);
         await tester.pumpWidget(const SizedBox.shrink());
         await tester.pump();

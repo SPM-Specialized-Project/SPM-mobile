@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../app/theme/app_motion.dart';
 import '../../auth/application/auth_controller.dart';
 import '../data/tssa_repository.dart';
 import 'tssa_form.dart';
@@ -22,22 +23,65 @@ class _TssaScreenState extends ConsumerState<TssaScreen> {
       .when(
         loading: () => Scaffold(
           appBar: AppBar(title: const Text('Hỗ trợ học tập')),
-          body: const Center(child: CircularProgressIndicator()),
+          body: Center(
+            child: Semantics(
+              label: 'Đang tải quyền truy cập',
+              liveRegion: true,
+              child: const CircularProgressIndicator(),
+            ),
+          ),
         ),
         error: (error, _) => Scaffold(
           appBar: AppBar(title: const Text('Hỗ trợ học tập')),
-          body: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(tssaError(error)),
-                  TextButton(
-                    onPressed: () => ref.invalidate(tssaIdentityProvider),
-                    child: const Text('Tải lại'),
+          body: SafeArea(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 440),
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.cloud_off_outlined,
+                        size: 44,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(height: 14),
+                      Text(
+                        'Dịch vụ hỗ trợ học tập chưa kết nối',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${tssaError(error)} Hồ sơ, yêu cầu và lịch TSSA chưa thể tải; nội dung trong báo cáo hiện là thiết kế đề xuất.',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                      const SizedBox(height: 18),
+                      FilledButton.icon(
+                        onPressed: () => ref.invalidate(tssaIdentityProvider),
+                        icon: const Icon(Icons.refresh_rounded),
+                        label: const Text('Thử kết nối lại'),
+                      ),
+                      const SizedBox(height: 8),
+                      TextButton.icon(
+                        onPressed: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                            builder: (_) => const TssaPublicInfo(),
+                          ),
+                        ),
+                        icon: const Icon(Icons.info_outline_rounded),
+                        label: const Text('Xem nguyên tắc dịch vụ'),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
@@ -45,12 +89,39 @@ class _TssaScreenState extends ConsumerState<TssaScreen> {
         data: (me) {
           final role = me['role'];
           final destinations = role == 'admin'
-              ? ['Quản trị', 'Audit', 'Chất lượng', 'Hỗ trợ']
+              ? ['Quản trị', 'Nhật ký', 'Chất lượng', 'Hỗ trợ']
               : role == 'coordinator'
-              ? ['Queue', 'Xác minh', 'Lịch', 'Hỗ trợ']
+              ? ['Yêu cầu', 'Xác minh tutor', 'Lịch học', 'Hỗ trợ']
               : role == 'tutor'
-              ? ['Hồ sơ', 'Ca được mời', 'Lịch', 'Hỗ trợ']
-              : ['Hồ sơ', 'Yêu cầu', 'Lịch', 'Hỗ trợ'];
+              ? ['Hồ sơ', 'Lời mời', 'Lịch học', 'Hỗ trợ']
+              : ['Hồ sơ', 'Yêu cầu', 'Lịch học', 'Hỗ trợ'];
+          final destinationIcons = role == 'admin'
+              ? [
+                  Icons.admin_panel_settings_outlined,
+                  Icons.receipt_long_outlined,
+                  Icons.query_stats_outlined,
+                  Icons.support_agent_outlined,
+                ]
+              : role == 'coordinator'
+              ? [
+                  Icons.inbox_outlined,
+                  Icons.verified_user_outlined,
+                  Icons.event_note_outlined,
+                  Icons.support_agent_outlined,
+                ]
+              : role == 'tutor'
+              ? [
+                  Icons.person_outline,
+                  Icons.mark_email_unread_outlined,
+                  Icons.event_note_outlined,
+                  Icons.support_agent_outlined,
+                ]
+              : [
+                  Icons.person_outline,
+                  Icons.fact_check_outlined,
+                  Icons.event_note_outlined,
+                  Icons.support_agent_outlined,
+                ];
           final pages = role == 'admin'
               ? <Widget>[
                   TssaGovernance(me: me),
@@ -80,7 +151,7 @@ class _TssaScreenState extends ConsumerState<TssaScreen> {
                 ];
           return Scaffold(
             appBar: AppBar(
-              title: Text('TSSA · ${destinations[_selected]}'),
+              title: const Text('Hỗ trợ học tập'),
               actions: [
                 if (role != 'unassigned')
                   IconButton(
@@ -159,9 +230,14 @@ class _TssaScreenState extends ConsumerState<TssaScreen> {
             ),
             body: role == 'unassigned'
                 ? TssaProfilesHub(me: me)
-                : KeyedSubtree(
-                    key: ValueKey('$role:$_selected'),
-                    child: pages[_selected],
+                : AnimatedSwitcher(
+                    duration: AppMotion.duration(context),
+                    transitionBuilder: (child, animation) =>
+                        AppMotion.pageTransition(context, child, animation),
+                    child: KeyedSubtree(
+                      key: ValueKey('$role:$_selected'),
+                      child: pages[_selected],
+                    ),
                   ),
             bottomNavigationBar: role == 'unassigned'
                 ? null
@@ -175,14 +251,7 @@ class _TssaScreenState extends ConsumerState<TssaScreen> {
                     destinations: [
                       for (var i = 0; i < destinations.length; i++)
                         NavigationDestination(
-                          icon: Icon(
-                            [
-                              Icons.person_outline,
-                              Icons.fact_check_outlined,
-                              Icons.event_note_outlined,
-                              Icons.support_agent,
-                            ][i],
-                          ),
+                          icon: Icon(destinationIcons[i]),
                           label: destinations[i],
                         ),
                     ],
