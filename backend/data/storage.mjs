@@ -3,9 +3,12 @@ import { mutateJsonRecords, readJsonRecords, writeJsonRecords } from './json-sto
 
 import {
   COURSE_REQUESTS_FILE,
+  COURSE_DETAILS_FILE,
+  COURSE_FEEDBACK_FILE,
   MEMBERSHIPS_FILE,
   DATA_DIRECTORY,
   REGISTRATIONS_FILE,
+  SESSION_REQUESTS_FILE,
   SESSIONS_FILE,
   SUBMISSIONS_FILE,
 } from '../config.mjs';
@@ -22,8 +25,11 @@ const ensureDataDirectory = () => mkdir(DATA_DIRECTORY, { recursive: true });
 
 const collectionConfig = {
   sessions: { file: SESSIONS_FILE, seed: INITIAL_SESSIONS },
+  sessionRequests: { file: SESSION_REQUESTS_FILE, seed: [] },
   registrations: { file: REGISTRATIONS_FILE, seed: INITIAL_REGISTRATIONS },
   courseRequests: { file: COURSE_REQUESTS_FILE, seed: INITIAL_COURSE_REQUESTS },
+  courseDetails: { file: COURSE_DETAILS_FILE, seed: [] },
+  courseFeedback: { file: COURSE_FEEDBACK_FILE, seed: [] },
   memberships: { file: MEMBERSHIPS_FILE, seed: INITIAL_MEMBERSHIPS },
 };
 
