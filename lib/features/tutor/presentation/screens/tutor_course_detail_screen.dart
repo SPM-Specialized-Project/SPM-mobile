@@ -117,8 +117,9 @@ class _CourseWorkspaceState extends ConsumerState<_CourseWorkspace> {
   Widget build(BuildContext context) {
     final detail = widget.detail;
     final id = detail.course.id;
+    final hasCodePulse = detail.course.code.toUpperCase().startsWith('DSA');
     return DefaultTabController(
-      length: id == '13' ? 6 : 5,
+      length: hasCodePulse ? 6 : 5,
       child: PopScope(
         canPop: !_dirty && !_saving,
         onPopInvokedWithResult: (didPop, _) async {
@@ -155,7 +156,7 @@ class _CourseWorkspaceState extends ConsumerState<_CourseWorkspace> {
                 const Tab(text: 'Tổng quan'),
                 const Tab(text: 'Danh sách lớp'),
                 const Tab(text: 'Đánh giá'),
-                if (id == '13') const Tab(text: 'Terms and classrooms'),
+                if (hasCodePulse) const Tab(text: 'Terms and classrooms'),
                 const Tab(text: 'Bài nộp'),
                 const Tab(text: 'Xem thống kê'),
               ],
@@ -188,12 +189,16 @@ class _CourseWorkspaceState extends ConsumerState<_CourseWorkspace> {
                         _dirty = true;
                       }),
                     ),
-                    TutorCourseRosterTab(courseId: id, editable: _editing),
-                    TutorCourseFeedbackTab(
-                      course: detail.course,
+                    TutorCourseRosterTab(
+                      courseId: id,
+                      courseTitle: detail.course.title,
                       editable: _editing,
                     ),
-                    if (id == '13') TutorDsaTab(editable: _editing),
+                    TutorCourseFeedbackTab(
+                      course: detail.course,
+                      editable: detail.canEdit,
+                    ),
+                    if (hasCodePulse) TutorDsaTab(editable: _editing),
                     TutorSubmissionsScreen(courseId: id),
                     TutorCourseStatisticsTab(course: detail.course),
                   ],

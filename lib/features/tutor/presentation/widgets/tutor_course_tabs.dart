@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../../learning/presentation/member_profile_screen.dart';
 import '../../application/tutor_providers.dart';
 import '../../domain/tutor_course.dart';
 import '../../domain/tutor_course_workspace.dart';
@@ -9,10 +11,12 @@ import 'tutor_ui.dart';
 class TutorCourseRosterTab extends ConsumerStatefulWidget {
   const TutorCourseRosterTab({
     required this.courseId,
+    required this.courseTitle,
     required this.editable,
     super.key,
   });
   final String courseId;
+  final String courseTitle;
   final bool editable;
   @override
   ConsumerState<TutorCourseRosterTab> createState() => _RosterState();
@@ -100,11 +104,30 @@ class _RosterState extends ConsumerState<TutorCourseRosterTab> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          member.name,
-                          style: Theme.of(context).textTheme.titleMedium,
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: CircleAvatar(
+                            child: Text(
+                              member.name.isEmpty
+                                  ? '?'
+                                  : member.name[0].toUpperCase(),
+                            ),
+                          ),
+                          title: Text(member.name),
+                          subtitle: Text(member.email),
+                          trailing: const Icon(Icons.chevron_right_rounded),
+                          onTap: () => Navigator.of(context).push<void>(
+                            MaterialPageRoute<void>(
+                              builder: (_) => MemberProfileScreen(
+                                memberId: member.id,
+                                name: member.name,
+                                email: member.email,
+                                courseId: widget.courseId,
+                                courseTitle: widget.courseTitle,
+                              ),
+                            ),
+                          ),
                         ),
-                        SelectableText(member.email),
                         const SizedBox(height: 8),
                         Row(
                           children: [
@@ -421,10 +444,14 @@ class TutorCourseStatisticsTab extends ConsumerWidget {
               .where((s) => s.submittedAt != null)
               .length;
           final graded = submissions.where((s) => s.score != null).toList();
-          final average = graded.isEmpty
+          final validScores = graded
+              .map((submission) => submission.score!)
+              .where((score) => score >= 0 && score <= 10)
+              .toList(growable: false);
+          final average = validScores.isEmpty
               ? null
-              : graded.fold<double>(0, (sum, s) => sum + s.score!) /
-                    graded.length;
+              : validScores.reduce((left, right) => left + right) /
+                    validScores.length;
           return RefreshIndicator(
             onRefresh: () =>
                 ref.refresh(tutorCourseSubmissionsProvider(course.id).future),
@@ -454,6 +481,11 @@ class TutorCourseStatisticsTab extends ConsumerWidget {
                   ],
                 ),
                 const SizedBox(height: 20),
+                _ScoreDistributionCard(
+                  scores: validScores,
+                  excludedCount: graded.length - validScores.length,
+                ),
+                const SizedBox(height: 20),
                 Text(
                   'Theo sinh viên',
                   style: Theme.of(context).textTheme.titleLarge,
@@ -474,6 +506,119 @@ class TutorCourseStatisticsTab extends ConsumerWidget {
           );
         },
       );
+}
+
+class _ScoreDistributionCard extends StatelessWidget {
+  const _ScoreDistributionCard({
+    required this.scores,
+    required this.excludedCount,
+  });
+
+  final List<double> scores;
+  final int excludedCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final bands = <(String, int)>[
+      ('Dưới 4,5', scores.where((score) => score < 4.5).length),
+      (
+        '4,5 đến dưới 7,5',
+        scores.where((score) => score >= 4.5 && score < 7.5).length,
+      ),
+      ('7,5 đến 10', scores.where((score) => score >= 7.5).length),
+    ];
+
+    return Card(
+      margin: EdgeInsets.zero,
+      elevation: 0,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Phân bố điểm bài nộp',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              '${scores.length} bài có điểm hợp lệ · thang điểm 0–10',
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: colors.onSurfaceVariant),
+            ),
+            const SizedBox(height: 16),
+            if (scores.isEmpty)
+              const Text('Chưa có điểm để hiển thị phân bố.')
+            else
+              for (var index = 0; index < bands.length; index++) ...[
+                if (index > 0) const SizedBox(height: 14),
+                _ScoreBandRow(
+                  label: bands[index].$1,
+                  count: bands[index].$2,
+                  total: scores.length,
+                ),
+              ],
+            if (excludedCount > 0) ...[
+              const SizedBox(height: 12),
+              Text(
+                '$excludedCount bản ghi có điểm ngoài thang 0–10, được bỏ khỏi biểu đồ.',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: colors.error),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ScoreBandRow extends StatelessWidget {
+  const _ScoreBandRow({
+    required this.label,
+    required this.count,
+    required this.total,
+  });
+
+  final String label;
+  final int count;
+  final int total;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final fraction = total == 0 ? 0.0 : count / total;
+    final percent = (fraction * 100).round();
+    return Semantics(
+      label: '$label: $count trên $total bài, $percent phần trăm',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: Text(label)),
+              Text('$count · $percent%'),
+            ],
+          ),
+          const SizedBox(height: 6),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(99),
+            child: LinearProgressIndicator(
+              value: fraction,
+              minHeight: 8,
+              backgroundColor: colors.surfaceContainerHighest,
+              color: colors.primary,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _Metric extends StatelessWidget {

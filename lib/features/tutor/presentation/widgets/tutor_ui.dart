@@ -184,6 +184,11 @@ class TutorStatusPill extends StatelessWidget {
         const Color(0xFFB3261E),
         const Color(0xFFFCE8E6),
       ),
+      'in_progress' || 'in progress' => (
+        _statusLabel(normalized),
+        const Color(0xFF174EA6),
+        const Color(0xFFE8F0FE),
+      ),
       'not-submitted' => (
         'Chưa nộp',
         const Color(0xFF667085),
@@ -215,14 +220,21 @@ class TutorStatusPill extends StatelessWidget {
   }
 
   String _statusLabel(String value) => switch (value) {
+    'new' => 'Mới',
     'submitted' => 'Chờ chấm',
     'graded' => 'Đã chấm',
     'pending' => 'Đang chờ duyệt',
     'approved' => 'Đã duyệt',
     'declined' => 'Từ chối',
-    'scheduled' => 'Sắp diễn ra',
+    'scheduled' => 'Đã lên lịch',
+    'inactive' => 'Chưa kích hoạt',
+    'active' => 'Đang hoạt động',
+    'in_progress' || 'in progress' => 'Đang diễn ra',
     'completed' => 'Đã hoàn thành',
     'cancelled' => 'Đã hủy',
+    'closed' => 'Đã đóng',
+    'expired' => 'Đã hết hạn',
+    'deleted' => 'Đã xóa',
     _ => value.isEmpty ? 'Chưa rõ trạng thái' : value,
   };
 }

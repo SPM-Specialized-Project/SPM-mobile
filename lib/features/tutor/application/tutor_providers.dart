@@ -52,5 +52,5 @@ final tutorCourseSubmissionsProvider = FutureProvider.autoDispose
       final detail = await ref.watch(tutorCourseDetailProvider(id).future);
       return ref
           .watch(tutorRepositoryProvider)
-          .getCourseSubmissions(detail.course);
+          .getCourseSubmissionsForSections(detail.course, detail.sections);
     });
