@@ -4,6 +4,7 @@ import '../../auth/data/auth_session.dart';
 import '../../learning/domain/class_session.dart';
 import '../../learning/domain/course.dart';
 import '../../learning/domain/course_submission.dart';
+import '../../learning/domain/session_request.dart';
 import 'student_registration.dart';
 
 class StudentRepository {
@@ -35,29 +36,67 @@ class StudentRepository {
     ).map(ClassSession.fromJson).toList(growable: false);
   }
 
+  Future<List<SessionRequest>> getSessionRequests() async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/api/session-requests',
+    );
+    return _items(
+      response.data,
+      'session requests',
+    ).map(SessionRequest.fromJson).toList(growable: false);
+  }
+
+  Future<SessionRequest> createSessionRequest({
+    required String courseId,
+    required String requestType,
+    required String title,
+    required String description,
+    required DateTime proposedAt,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/session-requests',
+      data: {
+        'courseId': courseId,
+        'requestType': requestType,
+        'title': title.trim(),
+        'description': description.trim(),
+        'proposedAt': proposedAt.toUtc().toIso8601String(),
+      },
+    );
+    final item = _body(response.data, 'session request')['item'];
+    if (item is! Map<String, dynamic>) {
+      throw const FormatException(
+        'Backend session request response must contain item.',
+      );
+    }
+    return SessionRequest.fromJson(item);
+  }
+
   Future<List<CourseSubmission>> getSubmissions() async {
     final courses = await getCourses();
     final perCourse = await Future.wait(
       courses.map((course) async {
-        try {
-          final response = await _dio.get<Map<String, dynamic>>(
-            '/api/courses/${Uri.encodeComponent(course.id)}/submissions',
-          );
-          return _items(response.data, 'submissions')
-              .map(
-                (json) => CourseSubmission.fromJson({
-                  ...json,
-                  'courseTitle': course.title,
-                }),
-              )
-              .toList(growable: false);
-        } on DioException catch (error) {
-          // Courses without assignments return 404; that is an empty state, not a failure.
-          if (error.response?.statusCode == 404) {
-            return const <CourseSubmission>[];
-          }
-          rethrow;
-        }
+        final detail = await getCourseDetail(course.id);
+        final assignments = detail.sections
+            .where((section) => section.type == 'submission')
+            .toList(growable: false);
+        final perAssignment = await Future.wait(
+          assignments.map((assignment) async {
+            final response = await _dio.get<Map<String, dynamic>>(
+              '/api/courses/${Uri.encodeComponent(course.id)}/submissions',
+              queryParameters: {'assignmentId': assignment.id},
+            );
+            return _items(response.data, 'submissions')
+                .map(
+                  (json) => CourseSubmission.fromJson({
+                    ...json,
+                    'courseTitle': course.title,
+                  }),
+                )
+                .toList(growable: false);
+          }),
+        );
+        return perAssignment.expand((items) => items).toList(growable: false);
       }),
     );
     return perCourse.expand((items) => items).toList(growable: false);
