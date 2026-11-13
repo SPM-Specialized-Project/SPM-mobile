@@ -1,19 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../app/theme/app_motion.dart';
 import '../../../auth/data/auth_session.dart';
 import '../../application/management_providers.dart';
 import '../../../learning/domain/class_session.dart';
 import '../../../learning/domain/course.dart';
+import '../../../learning/presentation/widgets/session_month_navigator.dart';
 import '../widgets/management_common.dart';
 
-class ManagerSessionsScreen extends ConsumerWidget {
+class ManagerSessionsScreen extends ConsumerStatefulWidget {
   const ManagerSessionsScreen({required this.session, super.key});
 
   final AuthSession session;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ManagerSessionsScreen> createState() =>
+      _ManagerSessionsScreenState();
+}
+
+class _ManagerSessionsScreenState extends ConsumerState<ManagerSessionsScreen> {
+  DateTime _visibleMonth = DateTime(DateTime.now().year, DateTime.now().month);
+
+  void _moveMonth(int offset) => setState(
+    () => _visibleMonth = DateTime(
+      _visibleMonth.year,
+      _visibleMonth.month + offset,
+    ),
+  );
+
+  @override
+  Widget build(BuildContext context) {
     final state = ref.watch(managerSessionsProvider);
     return state.when(
       loading: () => const ManagementLoading(),
@@ -24,6 +41,10 @@ class ManagerSessionsScreen extends ConsumerWidget {
       data: (sessions) {
         final sorted = [...sessions]
           ..sort((a, b) => a.start.compareTo(b.start));
+        final monthSessions = sorted
+            .where((item) => isInSessionMonth(item.start, _visibleMonth))
+            .toList(growable: false);
+        final monthKey = '${_visibleMonth.year}-${_visibleMonth.month}';
         return Scaffold(
           backgroundColor: Colors.transparent,
           floatingActionButton: FloatingActionButton.extended(
@@ -40,21 +61,52 @@ class ManagerSessionsScreen extends ConsumerWidget {
                 const ManagementPageHeader(
                   title: 'Lịch điều phối',
                   subtitle:
-                      'Xem lịch và tạo buổi cho khóa học. Backend quản lý quyền chỉnh sửa/xóa từng buổi.',
+                      'Xem lịch theo tháng; thao tác từng buổi phụ thuộc quyền được cấp.',
                 ),
-                if (sorted.isEmpty)
-                  const SizedBox(
-                    height: 260,
-                    child: ManagementEmpty(
-                      title: 'Chưa có lịch',
-                      message: 'Tạo buổi học đầu tiên cho một khóa học.',
-                    ),
-                  )
-                else
-                  for (final item in sorted) ...[
-                    _SessionCard(session: item),
-                    const SizedBox(height: 10),
-                  ],
+                const SizedBox(height: 8),
+                SessionMonthNavigator(
+                  month: _visibleMonth,
+                  sessionCount: monthSessions.length,
+                  onPrevious: () => _moveMonth(-1),
+                  onNext: () => _moveMonth(1),
+                ),
+                const SizedBox(height: 12),
+                AnimatedSwitcher(
+                  duration: AppMotion.duration(context),
+                  transitionBuilder: (child, animation) =>
+                      AppMotion.pageTransition(context, child, animation),
+                  child: monthSessions.isEmpty
+                      ? SizedBox(
+                          key: ValueKey('$monthKey:empty'),
+                          height: 240,
+                          child: ManagementEmpty(
+                            title: sorted.isEmpty
+                                ? 'Chưa có lịch'
+                                : 'Tháng này chưa có buổi học',
+                            message: sorted.isEmpty
+                                ? 'Tạo buổi học đầu tiên cho một khóa học.'
+                                : 'Chọn tháng khác để xem lịch đã tạo.',
+                          ),
+                        )
+                      : Column(
+                          key: ValueKey('$monthKey:items'),
+                          children: [
+                            for (final item in monthSessions)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: _SessionCard(
+                                  session: item,
+                                  onEdit: item.canManageUpcoming
+                                      ? () => _editSession(context, item)
+                                      : null,
+                                  onCancel: item.canManageUpcoming
+                                      ? () => _cancelSession(context, item)
+                                      : null,
+                                ),
+                              ),
+                          ],
+                        ),
+                ),
               ],
             ),
           ),
@@ -80,9 +132,78 @@ class ManagerSessionsScreen extends ConsumerWidget {
         isScrollControlled: true,
         useSafeArea: true,
         showDragHandle: true,
-        builder: (_) => _CreateSessionForm(courses: courses, session: session),
+        builder: (_) =>
+            _CreateSessionForm(courses: courses, session: widget.session),
       );
       if (saved == true) ref.invalidate(managerSessionsProvider);
+    } catch (error) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(managementErrorMessage(error))));
+    }
+  }
+
+  Future<void> _editSession(BuildContext context, ClassSession item) async {
+    try {
+      final courses = await ref.read(managerCoursesProvider.future);
+      if (!context.mounted) return;
+      final saved = await showModalBottomSheet<bool>(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        showDragHandle: true,
+        builder: (_) => _CreateSessionForm(
+          courses: courses,
+          session: widget.session,
+          initialSession: item,
+        ),
+      );
+      if (saved == true) {
+        ref.invalidate(managerSessionsProvider);
+        if (!context.mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Đã lưu thay đổi buổi học.')),
+        );
+      }
+    } catch (error) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(managementErrorMessage(error))));
+    }
+  }
+
+  Future<void> _cancelSession(BuildContext context, ClassSession item) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Hủy buổi học?'),
+        content: Text(
+          '“${item.title}” sẽ chuyển sang trạng thái Đã hủy và không còn cho phép chỉnh sửa.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Quay lại'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Xác nhận hủy'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    try {
+      await ref
+          .read(managementRepositoryProvider)
+          .updateSessionStatus(item.id, 'cancelled');
+      ref.invalidate(managerSessionsProvider);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Đã hủy buổi học.')));
     } catch (error) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(
@@ -93,9 +214,11 @@ class ManagerSessionsScreen extends ConsumerWidget {
 }
 
 class _SessionCard extends StatelessWidget {
-  const _SessionCard({required this.session});
+  const _SessionCard({required this.session, this.onEdit, this.onCancel});
 
   final ClassSession session;
+  final VoidCallback? onEdit;
+  final VoidCallback? onCancel;
 
   @override
   Widget build(BuildContext context) {
@@ -148,6 +271,29 @@ class _SessionCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text(session.description),
             ],
+            if (onEdit != null || onCancel != null) ...[
+              const SizedBox(height: 8),
+              const Divider(),
+              Wrap(
+                alignment: WrapAlignment.end,
+                spacing: 8,
+                runSpacing: 4,
+                children: [
+                  if (onEdit != null)
+                    OutlinedButton.icon(
+                      onPressed: onEdit,
+                      icon: const Icon(Icons.edit_outlined),
+                      label: const Text('Chỉnh sửa'),
+                    ),
+                  if (onCancel != null)
+                    TextButton.icon(
+                      onPressed: onCancel,
+                      icon: const Icon(Icons.event_busy_outlined),
+                      label: const Text('Hủy buổi'),
+                    ),
+                ],
+              ),
+            ],
           ],
         ),
       ),
@@ -156,10 +302,15 @@ class _SessionCard extends StatelessWidget {
 }
 
 class _CreateSessionForm extends ConsumerStatefulWidget {
-  const _CreateSessionForm({required this.courses, required this.session});
+  const _CreateSessionForm({
+    required this.courses,
+    required this.session,
+    this.initialSession,
+  });
 
   final List<Course> courses;
   final AuthSession session;
+  final ClassSession? initialSession;
 
   @override
   ConsumerState<_CreateSessionForm> createState() => _CreateSessionFormState();
@@ -171,12 +322,37 @@ class _CreateSessionFormState extends ConsumerState<_CreateSessionForm> {
   final _description = TextEditingController();
   final _link = TextEditingController();
   final _location = TextEditingController();
-  late String _courseId = widget.courses.first.id;
-  DateTime _date = DateTime.now().add(const Duration(days: 1));
-  TimeOfDay _startTime = const TimeOfDay(hour: 9, minute: 0);
-  TimeOfDay _endTime = const TimeOfDay(hour: 10, minute: 0);
-  String _method = 'online';
+  late String _courseId;
+  late DateTime _date;
+  late TimeOfDay _startTime;
+  late TimeOfDay _endTime;
+  late String _method;
   bool _saving = false;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    final existing = widget.initialSession;
+    _courseId = existing?.courseId ?? widget.courses.first.id;
+    _method = existing?.method.toLowerCase() ?? 'online';
+    if (existing == null) {
+      final tomorrow = DateTime.now().add(const Duration(days: 1));
+      _date = DateTime(tomorrow.year, tomorrow.month, tomorrow.day);
+      _startTime = const TimeOfDay(hour: 9, minute: 0);
+      _endTime = const TimeOfDay(hour: 10, minute: 0);
+      return;
+    }
+    final start = existing.start.toLocal();
+    final end = existing.end.toLocal();
+    _date = DateTime(start.year, start.month, start.day);
+    _startTime = TimeOfDay.fromDateTime(start);
+    _endTime = TimeOfDay.fromDateTime(end);
+    _title.text = existing.title;
+    _description.text = existing.description;
+    _link.text = existing.link ?? '';
+    _location.text = existing.location ?? '';
+  }
 
   @override
   void dispose() {
@@ -200,30 +376,40 @@ class _CreateSessionFormState extends ConsumerState<_CreateSessionForm> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Tạo buổi học',
+                widget.initialSession == null
+                    ? 'Tạo buổi học'
+                    : 'Chỉnh sửa buổi học',
                 style: Theme.of(
                   context,
                 ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 14),
-              DropdownButtonFormField<String>(
-                initialValue: _courseId,
-                isExpanded: true,
-                decoration: const InputDecoration(labelText: 'Khóa học'),
-                items: [
-                  for (final course in widget.courses)
-                    DropdownMenuItem(
-                      value: course.id,
-                      child: Text(
-                        '${course.code} · ${course.title}',
-                        overflow: TextOverflow.ellipsis,
+              if (widget.initialSession == null)
+                DropdownButtonFormField<String>(
+                  initialValue: _courseId,
+                  isExpanded: true,
+                  decoration: const InputDecoration(labelText: 'Khóa học'),
+                  items: [
+                    for (final course in widget.courses)
+                      DropdownMenuItem(
+                        value: course.id,
+                        child: Text(
+                          '${course.code} · ${course.title}',
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                    ),
-                ],
-                onChanged: (value) {
-                  if (value != null) setState(() => _courseId = value);
-                },
-              ),
+                  ],
+                  onChanged: _saving
+                      ? null
+                      : (value) {
+                          if (value != null) setState(() => _courseId = value);
+                        },
+                )
+              else
+                InputDecorator(
+                  decoration: const InputDecoration(labelText: 'Khóa học'),
+                  child: Text(widget.initialSession!.courseTitle),
+                ),
               const SizedBox(height: 10),
               TextFormField(
                 controller: _title,
@@ -246,9 +432,11 @@ class _CreateSessionFormState extends ConsumerState<_CreateSessionForm> {
                   DropdownMenuItem(value: 'online', child: Text('Trực tuyến')),
                   DropdownMenuItem(value: 'offline', child: Text('Trực tiếp')),
                 ],
-                onChanged: (value) {
-                  if (value != null) setState(() => _method = value);
-                },
+                onChanged: _saving
+                    ? null
+                    : (value) {
+                        if (value != null) setState(() => _method = value);
+                      },
               ),
               const SizedBox(height: 10),
               if (_method == 'online')
@@ -268,24 +456,36 @@ class _CreateSessionFormState extends ConsumerState<_CreateSessionForm> {
               const SizedBox(height: 12),
               Wrap(
                 spacing: 10,
+                runSpacing: 8,
                 children: [
                   OutlinedButton.icon(
-                    onPressed: _chooseDate,
+                    onPressed: _saving ? null : _chooseDate,
                     icon: const Icon(Icons.calendar_month),
                     label: Text('${_date.day}/${_date.month}/${_date.year}'),
                   ),
                   OutlinedButton.icon(
-                    onPressed: () => _chooseTime(isStart: true),
+                    onPressed: _saving
+                        ? null
+                        : () => _chooseTime(isStart: true),
                     icon: const Icon(Icons.schedule),
                     label: Text('Bắt đầu ${_startTime.format(context)}'),
                   ),
                   OutlinedButton.icon(
-                    onPressed: () => _chooseTime(isStart: false),
+                    onPressed: _saving
+                        ? null
+                        : () => _chooseTime(isStart: false),
                     icon: const Icon(Icons.schedule),
                     label: Text('Kết thúc ${_endTime.format(context)}'),
                   ),
                 ],
               ),
+              if (_errorMessage != null) ...[
+                const SizedBox(height: 10),
+                Text(
+                  _errorMessage!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+              ],
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
@@ -297,7 +497,11 @@ class _CreateSessionFormState extends ConsumerState<_CreateSessionForm> {
                           height: 18,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Tạo lịch'),
+                      : Text(
+                          widget.initialSession == null
+                              ? 'Tạo lịch'
+                              : 'Lưu thay đổi',
+                        ),
                 ),
               ),
             ],
@@ -349,35 +553,54 @@ class _CreateSessionFormState extends ConsumerState<_CreateSessionForm> {
       _endTime.hour,
       _endTime.minute,
     );
-    if (!end.isAfter(start)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Giờ kết thúc phải sau giờ bắt đầu.')),
-      );
+    if (!start.isAfter(DateTime.now())) {
+      setState(() => _errorMessage = 'Thời gian bắt đầu phải ở tương lai.');
       return;
     }
-    setState(() => _saving = true);
+    if (!end.isAfter(start)) {
+      setState(() => _errorMessage = 'Giờ kết thúc phải sau giờ bắt đầu.');
+      return;
+    }
+    setState(() {
+      _saving = true;
+      _errorMessage = null;
+    });
     try {
-      final course = widget.courses.firstWhere((item) => item.id == _courseId);
-      await ref
-          .read(managementRepositoryProvider)
-          .createSession(
-            course: course,
-            session: widget.session,
-            title: _title.text,
-            description: _description.text,
-            start: start,
-            end: end,
-            method: _method,
-            link: _link.text,
-            location: _location.text,
-          );
+      final repository = ref.read(managementRepositoryProvider);
+      if (widget.initialSession case final existing?) {
+        await repository.updateSession(
+          id: existing.id,
+          title: _title.text,
+          description: _description.text,
+          start: start,
+          end: end,
+          method: _method,
+          link: _method == 'online' ? _link.text : null,
+          location: _method == 'offline' ? _location.text : null,
+        );
+      } else {
+        final course = widget.courses.firstWhere(
+          (item) => item.id == _courseId,
+        );
+        await repository.createSession(
+          course: course,
+          session: widget.session,
+          title: _title.text,
+          description: _description.text,
+          start: start,
+          end: end,
+          method: _method,
+          link: _link.text,
+          location: _location.text,
+        );
+      }
       if (mounted) Navigator.of(context).pop(true);
     } catch (error) {
       if (!mounted) return;
-      setState(() => _saving = false);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(managementErrorMessage(error))));
+      setState(() {
+        _saving = false;
+        _errorMessage = managementErrorMessage(error);
+      });
     }
   }
 }

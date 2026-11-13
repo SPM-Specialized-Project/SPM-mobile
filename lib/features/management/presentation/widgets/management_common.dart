@@ -112,6 +112,8 @@ class ManagementStatus extends StatelessWidget {
       'approved' ||
       'active' ||
       'completed' => (const Color(0xFF137547), const Color(0xFFE5F5EC)),
+      'in_progress' ||
+      'in progress' => (const Color(0xFF174EA6), const Color(0xFFE8F0FE)),
       'rejected' ||
       'declined' ||
       'archived' ||
@@ -137,15 +139,21 @@ class ManagementStatus extends StatelessWidget {
   }
 
   String _label(String value) => switch (value) {
+    'new' => 'Mới',
     'pending' => 'Chờ xử lý',
     'approved' => 'Đã duyệt',
     'rejected' || 'declined' => 'Từ chối',
     'active' => 'Đang hoạt động',
+    'inactive' => 'Chưa kích hoạt',
     'draft' => 'Bản nháp',
     'archived' => 'Đã lưu trữ',
-    'scheduled' => 'Sắp diễn ra',
+    'scheduled' => 'Đã lên lịch',
+    'in_progress' || 'in progress' => 'Đang diễn ra',
     'cancelled' => 'Đã hủy',
-    'completed' => 'Hoàn thành',
+    'closed' => 'Đã đóng',
+    'expired' => 'Đã hết hạn',
+    'completed' => 'Đã hoàn tất',
+    'deleted' => 'Đã xóa',
     _ => status.isEmpty ? 'Chưa rõ' : status,
   };
 }

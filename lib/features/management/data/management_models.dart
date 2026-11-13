@@ -80,6 +80,10 @@ class ManagedRegistration {
     required this.status,
     required this.createdAt,
     required this.summary,
+    required this.subjects,
+    required this.languages,
+    required this.sessionTypes,
+    required this.locations,
     required this.specialRequest,
     required this.declineReason,
     required this.permissions,
@@ -92,6 +96,10 @@ class ManagedRegistration {
   final String status;
   final DateTime? createdAt;
   final String summary;
+  final List<ManagementOption> subjects;
+  final List<ManagementOption> languages;
+  final List<ManagementOption> sessionTypes;
+  final List<ManagementOption> locations;
   final String specialRequest;
   final String? declineReason;
   final Map<String, dynamic> permissions;
@@ -117,6 +125,10 @@ class ManagedRegistration {
       status: _optionalString(json['status']) ?? 'Pending',
       createdAt: _optionalDate(json['createdAt']),
       summary: topics.map((item) => item.name).join(', '),
+      subjects: subjects.isNotEmpty ? subjects : requestedCourses,
+      languages: _readOptions(json['languages'], 'languages'),
+      sessionTypes: _readOptions(json['sessionTypes'], 'sessionTypes'),
+      locations: _readOptions(json['locations'], 'locations'),
       specialRequest: _optionalString(json['specialRequest']) ?? '',
       declineReason: _optionalString(json['declineReason']),
       permissions: _optionalMap(json['permissions']),
