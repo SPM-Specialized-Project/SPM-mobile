@@ -30,6 +30,11 @@ class BackendStatusScreen extends ConsumerWidget {
                 const SizedBox(height: 8),
                 Text('Service: ${result.service}'),
                 Text('API: ${AppConfig.apiBaseUrl}/api/health'),
+                const SizedBox(height: 12),
+                const Text(
+                  'Đây là kiểm tra kết nối health. Backend chưa cung cấp số liệu CPU, bộ nhớ, uptime hoặc log cho ứng dụng.',
+                  textAlign: TextAlign.center,
+                ),
               ],
             ),
             error: (error, _) => Column(
@@ -46,6 +51,11 @@ class BackendStatusScreen extends ConsumerWidget {
                 SelectableText(error.toString(), textAlign: TextAlign.center),
                 const SizedBox(height: 8),
                 Text('API: ${AppConfig.apiBaseUrl}/api/health'),
+                const SizedBox(height: 12),
+                const Text(
+                  'Màn hình chỉ kiểm tra endpoint health, không đọc số liệu tài nguyên hệ thống.',
+                  textAlign: TextAlign.center,
+                ),
               ],
             ),
             loading: () => const Column(

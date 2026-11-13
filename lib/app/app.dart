@@ -17,9 +17,16 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final signedIn = ref.watch(authControllerProvider).value != null;
+    final authState = ref.watch(authControllerProvider);
+    final role = authState.value?.role;
+    final hasTssaPreferences = switch (role) {
+      UserRole.tssaLearner ||
+      UserRole.tssaGuardian ||
+      UserRole.tssaTutor => true,
+      _ => false,
+    };
     final reduceMotion =
-        signedIn &&
+        hasTssaPreferences &&
         ref.watch(tssaPreferencesProvider).value?['reduceMotion'] == true;
     ref.listen(authControllerProvider, (previous, next) {
       if (previous?.value != null && !next.isLoading && next.value == null) {
@@ -35,6 +42,7 @@ class MyApp extends ConsumerWidget {
     });
     return MaterialApp(
       navigatorKey: _navigatorKey,
+      debugShowCheckedModeBanner: false,
       title: 'Tutor Support System',
       theme: AppTheme.light,
       themeAnimationDuration: reduceMotion
