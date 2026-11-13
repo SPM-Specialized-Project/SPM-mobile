@@ -1,0 +1,67 @@
+name: Mobile CI/CD
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  flutter:
+    name: Flutter analyze, tests, and APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.47.7
+          cache: true
+
+      - name: Resolve Flutter packages
+        run: flutter pub get --enforce-lockfile
+
+      - name: Analyze Dart code
+        run: flutter analyze --no-pub
+
+      - name: Run Flutter tests
+        run: flutter test --no-pub
+
+      - name: Build release APKs
+        env:
+          SPM_API_BASE_URL: ${{ vars.SPM_API_BASE_URL }}
+        run: |
+          if [[ -n "$SPM_API_BASE_URL" ]]; then
+            flutter build apk --release --split-per-abi --dart-define=API_BASE_URL="$SPM_API_BASE_URL"
+          else
+            flutter build apk --release --split-per-abi
+          fi
+
+      - name: Save APK artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: spm-mobile-apks-${{ github.sha }}
+          path: build/app/outputs/flutter-apk/*.apk
+          if-no-files-found: error
+          retention-days: 14
+
+  backend:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Run backend tests
+        working-directory: backend
+        run: npm test
