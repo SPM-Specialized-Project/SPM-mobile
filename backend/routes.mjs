@@ -181,6 +181,55 @@ const getCourseDetailWithSavedContent = async (course, viewerRole, viewerEmail) 
   };
 };
 
+const normalizeRegistrationStatus = (value) => String(value ?? '').trim().toLowerCase();
+
+const validateSessionSchedule = (records, candidate, excludeId = null) => {
+  const start = new Date(candidate.start);
+  const end = new Date(candidate.end);
+  if (!candidate.courseId || !COURSE_CATALOG[String(candidate.courseId)]) {
+    throw apiError(400, 'INVALID_SESSION', 'Chọn khóa học hợp lệ để tạo lịch.');
+  }
+  if (!Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime()) || end <= start) {
+    throw apiError(400, 'INVALID_SESSION_TIME', 'Thời gian kết thúc phải sau thời gian bắt đầu.');
+  }
+  if (start.getTime() <= Date.now()) {
+    throw apiError(400, 'INVALID_SESSION_TIME', 'Thời gian bắt đầu phải ở tương lai.');
+  }
+
+  const activeSessions = records.filter((item) =>
+    item.id !== excludeId && !['cancelled', 'completed'].includes(String(item.status ?? '').toLowerCase())
+      && Number.isFinite(new Date(item.start).getTime())
+      && Number.isFinite(new Date(item.end).getTime()),
+  );
+  const overlaps = (item) => start < new Date(item.end) && end > new Date(item.start);
+  const courseConflict = activeSessions.some((item) =>
+    String(item.courseId) === String(candidate.courseId) && overlaps(item),
+  );
+  const location = String(candidate.location ?? '').trim().toLocaleLowerCase('vi');
+  const locationConflict = candidate.method === 'offline' && location && activeSessions.some((item) =>
+    item.method === 'offline'
+      && String(item.location ?? '').trim().toLocaleLowerCase('vi') === location
+      && overlaps(item),
+  );
+  const instructorEmail = normalizeEmail(
+    candidate.instructorEmail
+      || (['lecturer', 'tutor'].includes(String(candidate.ownerRole ?? '').toLowerCase())
+        ? candidate.ownerEmail
+        : ''),
+  );
+  const instructorConflict = instructorEmail && activeSessions.some((item) =>
+    normalizeEmail(
+      item.instructorEmail
+        || (['lecturer', 'tutor'].includes(String(item.ownerRole ?? '').toLowerCase())
+          ? item.ownerEmail
+          : ''),
+    ) === instructorEmail && overlaps(item),
+  );
+  if (courseConflict || locationConflict || instructorConflict) {
+    throw apiError(409, 'SESSION_SCHEDULE_CONFLICT', 'Khung giờ bị trùng với lịch cùng khóa học, giáo viên hoặc địa điểm. Hãy chọn khung giờ khác.');
+  }
+};
+
 const validateCourseContent = (content) => {
   if (!Array.isArray(content)) {
     throw apiError(400, 'INVALID_COURSE_CONTENT', 'content phải là danh sách nội dung khóa học.');
@@ -835,6 +884,129 @@ async function handleRequest(request, response) {
     return;
   }
 
+  if (parts[0] === 'api' && parts[1] === 'session-requests' && parts[2]
+    && parts[3] === 'schedule' && request.method === 'POST') {
+    if (!['lecturer', 'coordinator', 'chairman'].includes(viewerRole)) {
+      throw apiError(403, 'FORBIDDEN', 'Bạn không có quyền xếp lịch yêu cầu này.');
+    }
+    const body = await readRequestBody(request);
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      throw apiError(400, 'INVALID_SESSION_SCHEDULE', 'Body phải là một object JSON.');
+    }
+    const start = typeof body.start === 'string' ? new Date(body.start) : null;
+    const end = typeof body.end === 'string' ? new Date(body.end) : null;
+    const method = typeof body.method === 'string' ? body.method.toLowerCase() : '';
+    const link = typeof body.link === 'string' ? body.link.trim() : '';
+    const location = typeof body.location === 'string' ? body.location.trim() : '';
+    const title = typeof body.title === 'string' ? body.title.trim() : '';
+    const description = typeof body.description === 'string' ? body.description.trim() : '';
+    if (!start || !end || !Number.isFinite(start.getTime()) || !Number.isFinite(end.getTime())
+      || end <= start || start.getTime() <= Date.now()) {
+      throw apiError(400, 'INVALID_SESSION_TIME', 'Chọn giờ bắt đầu trong tương lai và giờ kết thúc sau giờ bắt đầu.');
+    }
+    if (!['online', 'offline'].includes(method)
+      || (method === 'online' && !/^https?:\/\//i.test(link))
+      || (method === 'offline' && !location)
+      || !title || title.length > 160 || description.length > 3000) {
+      throw apiError(400, 'INVALID_SESSION_SCHEDULE', 'Kiểm tra tiêu đề, hình thức, địa điểm hoặc liên kết buổi học.');
+    }
+    const assignedCourseIds = viewerRole === 'lecturer'
+      ? await getAssignedCourseIds(viewerRole, viewerEmail)
+      : null;
+    const claimed = await mutateCollection('sessionRequests', (records) => {
+      const index = records.findIndex((item) => item.id === parts[2]);
+      if (index < 0) throw apiError(404, 'SESSION_REQUEST_NOT_FOUND', 'Không tìm thấy yêu cầu buổi học.');
+      const current = records[index];
+      if (assignedCourseIds && !assignedCourseIds.has(String(current.courseId))) {
+        throw apiError(403, 'FORBIDDEN', 'Bạn không được phân công khóa học của yêu cầu này.');
+      }
+      if (current.requestType === 'absent') {
+        throw apiError(409, 'SESSION_REQUEST_NOT_SCHEDULABLE', 'Yêu cầu xin vắng không tạo buổi học.');
+      }
+      if (current.status === 'scheduled') return { current, alreadyScheduled: true };
+      if (!['pending', 'scheduling'].includes(current.status)) {
+        throw apiError(409, 'SESSION_REQUEST_ALREADY_REVIEWED', 'Yêu cầu đã được xử lý và không thể xếp lịch.');
+      }
+      if (current.status === 'pending') {
+        records[index] = { ...current, status: 'scheduling', updatedAt: new Date().toISOString() };
+      }
+      return { current: records[index], alreadyScheduled: false };
+    });
+
+    if (claimed.alreadyScheduled) {
+      const existing = (await readCollection('sessions')).find((item) => item.sourceRequestId === parts[2]);
+      if (!existing) throw apiError(409, 'SESSION_REQUEST_SCHEDULE_INCOMPLETE', 'Yêu cầu đang thiếu buổi học đã liên kết. Hãy thử lại.');
+      sendJson(response, 200, { item: claimed.current, session: toResource(existing, viewerRole, viewerEmail, 'session') });
+      return;
+    }
+
+    try {
+      const course = await getCourseWithCanonicalRoster(claimed.current.courseId);
+      const sessionItem = {
+        id: `session-${randomUUID()}`,
+        sourceRequestId: parts[2],
+        courseId: String(claimed.current.courseId),
+        courseTitle: claimed.current.courseTitle,
+        title,
+        desc: description || claimed.current.description,
+        instructor: course.instructor,
+        instructorEmail: COURSE_OWNERSHIPS[String(claimed.current.courseId)]?.ownerEmail ?? '',
+        requesterEmail: claimed.current.requesterEmail,
+        method,
+        ...(method === 'online' ? { link } : { location }),
+        start: start.toISOString(),
+        end: end.toISOString(),
+        status: 'scheduled',
+        requestType: claimed.current.requestType,
+        createdAt: new Date().toISOString(),
+        ownerRole: viewerRole,
+        ownerEmail: viewerEmail,
+      };
+      const scheduledSession = await mutateCollection('sessions', (records) => {
+        const existing = records.find((item) => item.sourceRequestId === parts[2]);
+        if (existing) return existing;
+        validateSessionSchedule(records, sessionItem);
+        records.push(sessionItem);
+        return sessionItem;
+      });
+      const updatedRequest = await mutateCollection('sessionRequests', (records) => {
+        const index = records.findIndex((item) => item.id === parts[2]);
+        if (index < 0) throw apiError(404, 'SESSION_REQUEST_NOT_FOUND', 'Không tìm thấy yêu cầu buổi học.');
+        const current = records[index];
+        if (current.status === 'scheduled') return current;
+        if (current.status !== 'scheduling') {
+          throw apiError(409, 'SESSION_REQUEST_ALREADY_REVIEWED', 'Trạng thái yêu cầu đã thay đổi.');
+        }
+        const updated = {
+          ...current,
+          status: 'scheduled',
+          scheduledSessionId: scheduledSession.id,
+          scheduledStart: scheduledSession.start,
+          scheduledEnd: scheduledSession.end,
+          reviewedBy: viewerEmail,
+          reviewedAt: new Date().toISOString(),
+          reviewReason: '',
+          updatedAt: new Date().toISOString(),
+        };
+        records[index] = updated;
+        return updated;
+      });
+      sendJson(response, 201, {
+        item: updatedRequest,
+        session: toResource(scheduledSession, viewerRole, viewerEmail, 'session'),
+      });
+    } catch (error) {
+      await mutateCollection('sessionRequests', (records) => {
+        const index = records.findIndex((item) => item.id === parts[2]);
+        if (index >= 0 && records[index].status === 'scheduling') {
+          records[index] = { ...records[index], status: 'pending', updatedAt: new Date().toISOString() };
+        }
+      });
+      throw error;
+    }
+    return;
+  }
+
   if (parts[0] === 'api' && parts[1] === 'session-requests' && parts[2] && request.method === 'PATCH') {
     if (!['lecturer', 'coordinator', 'chairman'].includes(viewerRole)) {
       throw apiError(403, 'FORBIDDEN', 'Bạn không có quyền xử lý yêu cầu buổi học.');
@@ -860,6 +1032,9 @@ async function handleRequest(request, response) {
       const current = records[index];
       if (assignedCourseIds && !assignedCourseIds.has(String(current.courseId))) {
         throw apiError(403, 'FORBIDDEN', 'Bạn không được phân công khóa học của yêu cầu này.');
+      }
+      if (status === 'approved' && current.requestType !== 'absent') {
+        throw apiError(409, 'SESSION_REQUEST_SCHEDULE_REQUIRED', 'Yêu cầu buổi mới hoặc học bù phải được xếp lịch để hoàn tất.');
       }
       if (current.status !== 'pending') {
         throw apiError(409, 'SESSION_REQUEST_ALREADY_REVIEWED', 'Yêu cầu đã được xử lý và không thể đổi trạng thái.');
@@ -900,7 +1075,10 @@ async function handleRequest(request, response) {
         items = items.filter((record) => activeClassrooms.has(record.courseId));
       }
     } else if (viewerRole === 'lecturer') {
-      items = items.filter((record) => record.ownerEmail === viewerEmail);
+      items = items.filter((record) =>
+        normalizeEmail(record.ownerEmail) === normalizeEmail(viewerEmail)
+        || normalizeEmail(record.instructorEmail) === normalizeEmail(viewerEmail),
+      );
     }
     sendJson(response, 200, toListResponse(items, viewerRole, viewerEmail, 'session'));
     return;
@@ -914,42 +1092,66 @@ async function handleRequest(request, response) {
     if (viewerRole === 'lecturer' && body.item?.courseId && !isAssignedLecturer(body.item.courseId, viewerEmail)) {
       throw apiError(403, 'FORBIDDEN', 'Bạn không được phân công khóa học này.');
     }
+    if (!body.item || typeof body.item !== 'object' || Array.isArray(body.item)) {
+      throw apiError(400, 'INVALID_SESSION', 'Body phải chứa thông tin buổi học.');
+    }
     const item = {
       ...clone(body.item ?? {}),
-      id: body.item?.id ?? `session-${Date.now()}`,
+      id: body.item?.id ?? `session-${randomUUID()}`,
       createdAt: body.item?.createdAt ?? new Date().toISOString(),
+      instructorEmail: viewerRole === 'lecturer'
+        ? viewerEmail
+        : body.item?.instructorEmail || COURSE_OWNERSHIPS[String(body.item?.courseId)]?.ownerEmail || '',
+      instructor: viewerRole === 'lecturer'
+        ? body.item.instructor
+        : COURSE_CATALOG[String(body.item?.courseId)]?.instructor ?? body.item.instructor,
       ownerRole: viewerRole,
       ownerEmail: viewerEmail,
     };
-    const records = await readCollection('sessions');
-    records.push(item);
-    await saveCollection('sessions', records);
-    sendJson(response, 201, { item: toResource(item, viewerRole, viewerEmail, 'session') });
+    const created = await mutateCollection('sessions', (records) => {
+      validateSessionSchedule(records, item);
+      records.push(item);
+      return item;
+    });
+    sendJson(response, 201, { item: toResource(created, viewerRole, viewerEmail, 'session') });
     return;
   }
 
   if (parts[0] === 'api' && parts[1] === 'sessions' && parts[2] && request.method === 'PATCH') {
     const body = await readRequestBody(request);
-    const records = await readCollection('sessions');
-    const index = records.findIndex((record) => record.id === parts[2]);
-    if (index < 0) throw apiError(404, 'SESSION_NOT_FOUND', `Không tìm thấy session ${parts[2]}.`);
-
-    const current = records[index];
-    const permissions = getResourcePermissions({
-      viewerRole,
-      ownerRole: current.ownerRole,
-      ownerEmail: current.ownerEmail,
-      viewerEmail,
-    });
-    if (!permissions.canEdit) throw apiError(403, 'FORBIDDEN', 'Bạn không có quyền chỉnh sửa session này.');
-
-    const { id: ignoredId, ownerRole: ignoredRole, ownerEmail: ignoredEmail, ...patch } = clone(body.patch ?? {});
-    if (viewerRole === 'lecturer' && patch.courseId && !isAssignedLecturer(patch.courseId, viewerEmail)) {
-      throw apiError(403, 'FORBIDDEN', 'Bạn không được phân công khóa học này.');
+    const patch = body?.patch;
+    if (!patch || typeof patch !== 'object' || Array.isArray(patch)) {
+      throw apiError(400, 'INVALID_SESSION', 'Patch phải là một object JSON.');
     }
-    const updated = { ...current, ...patch, updatedAt: new Date().toISOString() };
-    records[index] = updated;
-    await saveCollection('sessions', records);
+    const updated = await mutateCollection('sessions', (records) => {
+      const index = records.findIndex((record) => record.id === parts[2]);
+      if (index < 0) throw apiError(404, 'SESSION_NOT_FOUND', `Không tìm thấy session ${parts[2]}.`);
+      const current = records[index];
+      const permissions = getResourcePermissions({
+        viewerRole,
+        ownerRole: current.ownerRole,
+        ownerEmail: current.ownerEmail,
+        viewerEmail,
+        relatedEmail: current.instructorEmail,
+      });
+      if (!permissions.canEdit) throw apiError(403, 'FORBIDDEN', 'Bạn không có quyền chỉnh sửa session này.');
+
+      const { id: ignoredId, ownerRole: ignoredRole, ownerEmail: ignoredEmail, ...safePatch } = clone(patch);
+      if (viewerRole === 'lecturer' && safePatch.courseId && !isAssignedLecturer(safePatch.courseId, viewerEmail)) {
+        throw apiError(403, 'FORBIDDEN', 'Bạn không được phân công khóa học này.');
+      }
+      const item = { ...current, ...safePatch, updatedAt: new Date().toISOString() };
+      const scheduleChanged = ['courseId', 'start', 'end', 'method', 'location', 'instructorEmail']
+        .some((field) => Object.hasOwn(safePatch, field));
+      const isReactivated = String(current.status ?? '').toLowerCase() === 'cancelled'
+        && String(item.status ?? '').toLowerCase() !== 'cancelled';
+      if ((scheduleChanged || isReactivated)
+        && !['cancelled', 'completed'].includes(String(item.status ?? '').toLowerCase())) {
+        validateSessionSchedule(records, item, current.id);
+      }
+      records[index] = item;
+      return item;
+    });
     sendJson(response, 200, { item: toResource(updated, viewerRole, viewerEmail, 'session') });
     return;
   }
@@ -964,6 +1166,7 @@ async function handleRequest(request, response) {
       ownerRole: current.ownerRole,
       ownerEmail: current.ownerEmail,
       viewerEmail,
+      relatedEmail: current.instructorEmail,
     });
     if (!permissions.canDelete) throw apiError(403, 'FORBIDDEN', 'Bạn không có quyền xóa session này.');
     await saveCollection('sessions', records.filter((record) => record.id !== parts[2]));
@@ -1004,21 +1207,58 @@ async function handleRequest(request, response) {
 
   if (parts[0] === 'api' && parts[1] === 'registrations' && parts[2] && request.method === 'PATCH') {
     const body = await readRequestBody(request);
-    const records = await readCollection('registrations');
-    const index = records.findIndex((record) => record.id === parts[2]);
-    if (index < 0) throw apiError(404, 'REGISTRATION_NOT_FOUND', `Không tìm thấy registration ${parts[2]}.`);
-    const current = records[index];
-    const permissions = getResourcePermissions({
-      viewerRole,
-      ownerRole: current.ownerRole,
-      ownerEmail: current.ownerEmail,
-      viewerEmail,
+    const patch = body?.patch;
+    if (!patch || typeof patch !== 'object' || Array.isArray(patch)) {
+      throw apiError(400, 'INVALID_REGISTRATION', 'Patch phải là một object JSON.');
+    }
+    const updated = await mutateCollection('registrations', (records) => {
+      const index = records.findIndex((record) => record.id === parts[2]);
+      if (index < 0) throw apiError(404, 'REGISTRATION_NOT_FOUND', `Không tìm thấy registration ${parts[2]}.`);
+      const current = records[index];
+      const permissions = getResourcePermissions({
+        viewerRole,
+        ownerRole: current.ownerRole,
+        ownerEmail: current.ownerEmail,
+        viewerEmail,
+      });
+      if (!permissions.canEdit) throw apiError(403, 'FORBIDDEN', 'Bạn không có quyền chỉnh sửa registration này.');
+
+      if (Object.hasOwn(patch, 'status')) {
+        if (!['coordinator', 'chairman'].includes(viewerRole)) {
+          throw apiError(403, 'FORBIDDEN', 'Chỉ người điều phối hoặc trưởng văn phòng được duyệt đăng ký.');
+        }
+        if (Object.keys(patch).some((key) => !['status', 'declineReason'].includes(key))) {
+          throw apiError(400, 'INVALID_REGISTRATION_REVIEW', 'Chỉ được cập nhật trạng thái và lý do từ chối.');
+        }
+        const status = normalizeRegistrationStatus(patch.status);
+        const reason = typeof patch.declineReason === 'string' ? patch.declineReason.trim() : '';
+        if (!['approved', 'declined'].includes(status)) {
+          throw apiError(400, 'INVALID_REGISTRATION_STATUS', 'Trạng thái xử lý phải là Approved hoặc Declined.');
+        }
+        if (reason.length > 1000 || (status === 'declined' && !reason)) {
+          throw apiError(400, 'INVALID_REGISTRATION_REASON', 'Khi từ chối cần nêu lý do tối đa 1.000 ký tự.');
+        }
+        if (normalizeRegistrationStatus(current.status) !== 'pending') {
+          throw apiError(409, 'REGISTRATION_ALREADY_REVIEWED', 'Hồ sơ đã được xử lý và không thể đổi trạng thái.');
+        }
+        const reviewedAt = new Date().toISOString();
+        const item = {
+          ...current,
+          status: status === 'approved' ? 'Approved' : 'Declined',
+          declineReason: status === 'declined' ? reason : '',
+          reviewedBy: viewerEmail,
+          reviewedAt,
+          updatedAt: reviewedAt,
+        };
+        records[index] = item;
+        return item;
+      }
+
+      const { id: ignoredId, ownerRole: ignoredRole, ownerEmail: ignoredEmail, ...safePatch } = clone(patch);
+      const item = { ...current, ...safePatch, updatedAt: new Date().toISOString() };
+      records[index] = item;
+      return item;
     });
-    if (!permissions.canEdit) throw apiError(403, 'FORBIDDEN', 'Bạn không có quyền chỉnh sửa registration này.');
-    const { id: ignoredId, ownerRole: ignoredRole, ownerEmail: ignoredEmail, ...patch } = clone(body.patch ?? {});
-    const updated = { ...current, ...patch, updatedAt: new Date().toISOString() };
-    records[index] = updated;
-    await saveCollection('registrations', records);
     sendJson(response, 200, { item: toResource(updated, viewerRole, viewerEmail, 'registration') });
     return;
   }

@@ -173,6 +173,7 @@ const getResourcePermissions = ({
   ownerRole,
   ownerEmail,
   viewerEmail,
+  relatedEmail,
   resourceType = 'generic',
 }) => {
   const role = normalizeRole(viewerRole);
@@ -181,11 +182,15 @@ const getResourcePermissions = ({
     (viewerEmail && ownerEmail && normalizeEmail(viewerEmail) === normalizeEmail(ownerEmail)) ||
       (!viewerEmail && canonicalOwnerRole && role === canonicalOwnerRole),
   );
+  const isAssignedSessionInstructor = Boolean(
+    resourceType === 'session' && role === 'lecturer' && viewerEmail && relatedEmail
+      && normalizeEmail(viewerEmail) === normalizeEmail(relatedEmail),
+  );
   const canView = isManager(role) || resourceType === 'course' ||
-    (resourceType === 'session' && role === 'student') || isOwner;
+    (resourceType === 'session' && role === 'student') || isOwner || isAssignedSessionInstructor;
   const canEdit = isManager(role) || (
     resourceType === 'session'
-      ? role === 'lecturer' && isOwner
+      ? role === 'lecturer' && (isOwner || isAssignedSessionInstructor)
       : isOwner
   );
 
@@ -202,26 +207,41 @@ const getResourcePermissions = ({
 const toResource = (record, viewerRole, viewerEmail, resourceType = 'generic') => {
   const role = normalizeRole(viewerRole);
   const canonicalOwnerRole = record.ownerRole === 'tutor' ? 'lecturer' : record.ownerRole;
+  const permissions = getResourcePermissions({
+    viewerRole: role,
+    ownerRole: canonicalOwnerRole,
+    ownerEmail: record.ownerEmail,
+    viewerEmail,
+    relatedEmail: record.instructorEmail,
+    resourceType,
+  });
+  if (resourceType === 'registration'
+    && ['approved', 'declined', 'rejected'].includes(String(record.status ?? '').toLowerCase())) {
+    permissions.canEdit = false;
+  }
 
   return ({
   ...clone(resourceType === 'course' && role === 'student'
     ? { ...record, students: [], ownerRole: canonicalOwnerRole }
     : resourceType === 'session' && role === 'student'
-      ? { ...record, tutorNote: undefined, members: undefined, studentNames: undefined, ownerRole: canonicalOwnerRole }
+      ? {
+        ...record,
+        tutorNote: undefined,
+        members: undefined,
+        studentNames: undefined,
+        ownerEmail: undefined,
+        instructorEmail: undefined,
+        requesterEmail: undefined,
+        ownerRole: canonicalOwnerRole,
+      }
       : { ...record, ownerRole: canonicalOwnerRole }),
-  permissions: getResourcePermissions({
-    viewerRole: role,
-    ownerRole: canonicalOwnerRole,
-    ownerEmail: record.ownerEmail,
-    viewerEmail,
-    resourceType,
-  }),
+  permissions,
   meta: {
     source: 'node-backend',
     updatedAt: record.updatedAt ?? record.createdAt ?? new Date().toISOString(),
     viewerRole: role,
     ownerRole: canonicalOwnerRole,
-    ownerEmail: record.ownerEmail,
+    ownerEmail: role === 'student' && resourceType === 'session' ? undefined : record.ownerEmail,
     ownershipLocked: record.ownershipLocked === true,
   },
   });
@@ -234,6 +254,7 @@ const toListResponse = (items, viewerRole, viewerEmail, resourceType = 'generic'
     ownerRole: item.ownerRole,
     ownerEmail: item.ownerEmail,
     viewerEmail,
+    relatedEmail: item.instructorEmail,
     resourceType,
   }).canView);
 
@@ -242,18 +263,24 @@ const toListResponse = (items, viewerRole, viewerEmail, resourceType = 'generic'
     viewerRole: role,
     permissions: {
       canView: true,
-      canEdit: isManager(role) || visibleItems.some((item) => getResourcePermissions({
-        viewerRole: role,
-        ownerRole: item.ownerRole,
-        ownerEmail: item.ownerEmail,
-        viewerEmail,
-        resourceType,
-      }).canEdit),
+      canEdit: visibleItems.some((item) => {
+        const canEditItem = getResourcePermissions({
+          viewerRole: role,
+          ownerRole: item.ownerRole,
+          ownerEmail: item.ownerEmail,
+          viewerEmail,
+          relatedEmail: item.instructorEmail,
+          resourceType,
+        }).canEdit;
+        return canEditItem && !(resourceType === 'registration'
+          && ['approved', 'declined', 'rejected'].includes(String(item.status ?? '').toLowerCase()));
+      }),
       canDelete: isManager(role) || visibleItems.some((item) => getResourcePermissions({
         viewerRole: role,
         ownerRole: item.ownerRole,
         ownerEmail: item.ownerEmail,
         viewerEmail,
+        relatedEmail: item.instructorEmail,
         resourceType,
       }).canDelete),
       canCreate: isManager(role) ||
