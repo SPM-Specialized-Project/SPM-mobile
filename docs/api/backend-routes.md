@@ -23,12 +23,23 @@ Tài liệu này mô tả route trong `backend/routes.mjs` và `backend/codepuls
 
 Logout có tính idempotent: gọi lại với token đã thu hồi trả `{ "revoked": false }`.
 
+## Trợ lý hướng dẫn
+
+| Method và route | Input | Output / quyền |
+| --- | --- | --- |
+| `POST /api/assistant/messages` | `{ "question": "..." }`; tối đa 1.000 ký tự | Student và lecturer: hướng dẫn có nguồn từ kho tri thức theo đúng vai trò. Response gồm `status`, `answer`, `sources`, `mode` và `destination` tùy đoạn hướng dẫn; câu hỏi cần dữ liệu trực tiếp trả `unsupported`. |
+
+Trợ lý không nhận role từ client và không truy cập dữ liệu lịch/hồ sơ riêng. `destination` chỉ là gợi ý điều hướng tới một tab đã có; app chỉ mở khi người dùng chạm nút, không sửa hoặc gửi dữ liệu. Khi đặt `ASSISTANT_OLLAMA_MODEL`, backend chỉ sinh câu trả lời cho đoạn `design` đã truy xuất bằng Ollama cục bộ; lỗi hoặc thiếu model sẽ trả nguyên đoạn truy xuất. Nếu không đặt model, `mode` là `retrieval`.
+
 ## Course API
 
 | Method và route | Input | Output thành công / quyền |
 | --- | --- | --- |
-| `GET /api/courses` | Không có | `200 { items, viewerRole, permissions, meta }`; danh sách course mà session được phép xem. |
-| `GET /api/courses/:courseId/detail` | `courseId` trên path | `200 { course, detail }`; yêu cầu student có membership ACTIVE hoặc lecturer được phân công. |
+| `GET /api/courses` | Không có | `200 { items, viewerRole, permissions, meta }`; danh sách course mà session được phép xem. Admin chỉ nhận course DSA (13), khớp với route chi tiết được backend cho phép. |
+| `GET /api/courses/:courseId/detail` | `courseId` trên path | `200 { course, detail }`; student cần membership ACTIVE, lecturer cần được phân công, coordinator/chairman xem được các khóa trong danh mục; admin chỉ xem chi tiết DSA course 13. |
+| `PATCH /api/courses/:courseId/detail` | `{ "content": [section], "expectedRevision": 0 }` | Lecturer sở hữu khóa học hoặc manager được phép: `200 { course, detail }`; nội dung được lưu ở `course-details.json`, tăng `contentRevision`; trả `409 REVISION_CONFLICT` nếu revision đã cũ. Không xóa mục bài tập đã có bài nộp (`409 ASSIGNMENT_HAS_SUBMISSIONS`). |
+| `GET /api/courses/:courseId/tutor-feedback` | `courseId` trên path | Lecturer được phân công: `200 { item: { courseComment, studentComments, revision } }`; nhận xét được lưu riêng theo khóa học. |
+| `PATCH /api/courses/:courseId/tutor-feedback` | `{ "courseComment": "...", "studentComments": { "student@example.com": "..." }, "expectedRevision": 0 }` | Chỉ lecturer sở hữu khóa học; comment khóa học tối đa 5.000 ký tự, comment học viên tối đa 2.000 ký tự và chỉ nhận email trong roster. Thành công tăng `revision`; stale revision trả `409 REVISION_CONFLICT`. |
 | `GET /api/courses/:courseId/submissions?assignmentId=:id` | Bắt buộc `assignmentId`; student có thể gửi `studentId`/`studentEmail` để kiểm tra scope | `200 { items, viewerRole, permissions, meta }`; student chỉ nhận bài của mình, lecturer nhận danh sách theo lớp. |
 | `PATCH /api/submissions/:submissionId` | Student: `{ "submittedAt": "ISO-8601", "fileUrl": "..." }`; lecturer: `{ "score": 0, "feedback": "..." }` | `200 { "item": submission }`; quyền và các field được cập nhật phụ thuộc role. |
 
@@ -52,6 +63,14 @@ Các endpoint list trả `{ items, viewerRole, permissions, meta }`. Mutation tr
 | Session | `GET /api/sessions?courseId=:id` (`courseId` tùy chọn) | `POST /api/sessions` — `{ "item": { ... } }` | `PATCH /api/sessions/:id` — `{ "patch": { ... } }` | Lecturer/coordinator/chairman tạo; owner hoặc manager sửa/xóa. Student chỉ xem session thuộc lớp mình. |
 | Registration | `GET /api/registrations?registrationType=:role` (`registrationType` tùy chọn) | `POST /api/registrations` — `{ "registrationType": "student\|lecturer", "item": { ... } }` | `PATCH /api/registrations/:id` — `{ "patch": { ... } }` | Coordinator/chairman tạo cho role bất kỳ; student/lecturer tạo registration cùng role; owner hoặc manager sửa/xóa. |
 | Course request | `GET /api/course-requests` | `POST /api/course-requests` — `{ "item": { ... } }` | `PATCH /api/course-requests/:id` — `{ "patch": { ... } }` | Coordinator/chairman tạo; owner hoặc manager sửa/xóa. |
+
+### Yêu cầu buổi học
+
+| Method và route | Input | Output thành công / quyền |
+| --- | --- | --- |
+| `GET /api/session-requests` | Không có | `200 { items, viewerRole, permissions, meta }`; student chỉ xem yêu cầu của mình, lecturer chỉ xem yêu cầu thuộc khóa được phân công, coordinator/chairman xem toàn bộ. |
+| `POST /api/session-requests` | `{ "courseId": "...", "requestType": "new\|makeup\|absent", "title": "...", "description": "...", "proposedAt": "ISO-8601" }` | Student có membership ACTIVE; thời gian phải trong tương lai và tối đa một năm; `201 { item }`. Ghi vào `session-requests.json`. |
+| `PATCH /api/session-requests/:id` | `{ "status": "approved\|declined", "reason"?: "..." }` | Lecturer được phân công hoặc coordinator/chairman; chỉ xử lý yêu cầu `pending`; từ chối cần lý do. Trả `409` nếu đã được xử lý. Duyệt yêu cầu không tự tạo lịch buổi học. |
 
 ## CodePulse API
 

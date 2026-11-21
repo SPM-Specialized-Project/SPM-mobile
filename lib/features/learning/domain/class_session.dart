@@ -11,6 +11,7 @@ class ClassSession {
     required this.status,
     required this.link,
     required this.location,
+    this.permissions = const {},
   });
 
   final String id;
@@ -24,6 +25,14 @@ class ClassSession {
   final String status;
   final String? link;
   final String? location;
+  final Map<String, dynamic> permissions;
+
+  bool get canEdit => permissions['canEdit'] == true;
+
+  bool get canManageUpcoming =>
+      canEdit &&
+      start.isAfter(DateTime.now()) &&
+      const {'new', 'pending', 'scheduled'}.contains(status.toLowerCase());
 
   factory ClassSession.fromJson(Map<String, dynamic> json) => ClassSession(
     id: _requiredString(json, 'id'),
@@ -37,8 +46,12 @@ class ClassSession {
     status: _optionalString(json['status']) ?? 'scheduled',
     link: _optionalString(json['link']),
     location: _optionalString(json['location']),
+    permissions: _optionalMap(json['permissions']),
   );
 }
+
+Map<String, dynamic> _optionalMap(Object? value) =>
+    value is Map<String, dynamic> ? value : const {};
 
 String _requiredString(Map<String, dynamic> json, String key) {
   final value = _optionalString(json[key]);

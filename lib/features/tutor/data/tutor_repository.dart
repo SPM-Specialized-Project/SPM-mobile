@@ -101,25 +101,34 @@ class TutorRepository {
   }
 
   Future<List<TutorSubmission>> getCourseSubmissions(TutorCourse course) async {
-    try {
-      final response = await _dio.get<Map<String, dynamic>>(
-        '/api/courses/${Uri.encodeComponent(course.id)}/submissions',
-      );
-      return _readItems(response.data, 'submissions')
-          .map(
-            (json) => TutorSubmission.fromJson({
-              ...json,
-              'courseTitle': course.title,
-            }),
-          )
-          .toList();
-    } on DioException catch (error) {
-      if (error.response?.statusCode == 404 &&
-          (error.response?.data as Map?)?['code'] == 'ASSIGNMENT_NOT_FOUND') {
-        return [];
-      }
-      rethrow;
-    }
+    final detail = await getCourseDetail(course.id);
+    return getCourseSubmissionsForSections(course, detail.sections);
+  }
+
+  Future<List<TutorSubmission>> getCourseSubmissionsForSections(
+    TutorCourse course,
+    List<TutorCourseSection> sections,
+  ) async {
+    final assignments = sections
+        .where((section) => section.type == 'submission')
+        .toList(growable: false);
+    final perAssignment = await Future.wait(
+      assignments.map((assignment) async {
+        final response = await _dio.get<Map<String, dynamic>>(
+          '/api/courses/${Uri.encodeComponent(course.id)}/submissions',
+          queryParameters: {'assignmentId': assignment.id},
+        );
+        return _readItems(response.data, 'submissions')
+            .map(
+              (json) => TutorSubmission.fromJson({
+                ...json,
+                'courseTitle': course.title,
+              }),
+            )
+            .toList(growable: false);
+      }),
+    );
+    return perAssignment.expand((items) => items).toList(growable: false);
   }
 
   Future<TutorSession> createSession({
@@ -157,30 +166,60 @@ class TutorRepository {
     return TutorSession.fromJson(_requiredMap(body['item'], 'session item'));
   }
 
+  Future<TutorSession> updateSession({
+    required String id,
+    required String title,
+    required String description,
+    required DateTime start,
+    required DateTime end,
+    required String method,
+    String? link,
+    String? location,
+    String? status,
+  }) async {
+    final response = await _dio.patch<Map<String, dynamic>>(
+      '/api/sessions/${Uri.encodeComponent(id)}',
+      data: {
+        'patch': {
+          'title': title.trim(),
+          'desc': description.trim(),
+          'start': start.toUtc().toIso8601String(),
+          'end': end.toUtc().toIso8601String(),
+          'method': method,
+          'link': method == 'online' && (link?.trim().isNotEmpty ?? false)
+              ? link!.trim()
+              : null,
+          'location':
+              method == 'offline' && (location?.trim().isNotEmpty ?? false)
+              ? location!.trim()
+              : null,
+          'status': ?status,
+        },
+      },
+    );
+    final body = _requiredBody(response.data, 'update session');
+    return TutorSession.fromJson(_requiredMap(body['item'], 'session item'));
+  }
+
+  Future<void> updateSessionStatus(String id, String status) async {
+    await _dio.patch<Object?>(
+      '/api/sessions/${Uri.encodeComponent(id)}',
+      data: {
+        'patch': {'status': status},
+      },
+    );
+  }
+
   Future<List<TutorSubmission>> getSubmissions() async {
     final courses = await getCourses();
+    final details = await Future.wait(
+      courses.map((course) => getCourseDetail(course.id)),
+    );
     final submissionsByCourse = await Future.wait(
-      courses.map((course) async {
-        try {
-          final response = await _dio.get<Map<String, dynamic>>(
-            '/api/courses/${Uri.encodeComponent(course.id)}/submissions',
-          );
-          return _readItems(response.data, 'submissions')
-              .map(
-                (json) => TutorSubmission.fromJson({
-                  ...json,
-                  'courseTitle': course.title,
-                }),
-              )
-              .toList(growable: false);
-        } on DioException catch (error) {
-          // A course without assignments has no submission list yet.
-          if (error.response?.statusCode == 404) {
-            return const <TutorSubmission>[];
-          }
-          rethrow;
-        }
-      }),
+      details.map(
+        (detail) =>
+            getCourseSubmissionsForSections(detail.course, detail.sections),
+      ),
     );
 
     return submissionsByCourse.expand((items) => items).toList(growable: false);

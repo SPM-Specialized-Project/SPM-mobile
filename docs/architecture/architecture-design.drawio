@@ -1,0 +1,117 @@
+<mxfile host="app.diagrams.net" modified="2026-11-13T00:00:00.000Z" agent="Codex" version="24.7.17" type="device">
+  <diagram id="spm-current-architecture" name="Architecture Design">
+    <mxGraphModel dx="1920" dy="1080" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <mxCell id="page-bg" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F3F6FA;strokeColor=none;" vertex="1" parent="1">
+          <mxGeometry x="0" y="0" width="1920" height="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="title" value="SPM Architecture Design" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;strokeColor=none;fillColor=none;fontColor=#142D4E;fontSize=30;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="60" y="38" width="900" height="58" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="Current implementation | Source reviewed 13 November 2026" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;strokeColor=none;fillColor=none;fontColor=#52657D;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="62" y="96" width="900" height="34" as="geometry" />
+        </mxCell>
+        <mxCell id="legend" value="Solid line: implemented in source. Dashed line: optional service or missing endpoint." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#D7E0EA;strokeWidth=1.5;fontColor=#334E68;fontSize=14;align=center;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="1130" y="42" width="735" height="66" as="geometry" />
+        </mxCell>
+
+        <mxCell id="clients-frame" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F8FAFD;strokeColor=#B7C8DB;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="45" y="210" width="600" height="590" as="geometry" />
+        </mxCell>
+        <mxCell id="backend-frame" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F5F9FF;strokeColor=#6D91BA;strokeWidth=2.5;" vertex="1" parent="1">
+          <mxGeometry x="700" y="210" width="860" height="650" as="geometry" />
+        </mxCell>
+        <mxCell id="integration-frame" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FBFAF6;strokeColor=#D4C7A6;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1630" y="210" width="235" height="650" as="geometry" />
+        </mxCell>
+
+        <mxCell id="clients-heading" value="CLIENT APPLICATIONS" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;fontColor=#34536F;fontSize=16;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="72" y="226" width="540" height="38" as="geometry" />
+        </mxCell>
+        <mxCell id="backend-heading" value="NODE.JS BACKEND | MODULAR MONOLITH | ONE PROCESS" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;fontColor=#244F7A;fontSize=17;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="730" y="226" width="800" height="42" as="geometry" />
+        </mxCell>
+        <mxCell id="integration-heading" value="LOCAL / OPTIONAL INTEGRATIONS" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;fontColor=#6D5A34;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1648" y="228" width="200" height="42" as="geometry" />
+        </mxCell>
+
+        <mxCell id="web-app" value="&lt;b&gt;REACT WEB&lt;/b&gt;&lt;br&gt;React 19 | Vite | TanStack Router&lt;br&gt;Axios API client | Zustand auth state&lt;br&gt;Bearer token persisted in localStorage&lt;br&gt;SPM course, session, registration and&lt;br&gt;management workflows&lt;br&gt;&lt;br&gt;&lt;b&gt;API:&lt;/b&gt; /api/*&lt;br&gt;&lt;b&gt;Local development:&lt;/b&gt; Vite :3000 proxies to :4000" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4B82B8;strokeWidth=2;fontColor=#183B5B;fontSize=14;align=left;verticalAlign=top;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="75" y="292" width="540" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="mobile-app" value="&lt;b&gt;FLUTTER MOBILE&lt;/b&gt;&lt;br&gt;Flutter | Riverpod | Dio API client&lt;br&gt;Access token in flutter_secure_storage&lt;br&gt;Auth gate and role-based navigation&lt;br&gt;&lt;br&gt;&lt;b&gt;SPM roles:&lt;/b&gt; Student, lecturer, coordinator, chairman, admin&lt;br&gt;&lt;b&gt;TSSA roles:&lt;/b&gt; Learner, guardian, tutor&lt;br&gt;&lt;b&gt;Base URL:&lt;/b&gt; API_BASE_URL (Android emulator default: 10.0.2.2:4000)&lt;br&gt;&lt;br&gt;&lt;b&gt;SPM repositories:&lt;/b&gt; /api/*&lt;br&gt;&lt;font color=&quot;#8B5B16&quot;&gt;&lt;b&gt;TssaRepository:&lt;/b&gt; /api/v1/* (not implemented by this backend)&lt;/font&gt;" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#4B82B8;strokeWidth=2;fontColor=#183B5B;fontSize=14;align=left;verticalAlign=top;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="75" y="525" width="540" height="245" as="geometry" />
+        </mxCell>
+
+        <mxCell id="api-layer" value="&lt;b&gt;HTTP / API / SECURITY&lt;/b&gt;&lt;br&gt;server.mjs | node:http&lt;br&gt;http.mjs | JSON and CORS&lt;br&gt;routes.mjs | route dispatch&lt;br&gt;&lt;br&gt;Bearer token authentication&lt;br&gt;Role and resource authorization&lt;br&gt;Auth sessions: in-memory Map&lt;br&gt;8-hour expiry; reset on restart&lt;br&gt;&lt;br&gt;Health and /api/auth/*" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#EAF2FC;strokeColor=#5683B2;strokeWidth=2;fontColor=#183B5B;fontSize=14;align=left;verticalAlign=top;spacing=13;" vertex="1" parent="1">
+          <mxGeometry x="730" y="320" width="225" height="350" as="geometry" />
+        </mxCell>
+        <mxCell id="spm-domain" value="&lt;b&gt;SPM REST API&lt;/b&gt;&lt;br&gt;Courses, sessions, submissions&lt;br&gt;Registrations, course requests&lt;br&gt;Classroom memberships&lt;br&gt;&lt;br&gt;Resource-scoped responses&lt;br&gt;Server-side permission checks" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#3E8A83;strokeWidth=2;fontColor=#1B514C;fontSize=14;align=left;verticalAlign=top;spacing=13;" vertex="1" parent="1">
+          <mxGeometry x="985" y="320" width="265" height="185" as="geometry" />
+        </mxCell>
+        <mxCell id="codepulse-domain" value="&lt;b&gt;CODEPULSE MODULE (IN PROCESS)&lt;/b&gt;&lt;br&gt;/api/codepulse/*&lt;br&gt;Terms, classrooms, assignments&lt;br&gt;LABs, workspaces, submissions&lt;br&gt;Code execution and publication" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#3E8A83;strokeWidth=2;fontColor=#1B514C;fontSize=14;align=left;verticalAlign=top;spacing=13;" vertex="1" parent="1">
+          <mxGeometry x="985" y="535" width="265" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="data-layer" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF9EB;strokeColor=#C49A4A;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="730" y="710" width="800" height="125" as="geometry" />
+        </mxCell>
+        <mxCell id="data-heading" value="DATA ACCESS" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;fontColor=#6D5425;fontSize=15;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="750" y="718" width="760" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="data-summary" value="Source-defined users, roles and course catalog&lt;br&gt;Mutable records in backend/data/*.json&lt;br&gt;Per-file serialized writes with atomic replacement. No SQL database." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#D6B66F;strokeWidth=1.5;fontColor=#624D22;fontSize=13;align=left;verticalAlign=middle;spacing=12;" vertex="1" parent="1">
+          <mxGeometry x="750" y="750" width="760" height="68" as="geometry" />
+        </mxCell>
+
+        <mxCell id="runner" value="&lt;b&gt;CODE RUNNER&lt;/b&gt;&lt;br&gt;Local child processes&lt;br&gt;Python runtime&lt;br&gt;C++ via g++ or clang++&lt;br&gt;&lt;br&gt;Compiler and runtime must be&lt;br&gt;available on the backend host" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B49656;strokeWidth=1.8;fontColor=#5E4D2B;fontSize=14;align=left;verticalAlign=top;spacing=13;" vertex="1" parent="1">
+          <mxGeometry x="1650" y="310" width="195" height="215" as="geometry" />
+        </mxCell>
+        <mxCell id="gitea" value="&lt;b&gt;GITEA API (OPTIONAL)&lt;/b&gt;&lt;br&gt;Assignment repository and&lt;br&gt;version branch operations&lt;br&gt;&lt;br&gt;Enabled when GITEA_*&lt;br&gt;configuration is provided" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#B49656;strokeWidth=1.8;fontColor=#5E4D2B;fontSize=14;align=left;verticalAlign=top;spacing=13;" vertex="1" parent="1">
+          <mxGeometry x="1650" y="560" width="195" height="180" as="geometry" />
+        </mxCell>
+
+        <mxCell id="tssa-gap" value="&lt;b&gt;TSSA BACKEND ROUTES ARE NOT IMPLEMENTED&lt;/b&gt;&lt;br&gt;Flutter TssaRepository calls /api/v1/*. This backend serves /api/* and /api/codepulse/* only.&lt;br&gt;Requests to /api/v1/* return 404 NOT_FOUND." style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF7E6;strokeColor=#C58B2A;strokeWidth=2;fontColor=#745117;fontSize=14;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="700" y="885" width="1165" height="115" as="geometry" />
+        </mxCell>
+        <mxCell id="scope-note" value="Based on repository source and configuration. A deployed server was not checked." style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;strokeColor=none;fillColor=none;fontColor=#65788D;fontSize=13;" vertex="1" parent="1">
+          <mxGeometry x="60" y="1015" width="1800" height="36" as="geometry" />
+        </mxCell>
+
+        <mxCell id="web-to-api" value="HTTP JSON / Bearer /api/*" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#277B68;strokeWidth=2.5;startArrow=classic;startFill=1;endArrow=classic;endFill=1;fontColor=#245C50;fontSize=13;labelBackgroundColor=#F8FAFD;exitX=1;exitY=0.50;entryX=0;entryY=0.27;" edge="1" parent="1" source="web-app" target="api-layer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="mobile-to-api" value="SPM REST /api/*" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#277B68;strokeWidth=2.5;startArrow=classic;startFill=1;endArrow=classic;endFill=1;fontColor=#245C50;fontSize=13;labelBackgroundColor=#F8FAFD;exitX=1;exitY=0.42;entryX=0;entryY=0.74;" edge="1" parent="1" source="mobile-app" target="api-layer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="api-to-spm" value="route dispatch" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#58728E;strokeWidth=2;startArrow=classic;startFill=1;endArrow=classic;endFill=1;fontColor=#40566E;fontSize=12;labelBackgroundColor=#F5F9FF;" edge="1" parent="1" source="api-layer" target="spm-domain">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="api-to-codepulse" value="route dispatch" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#58728E;strokeWidth=2;startArrow=classic;startFill=1;endArrow=classic;endFill=1;fontColor=#40566E;fontSize=12;labelBackgroundColor=#F5F9FF;" edge="1" parent="1" source="api-layer" target="codepulse-domain">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="spm-to-store" value="read / write" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#A47D35;strokeWidth=2;startArrow=classic;startFill=1;endArrow=classic;endFill=1;fontColor=#705820;fontSize=12;labelBackgroundColor=#FFF9EB;exitX=0;exitY=0.82;entryX=0.58;entryY=0;" edge="1" parent="1" source="spm-domain" target="data-layer">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="970" y="471" />
+              <mxPoint x="970" y="690" />
+              <mxPoint x="1194" y="690" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="codepulse-to-store" value="read / write" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#A47D35;strokeWidth=2;startArrow=classic;startFill=1;endArrow=classic;endFill=1;fontColor=#705820;fontSize=12;labelBackgroundColor=#FFF9EB;exitX=0.56;exitY=1;entryX=0.60;entryY=0;" edge="1" parent="1" source="codepulse-domain" target="data-layer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="codepulse-to-runner" value="spawn / collect result" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#A47D35;strokeWidth=2;startArrow=classic;startFill=1;endArrow=classic;endFill=1;fontColor=#705820;fontSize=12;labelBackgroundColor=#FBFAF6;" edge="1" parent="1" source="codepulse-domain" target="runner">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="codepulse-to-gitea" value="when configured" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#A47D35;strokeWidth=2;dashed=1;dashPattern=8 6;startArrow=classic;startFill=1;endArrow=classic;endFill=1;fontColor=#705820;fontSize=12;labelBackgroundColor=#FBFAF6;" edge="1" parent="1" source="codepulse-domain" target="gitea">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="tssa-to-gap" value="/api/v1/* not implemented" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#C58B2A;strokeWidth=2.5;dashed=1;dashPattern=8 6;endArrow=classic;endFill=1;fontColor=#745117;fontSize=13;labelBackgroundColor=#FFF7E6;exitX=1;exitY=0.90;entryX=0;entryY=0.48;" edge="1" parent="1" source="mobile-app" target="tssa-gap">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

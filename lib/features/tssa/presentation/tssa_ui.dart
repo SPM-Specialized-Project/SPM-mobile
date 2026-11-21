@@ -190,9 +190,13 @@ class _TssaViewState extends ConsumerState<TssaView>
       builder: (context, snapshot) {
         if (snapshot.connectionState != ConnectionState.done &&
             !snapshot.hasData) {
-          return const Padding(
-            padding: EdgeInsets.all(40),
-            child: Center(child: CircularProgressIndicator()),
+          return Semantics(
+            label: 'Đang tải dữ liệu',
+            liveRegion: true,
+            child: const Padding(
+              padding: EdgeInsets.all(40),
+              child: Center(child: CircularProgressIndicator()),
+            ),
           );
         }
         if (snapshot.hasError) {
@@ -225,12 +229,18 @@ class TssaList extends StatelessWidget {
   final List<Widget> children;
   @override
   Widget build(BuildContext context) => ListView(
-    padding: const EdgeInsets.all(20),
+    padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
     children: [
-      Text(title, style: Theme.of(context).textTheme.headlineSmall),
-      const SizedBox(height: 16),
+      Text(
+        title,
+        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+          color: Theme.of(context).colorScheme.onSurface,
+          fontWeight: FontWeight.w700,
+          height: 1.2,
+        ),
+      ),
+      const SizedBox(height: 20),
       ...children,
-      const SizedBox(height: 24),
     ],
   );
 }
@@ -248,27 +258,52 @@ class TssaCard extends StatelessWidget {
   final VoidCallback? onTap;
   final List<Widget> children;
   @override
-  Widget build(BuildContext context) => Card(
-    child: Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            title: Text(
-              title,
-              style: const TextStyle(fontWeight: FontWeight.w600),
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              minVerticalPadding: 8,
+              title: Text(
+                title,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: colors.onSurface,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              subtitle: subtitle == null
+                  ? null
+                  : Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        subtitle!,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: colors.onSurfaceVariant,
+                          height: 1.35,
+                        ),
+                      ),
+                    ),
+              onTap: onTap,
+              trailing: onTap == null
+                  ? null
+                  : Icon(Icons.chevron_right, color: colors.secondary),
             ),
-            subtitle: subtitle == null ? null : Text(subtitle!),
-            onTap: onTap,
-            trailing: onTap == null ? null : const Icon(Icons.chevron_right),
-          ),
-          ...children,
-        ],
+            if (children.isNotEmpty) const SizedBox(height: 4),
+            for (var index = 0; index < children.length; index++) ...[
+              children[index],
+              if (index < children.length - 1) const SizedBox(height: 10),
+            ],
+          ],
+        ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 class TssaPanel extends StatelessWidget {

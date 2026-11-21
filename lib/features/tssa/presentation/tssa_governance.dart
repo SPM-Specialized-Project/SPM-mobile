@@ -358,7 +358,7 @@ class TssaPreferences extends ConsumerWidget {
       title: 'Cách dùng phù hợp với bạn',
       children: [
         const Text(
-          'App dùng câu ngắn, không bật âm thanh và không ghi âm/video. Có thể dùng text scaling và trình đọc màn hình của thiết bị.',
+          'App không tự phát âm thanh hoặc ghi âm/video. Chuyển cảnh có thể giảm bằng tùy chọn bên dưới; cỡ chữ vẫn theo thiết bị.',
         ),
         FilledButton(
           onPressed: () => tssaOpenForm(

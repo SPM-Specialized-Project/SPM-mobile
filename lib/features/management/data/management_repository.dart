@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import '../../auth/data/auth_session.dart';
 import '../../learning/domain/class_session.dart';
 import '../../learning/domain/course.dart';
+import '../../learning/domain/session_request.dart';
 import '../../management/data/management_models.dart';
 
 class ManagementRepository {
@@ -18,12 +19,81 @@ class ManagementRepository {
     ).map(Course.fromJson).toList(growable: false);
   }
 
+  Future<CourseDetail> getCourseDetail(String courseId) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/api/courses/${Uri.encodeComponent(courseId)}/detail',
+    );
+    final body = _body(response.data, 'course detail');
+    return CourseDetail.fromJson(body);
+  }
+
   Future<List<ClassSession>> getSessions() async {
     final response = await _dio.get<Map<String, dynamic>>('/api/sessions');
     return _readItems(
       response.data,
       'sessions',
     ).map(ClassSession.fromJson).toList(growable: false);
+  }
+
+  Future<List<SessionRequest>> getSessionRequests() async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/api/session-requests',
+    );
+    return _readItems(
+      response.data,
+      'session requests',
+    ).map(SessionRequest.fromJson).toList(growable: false);
+  }
+
+  Future<SessionRequest> reviewSessionRequest({
+    required String id,
+    required String status,
+    required String reason,
+  }) async {
+    final response = await _dio.patch<Map<String, dynamic>>(
+      '/api/session-requests/${Uri.encodeComponent(id)}',
+      data: {
+        'status': status,
+        if (reason.trim().isNotEmpty) 'reason': reason.trim(),
+      },
+    );
+    return SessionRequest.fromJson(
+      _requiredMap(
+        _body(response.data, 'session request')['item'],
+        'session request item',
+      ),
+    );
+  }
+
+  Future<SessionRequest> scheduleSessionRequest({
+    required String id,
+    required String title,
+    required String description,
+    required DateTime start,
+    required DateTime end,
+    required String method,
+    String? link,
+    String? location,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/session-requests/${Uri.encodeComponent(id)}/schedule',
+      data: {
+        'title': title.trim(),
+        'description': description.trim(),
+        'start': start.toUtc().toIso8601String(),
+        'end': end.toUtc().toIso8601String(),
+        'method': method,
+        if (method == 'online' && link != null) 'link': link.trim(),
+        if (method == 'offline' && location != null)
+          'location': location.trim(),
+      },
+    );
+    return SessionRequest.fromJson(
+      _requiredMap(
+        _body(response.data, 'scheduled session request')['item'],
+        'scheduled session request item',
+      ),
+    );
   }
 
   Future<ClassSession> createSession({
@@ -59,6 +129,50 @@ class ManagementRepository {
     );
     final item = _body(response.data, 'session')['item'];
     return ClassSession.fromJson(_requiredMap(item, 'session item'));
+  }
+
+  Future<ClassSession> updateSession({
+    required String id,
+    required String title,
+    required String description,
+    required DateTime start,
+    required DateTime end,
+    required String method,
+    String? link,
+    String? location,
+    String? status,
+  }) async {
+    final response = await _dio.patch<Map<String, dynamic>>(
+      '/api/sessions/${Uri.encodeComponent(id)}',
+      data: {
+        'patch': {
+          'title': title.trim(),
+          'desc': description.trim(),
+          'start': start.toUtc().toIso8601String(),
+          'end': end.toUtc().toIso8601String(),
+          'method': method,
+          'link': method == 'online' && (link?.trim().isNotEmpty ?? false)
+              ? link!.trim()
+              : null,
+          'location':
+              method == 'offline' && (location?.trim().isNotEmpty ?? false)
+              ? location!.trim()
+              : null,
+          'status': ?status,
+        },
+      },
+    );
+    final item = _body(response.data, 'updated session')['item'];
+    return ClassSession.fromJson(_requiredMap(item, 'session item'));
+  }
+
+  Future<void> updateSessionStatus(String id, String status) async {
+    await _dio.patch<Object?>(
+      '/api/sessions/${Uri.encodeComponent(id)}',
+      data: {
+        'patch': {'status': status},
+      },
+    );
   }
 
   Future<List<ManagedRegistration>> getRegistrations() async {

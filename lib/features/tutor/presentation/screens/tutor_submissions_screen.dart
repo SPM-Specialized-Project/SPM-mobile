@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../learning/presentation/member_profile_screen.dart';
 import '../../application/tutor_providers.dart';
 import '../../domain/tutor_submission.dart';
 import '../widgets/tutor_ui.dart';
 
 enum _SubmissionFilter { all, waiting, graded }
+
+String _assignmentKey(TutorSubmission item) =>
+    item.assignmentId.isEmpty ? item.assignmentTitle : item.assignmentId;
 
 class TutorSubmissionsScreen extends ConsumerStatefulWidget {
   const TutorSubmissionsScreen({this.courseId, super.key});
@@ -22,6 +26,7 @@ class _TutorSubmissionsScreenState
   _SubmissionFilter _filter = _SubmissionFilter.all;
   final _searchController = TextEditingController();
   var _query = '';
+  String _assignmentFilter = '';
 
   @override
   void dispose() {
@@ -49,8 +54,13 @@ class _TutorSubmissionsScreenState
         .where((item) => item.status == 'submitted')
         .length;
     final normalizedQuery = _query.trim().toLowerCase();
+    final assignmentKeys = submissions.map(_assignmentKey).toSet().toList()
+      ..sort();
     final visible = submissions
         .where((item) {
+          final matchesAssignment =
+              _assignmentFilter.isEmpty ||
+              _assignmentKey(item) == _assignmentFilter;
           final matchesFilter = switch (_filter) {
             _SubmissionFilter.all => true,
             _SubmissionFilter.waiting => item.status == 'submitted',
@@ -61,7 +71,7 @@ class _TutorSubmissionsScreenState
               item.studentName.toLowerCase().contains(normalizedQuery) ||
               item.assignmentTitle.toLowerCase().contains(normalizedQuery) ||
               item.courseTitle.toLowerCase().contains(normalizedQuery);
-          return matchesFilter && matchesSearch;
+          return matchesAssignment && matchesFilter && matchesSearch;
         })
         .toList(growable: false);
 
@@ -115,6 +125,39 @@ class _TutorSubmissionsScreenState
                 ),
               ),
               const SizedBox(height: 14),
+              if (assignmentKeys.length > 1) ...[
+                DropdownButtonFormField<String>(
+                  initialValue: _assignmentFilter.isEmpty
+                      ? '__all__'
+                      : _assignmentFilter,
+                  decoration: const InputDecoration(
+                    labelText: 'Bài tập',
+                    prefixIcon: Icon(Icons.assignment_outlined),
+                  ),
+                  items: [
+                    const DropdownMenuItem(
+                      value: '__all__',
+                      child: Text('Tất cả bài tập'),
+                    ),
+                    for (final key in assignmentKeys)
+                      DropdownMenuItem(
+                        value: key,
+                        child: Text(
+                          submissions
+                              .firstWhere((item) => _assignmentKey(item) == key)
+                              .assignmentTitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                  ],
+                  onChanged: (value) => setState(
+                    () => _assignmentFilter =
+                        value == '__all__' || value == null ? '' : value,
+                  ),
+                ),
+                const SizedBox(height: 14),
+              ],
               Wrap(
                 spacing: 8,
                 children: [
@@ -158,6 +201,7 @@ class _TutorSubmissionsScreenState
                 for (final submission in visible) ...[
                   _TutorSubmissionCard(
                     submission: submission,
+                    onOpen: () => _openDetails(submission),
                     onGrade: () => _openGradeSheet(submission),
                   ),
                   const SizedBox(height: 12),
@@ -170,6 +214,7 @@ class _TutorSubmissionsScreenState
   }
 
   Future<void> _openGradeSheet(TutorSubmission submission) async {
+    if (!submission.canReview || submission.status == 'not-submitted') return;
     final saved = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
@@ -184,6 +229,23 @@ class _TutorSubmissionsScreenState
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Đã lưu điểm và nhận xét.')));
+    }
+  }
+
+  Future<void> _openDetails(TutorSubmission submission) async {
+    final saved = await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => TutorSubmissionDetailScreen(submission: submission),
+      ),
+    );
+    if (saved == true) {
+      _invalidate();
+      ref.invalidate(tutorCourseSubmissionsProvider(submission.courseId));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Đã lưu điểm và nhận xét.')),
+        );
+      }
     }
   }
 
@@ -239,9 +301,14 @@ class _FilterChip extends StatelessWidget {
 }
 
 class _TutorSubmissionCard extends StatelessWidget {
-  const _TutorSubmissionCard({required this.submission, required this.onGrade});
+  const _TutorSubmissionCard({
+    required this.submission,
+    required this.onOpen,
+    required this.onGrade,
+  });
 
   final TutorSubmission submission;
+  final VoidCallback onOpen;
   final VoidCallback onGrade;
 
   @override
@@ -355,17 +422,32 @@ class _TutorSubmissionCard extends StatelessWidget {
                 ),
               ),
             ],
-            if (!isNotSubmitted) ...[
-              const SizedBox(height: 14),
-              Align(
-                alignment: Alignment.centerRight,
-                child: FilledButton.tonalIcon(
-                  onPressed: onGrade,
-                  icon: const Icon(Icons.rate_review_outlined),
-                  label: Text(
-                    submission.score == null ? 'Chấm bài' : 'Sửa điểm',
-                  ),
+            const SizedBox(height: 12),
+            Wrap(
+              alignment: WrapAlignment.end,
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                TextButton.icon(
+                  onPressed: onOpen,
+                  icon: const Icon(Icons.open_in_new_rounded),
+                  label: const Text('Chi tiết bài'),
                 ),
+                if (!isNotSubmitted && submission.canReview)
+                  FilledButton.tonalIcon(
+                    onPressed: onGrade,
+                    icon: const Icon(Icons.rate_review_outlined),
+                    label: Text(
+                      submission.score == null ? 'Chấm bài' : 'Sửa điểm',
+                    ),
+                  ),
+              ],
+            ),
+            if (isNotSubmitted) ...[
+              const SizedBox(height: 10),
+              Text(
+                'Sinh viên chưa nộp bài.',
+                style: TextStyle(color: colors.onSurfaceVariant),
               ),
             ],
           ],
@@ -373,6 +455,225 @@ class _TutorSubmissionCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class TutorSubmissionDetailScreen extends StatelessWidget {
+  const TutorSubmissionDetailScreen({required this.submission, super.key});
+
+  final TutorSubmission submission;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final submittedAt = submission.submittedAt?.toLocal();
+    final dueDate = submission.dueDate?.toLocal();
+    return Scaffold(
+      appBar: AppBar(title: const Text('Chi tiết bài nộp')),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          Text(
+            submission.courseTitle,
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(color: colors.primary),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            submission.assignmentTitle,
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 14),
+          Card(
+            margin: EdgeInsets.zero,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          submission.studentName,
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                      TutorStatusPill(status: submission.status),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  SelectableText(submission.studentEmail),
+                  if (submission.studentId?.isNotEmpty == true) ...[
+                    const SizedBox(height: 6),
+                    TextButton.icon(
+                      onPressed: () => Navigator.of(context).push<void>(
+                        MaterialPageRoute<void>(
+                          builder: (_) => MemberProfileScreen(
+                            memberId: submission.studentId!,
+                            name: submission.studentName,
+                            email: submission.studentEmail,
+                            courseId: submission.courseId,
+                            courseTitle: submission.courseTitle,
+                          ),
+                        ),
+                      ),
+                      icon: const Icon(Icons.person_outline_rounded),
+                      label: const Text('Xem hồ sơ trong khóa học'),
+                    ),
+                  ],
+                  const Divider(height: 22),
+                  if (submission.termName != null)
+                    _TutorSubmissionDetailRow(
+                      label: 'Học kỳ',
+                      value: submission.termName!,
+                    ),
+                  if (submission.classroomName != null) ...[
+                    const SizedBox(height: 8),
+                    _TutorSubmissionDetailRow(
+                      label: 'Lớp',
+                      value: submission.classroomName!,
+                    ),
+                  ],
+                  if (dueDate != null) ...[
+                    const SizedBox(height: 8),
+                    _TutorSubmissionDetailRow(
+                      label: 'Hạn nộp',
+                      value: MaterialLocalizations.of(
+                        context,
+                      ).formatMediumDate(dueDate),
+                    ),
+                  ],
+                  if (submittedAt != null) ...[
+                    const SizedBox(height: 8),
+                    _TutorSubmissionDetailRow(
+                      label: 'Ngày nộp',
+                      value: MaterialLocalizations.of(
+                        context,
+                      ).formatFullDate(submittedAt),
+                    ),
+                  ],
+                  if (submission.score != null) ...[
+                    const SizedBox(height: 8),
+                    _TutorSubmissionDetailRow(
+                      label: 'Điểm',
+                      value: '${submission.score!.toStringAsFixed(1)} / 10',
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          if (submission.fileUrl?.isNotEmpty == true) ...[
+            const SizedBox(height: 14),
+            Card(
+              margin: EdgeInsets.zero,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Bài làm đã nộp',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SelectableText(submission.fileUrl!),
+                    if (!_isSubmissionWebUrl(submission.fileUrl!)) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        'Backend chưa cung cấp URL tệp có thể mở trực tiếp trên thiết bị.',
+                        style: TextStyle(color: colors.onSurfaceVariant),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ],
+          if (submission.feedback.isNotEmpty) ...[
+            const SizedBox(height: 14),
+            Card(
+              margin: EdgeInsets.zero,
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Nhận xét đã lưu',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    SelectableText(submission.feedback),
+                  ],
+                ),
+              ),
+            ),
+          ],
+          if (submission.canReview && submission.status != 'not-submitted') ...[
+            const SizedBox(height: 18),
+            FilledButton.icon(
+              onPressed: () async {
+                final saved = await showModalBottomSheet<bool>(
+                  context: context,
+                  isScrollControlled: true,
+                  useSafeArea: true,
+                  showDragHandle: true,
+                  builder: (_) => _GradeSubmissionSheet(submission: submission),
+                );
+                if (saved == true && context.mounted) {
+                  Navigator.of(context).pop(true);
+                }
+              },
+              icon: const Icon(Icons.rate_review_outlined),
+              label: Text(
+                submission.score == null
+                    ? 'Nhập điểm và nhận xét'
+                    : 'Cập nhật điểm và nhận xét',
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _TutorSubmissionDetailRow extends StatelessWidget {
+  const _TutorSubmissionDetailRow({required this.label, required this.value});
+
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) => Row(
+    children: [
+      Expanded(
+        child: Text(
+          label,
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ),
+      Text(value, style: const TextStyle(fontWeight: FontWeight.w600)),
+    ],
+  );
+}
+
+bool _isSubmissionWebUrl(String value) {
+  final uri = Uri.tryParse(value);
+  return uri != null &&
+      {'http', 'https'}.contains(uri.scheme) &&
+      uri.host.isNotEmpty;
 }
 
 class _GradeSubmissionSheet extends ConsumerStatefulWidget {

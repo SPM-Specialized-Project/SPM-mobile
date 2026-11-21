@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../app/theme/app_motion.dart';
 import '../data/tssa_repository.dart';
 import 'tssa_form.dart';
 import 'tssa_ui.dart';
@@ -17,14 +18,10 @@ Future<void> tssaOpenForm(
     context,
     PageRouteBuilder<bool>(
       pageBuilder: (_, animation, secondaryAnimation) => form,
-      transitionDuration: MediaQuery.of(context).disableAnimations
-          ? Duration.zero
-          : const Duration(milliseconds: 200),
-      reverseTransitionDuration: MediaQuery.of(context).disableAnimations
-          ? Duration.zero
-          : const Duration(milliseconds: 200),
+      transitionDuration: AppMotion.duration(context),
+      reverseTransitionDuration: AppMotion.duration(context),
       transitionsBuilder: (_, animation, secondaryAnimation, child) =>
-          FadeTransition(opacity: animation, child: child),
+          AppMotion.pageTransition(context, child, animation),
     ),
   );
   if (result == true) reload();
@@ -34,14 +31,10 @@ void tssaOpenPage(BuildContext context, String title, Widget child) =>
     Navigator.push(
       context,
       PageRouteBuilder<void>(
-        transitionDuration: MediaQuery.of(context).disableAnimations
-            ? Duration.zero
-            : const Duration(milliseconds: 200),
-        reverseTransitionDuration: MediaQuery.of(context).disableAnimations
-            ? Duration.zero
-            : const Duration(milliseconds: 200),
+        transitionDuration: AppMotion.duration(context),
+        reverseTransitionDuration: AppMotion.duration(context),
         transitionsBuilder: (_, animation, secondaryAnimation, child) =>
-            FadeTransition(opacity: animation, child: child),
+            AppMotion.pageTransition(context, child, animation),
         pageBuilder: (_, animation, secondaryAnimation) => Scaffold(
           appBar: AppBar(title: Text(title)),
           body: child,

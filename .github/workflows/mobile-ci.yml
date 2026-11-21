@@ -1,0 +1,102 @@
+name: Mobile CI/CD
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  flutter-quality:
+    name: Flutter analyze and tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.47.7
+          cache: true
+
+      - name: Resolve Flutter packages
+        run: flutter pub get --enforce-lockfile
+
+      - name: Analyze Dart code
+        run: flutter analyze --no-pub
+
+      - name: Run Flutter tests
+        run: flutter test --no-pub
+
+  backend-tests:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+
+      - name: Run backend tests
+        working-directory: backend
+        run: npm test
+
+  package-android:
+    name: Build internal Android APKs on local-deploy runner
+    # Keep self-hosted runners away from pull request code, especially forks.
+    if: github.event_name != 'pull_request'
+    needs:
+      - flutter-quality
+      - backend-tests
+    runs-on: [self-hosted, windows, x64, local-deploy]
+    timeout-minutes: 60
+    concurrency:
+      group: mobile-android-${{ github.ref }}
+      cancel-in-progress: false
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.47.7
+          cache: true
+
+      - name: Resolve Flutter packages
+        run: flutter pub get --enforce-lockfile
+
+      - name: Build split-per-ABI release APKs
+        env:
+          SPM_API_BASE_URL: ${{ vars.SPM_API_BASE_URL }}
+          SPM_BUILD_NUMBER: ${{ github.run_number }}
+        shell: pwsh
+        run: |
+          $buildNumber = "--build-number=$env:SPM_BUILD_NUMBER"
+          if ([string]::IsNullOrWhiteSpace($env:SPM_API_BASE_URL)) {
+            flutter build apk --release --split-per-abi $buildNumber
+          } else {
+            flutter build apk --release --split-per-abi $buildNumber "--dart-define=API_BASE_URL=$env:SPM_API_BASE_URL"
+          }
+
+      - name: Save internal APK artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: spm-mobile-apks-${{ github.run_number }}-${{ github.run_attempt }}-${{ github.sha }}
+          path: build/app/outputs/flutter-apk/*.apk
+          if-no-files-found: error
+          retention-days: 14
