@@ -66,7 +66,7 @@ class ManagerRegistrationsScreen extends ConsumerWidget {
     final reasonController = TextEditingController(
       text: registration.declineReason ?? '',
     );
-    var status = registration.status;
+    var status = 'Approved';
     final result = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
@@ -79,7 +79,6 @@ class ManagerRegistrationsScreen extends ConsumerWidget {
                 initialValue: status,
                 decoration: const InputDecoration(labelText: 'Trạng thái'),
                 items: const [
-                  DropdownMenuItem(value: 'Pending', child: Text('Chờ xử lý')),
                   DropdownMenuItem(value: 'Approved', child: Text('Đã duyệt')),
                   DropdownMenuItem(value: 'Declined', child: Text('Từ chối')),
                 ],
@@ -92,9 +91,11 @@ class ManagerRegistrationsScreen extends ConsumerWidget {
                 controller: reasonController,
                 minLines: 2,
                 maxLines: 4,
+                maxLength: 1000,
                 decoration: const InputDecoration(
                   labelText: 'Lý do (nếu từ chối)',
                 ),
+                onChanged: (_) => setDialogState(() {}),
               ),
             ],
           ),
@@ -104,7 +105,10 @@ class ManagerRegistrationsScreen extends ConsumerWidget {
               child: const Text('Hủy'),
             ),
             FilledButton(
-              onPressed: () => Navigator.pop(dialogContext, true),
+              onPressed:
+                  status == 'Declined' && reasonController.text.trim().isEmpty
+                  ? null
+                  : () => Navigator.pop(dialogContext, true),
               child: const Text('Lưu'),
             ),
           ],
@@ -184,7 +188,16 @@ class _RegistrationCard extends StatelessWidget {
               const SizedBox(height: 6),
               Text('Lý do: ${registration.declineReason}'),
             ],
-            if (registration.canEdit) ...[
+            if (registration.reviewedAt != null) ...[
+              const SizedBox(height: 6),
+              Text(
+                'Đã xử lý${registration.reviewedBy == null ? '' : ' bởi ${registration.reviewedBy}'} · '
+                '${MaterialLocalizations.of(context).formatMediumDate(registration.reviewedAt!.toLocal())}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+            if (registration.canEdit &&
+                registration.status.toLowerCase() == 'pending') ...[
               const SizedBox(height: 8),
               Align(
                 alignment: Alignment.centerRight,

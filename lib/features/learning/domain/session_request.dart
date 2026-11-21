@@ -13,6 +13,10 @@ class SessionRequest {
     required this.createdAt,
     required this.updatedAt,
     this.reviewedAt,
+    this.reviewedBy,
+    this.scheduledSessionId,
+    this.scheduledStart,
+    this.scheduledEnd,
   });
 
   final String id;
@@ -28,6 +32,10 @@ class SessionRequest {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final DateTime? reviewedAt;
+  final String? reviewedBy;
+  final String? scheduledSessionId;
+  final DateTime? scheduledStart;
+  final DateTime? scheduledEnd;
 
   factory SessionRequest.fromJson(Map<String, dynamic> json) {
     final proposedAt = DateTime.tryParse(
@@ -56,6 +64,12 @@ class SessionRequest {
       createdAt: _sessionRequestDate(json['createdAt']),
       updatedAt: _sessionRequestDate(json['updatedAt']),
       reviewedAt: _sessionRequestDate(json['reviewedAt']),
+      reviewedBy: _sessionRequestOptionalString(json['reviewedBy']),
+      scheduledSessionId: _sessionRequestOptionalString(
+        json['scheduledSessionId'],
+      ),
+      scheduledStart: _sessionRequestDate(json['scheduledStart']),
+      scheduledEnd: _sessionRequestDate(json['scheduledEnd']),
     );
   }
 }
@@ -74,3 +88,6 @@ String _sessionRequestString(
 
 DateTime? _sessionRequestDate(Object? value) =>
     value is String ? DateTime.tryParse(value) : null;
+
+String? _sessionRequestOptionalString(Object? value) =>
+    value is String && value.trim().isNotEmpty ? value.trim() : null;

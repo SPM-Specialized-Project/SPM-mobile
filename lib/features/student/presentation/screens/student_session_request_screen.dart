@@ -449,6 +449,8 @@ class _StudentSessionRequestHistoryScreenState
                 requestType: request.requestType,
                 status: request.status,
                 proposedAt: request.proposedAt,
+                scheduledStart: request.scheduledStart,
+                scheduledEnd: request.scheduledEnd,
                 onTap: () => _showRequestDetails(context, request),
               ),
               const SizedBox(height: 8),
@@ -529,6 +531,8 @@ class _StudentSessionRequestHistoryScreenState
             requestType: request.requestType,
             status: request.status,
             proposedAt: request.proposedAt,
+            scheduledStart: request.scheduledStart,
+            scheduledEnd: request.scheduledEnd,
           ),
           if (request.description.isNotEmpty) ...[
             const SizedBox(height: 14),
@@ -537,6 +541,10 @@ class _StudentSessionRequestHistoryScreenState
           if (request.reviewReason.isNotEmpty) ...[
             const SizedBox(height: 14),
             Text('Phản hồi: ${request.reviewReason}'),
+          ],
+          if (request.scheduledSessionId != null) ...[
+            const SizedBox(height: 14),
+            Text('Mã buổi học: ${request.scheduledSessionId}'),
           ],
         ],
       ),
@@ -551,6 +559,8 @@ class _SessionRequestCard extends StatelessWidget {
     required this.requestType,
     required this.status,
     required this.proposedAt,
+    this.scheduledStart,
+    this.scheduledEnd,
     this.onTap,
   });
 
@@ -559,6 +569,8 @@ class _SessionRequestCard extends StatelessWidget {
   final String requestType;
   final String status;
   final DateTime? proposedAt;
+  final DateTime? scheduledStart;
+  final DateTime? scheduledEnd;
   final VoidCallback? onTap;
 
   @override
@@ -566,6 +578,8 @@ class _SessionRequestCard extends StatelessWidget {
     final localizations = MaterialLocalizations.of(context);
     final statusLabel = switch (status.toLowerCase()) {
       'pending' => 'Đang chờ',
+      'scheduling' => 'Đang xếp lịch',
+      'scheduled' => 'Đã lên lịch',
       'approved' => 'Đã duyệt',
       'declined' => 'Từ chối',
       _ => 'Bản nháp',
@@ -575,10 +589,16 @@ class _SessionRequestCard extends StatelessWidget {
       'absent' || 'absence' => 'Xin vắng',
       _ => 'Buổi mới',
     };
-    final timeLabel = proposedAt == null
+    final displayedTime = scheduledStart ?? proposedAt;
+    final scheduledTime = scheduledStart == null
+        ? null
+        : '${TimeOfDay.fromDateTime(scheduledStart!.toLocal()).format(context)}'
+              '${scheduledEnd == null ? '' : '–${TimeOfDay.fromDateTime(scheduledEnd!.toLocal()).format(context)}'}';
+    final timeLabel = displayedTime == null
         ? 'Chưa chọn thời gian'
-        : '${localizations.formatMediumDate(proposedAt!.toLocal())} · '
-              '${TimeOfDay.fromDateTime(proposedAt!.toLocal()).format(context)}';
+        : '${scheduledStart == null ? 'Mong muốn' : 'Đã xếp'}: '
+              '${localizations.formatMediumDate(displayedTime.toLocal())} · '
+              '${scheduledTime ?? TimeOfDay.fromDateTime(displayedTime.toLocal()).format(context)}';
     return Card(
       margin: EdgeInsets.zero,
       child: ListTile(

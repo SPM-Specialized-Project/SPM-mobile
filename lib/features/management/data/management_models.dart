@@ -78,6 +78,8 @@ class ManagedRegistration {
     required this.name,
     required this.email,
     required this.status,
+    required this.reviewedBy,
+    required this.reviewedAt,
     required this.createdAt,
     required this.summary,
     required this.subjects,
@@ -94,6 +96,8 @@ class ManagedRegistration {
   final String name;
   final String email;
   final String status;
+  final String? reviewedBy;
+  final DateTime? reviewedAt;
   final DateTime? createdAt;
   final String summary;
   final List<ManagementOption> subjects;
@@ -123,6 +127,8 @@ class ManagedRegistration {
           _optionalString(json['email']) ??
           '',
       status: _optionalString(json['status']) ?? 'Pending',
+      reviewedBy: _optionalString(json['reviewedBy']),
+      reviewedAt: _optionalDate(json['reviewedAt']),
       createdAt: _optionalDate(json['createdAt']),
       summary: topics.map((item) => item.name).join(', '),
       subjects: subjects.isNotEmpty ? subjects : requestedCourses,

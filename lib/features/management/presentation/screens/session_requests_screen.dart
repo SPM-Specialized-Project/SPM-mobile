@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../learning/domain/session_request.dart';
 import '../../application/management_providers.dart';
+import 'session_request_schedule_dialog.dart';
 import '../widgets/management_common.dart';
 
 class SessionRequestsScreen extends ConsumerStatefulWidget {
@@ -45,7 +46,10 @@ class _SessionRequestsScreenState extends ConsumerState<SessionRequestsScreen> {
     final visible =
         items
             .where((item) {
-              if (_pendingOnly && item.status != 'pending') return false;
+              if (_pendingOnly &&
+                  !{'pending', 'scheduling'}.contains(item.status)) {
+                return false;
+              }
               if (query.isEmpty) return true;
               return item.title.toLowerCase().contains(query) ||
                   item.courseTitle.toLowerCase().contains(query) ||
@@ -57,7 +61,9 @@ class _SessionRequestsScreenState extends ConsumerState<SessionRequestsScreen> {
               left.createdAt ?? DateTime(0),
             ),
           );
-    final pendingCount = items.where((item) => item.status == 'pending').length;
+    final pendingCount = items
+        .where((item) => {'pending', 'scheduling'}.contains(item.status))
+        .length;
 
     return RefreshIndicator(
       onRefresh: () => ref.refresh(managerSessionRequestsProvider.future),
@@ -68,7 +74,7 @@ class _SessionRequestsScreenState extends ConsumerState<SessionRequestsScreen> {
           ManagementPageHeader(
             title: 'Yêu cầu từ sinh viên',
             subtitle: pendingCount == 0
-                ? 'Các yêu cầu được giới hạn theo khóa học bạn phụ trách.'
+                ? 'Không có yêu cầu mới cần xử lý.'
                 : '$pendingCount yêu cầu đang chờ xử lý.',
           ),
           const _RequestWorkflowNotice(),
@@ -120,7 +126,8 @@ class _SessionRequestsScreenState extends ConsumerState<SessionRequestsScreen> {
               _SessionRequestReviewCard(
                 request: request,
                 busy: _workingId == request.id,
-                onApprove: () => _review(request, 'approved'),
+                onSchedule: () => _schedule(request),
+                onConfirmAbsence: () => _review(request, 'approved'),
                 onDecline: () => _decline(request),
               ),
               const SizedBox(height: 10),
@@ -185,9 +192,47 @@ class _SessionRequestsScreenState extends ConsumerState<SessionRequestsScreen> {
           SnackBar(
             content: Text(
               status == 'approved'
-                  ? 'Đã duyệt yêu cầu. Chưa tạo lịch buổi học.'
+                  ? 'Đã xác nhận yêu cầu xin vắng.'
                   : 'Đã gửi phản hồi từ chối.',
             ),
+          ),
+        );
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(managementErrorMessage(error))));
+      }
+    } finally {
+      if (mounted) setState(() => _workingId = null);
+    }
+  }
+
+  Future<void> _schedule(SessionRequest request) async {
+    if (_workingId != null) return;
+    final draft = await showSessionRequestScheduleDialog(context, request);
+    if (draft == null || !mounted) return;
+    setState(() => _workingId = request.id);
+    try {
+      await ref
+          .read(managementRepositoryProvider)
+          .scheduleSessionRequest(
+            id: request.id,
+            title: draft.title,
+            description: draft.description,
+            start: draft.start,
+            end: draft.end,
+            method: draft.method,
+            link: draft.link,
+            location: draft.location,
+          );
+      ref.invalidate(managerSessionRequestsProvider);
+      ref.invalidate(managerSessionsProvider);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Đã tạo buổi học và thêm vào lịch điều phối.'),
           ),
         );
       }
@@ -215,7 +260,7 @@ class _RequestWorkflowNotice extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(14),
         child: Text(
-          'Duyệt chỉ xác nhận yêu cầu. Buổi học chưa được tạo lịch; hãy dùng lịch học để chọn giảng viên, giờ và địa điểm cụ thể.',
+          'Với buổi mới hoặc học bù, chọn “Tạo lịch” để chốt giờ, hình thức và địa điểm; lịch được thêm ngay vào lịch điều phối. Yêu cầu xin vắng chỉ được xác nhận, không tạo buổi học.',
           style: TextStyle(color: colors.onSecondaryContainer),
         ),
       ),
@@ -227,13 +272,15 @@ class _SessionRequestReviewCard extends StatelessWidget {
   const _SessionRequestReviewCard({
     required this.request,
     required this.busy,
-    required this.onApprove,
+    required this.onSchedule,
+    required this.onConfirmAbsence,
     required this.onDecline,
   });
 
   final SessionRequest request;
   final bool busy;
-  final VoidCallback onApprove;
+  final VoidCallback onSchedule;
+  final VoidCallback onConfirmAbsence;
   final VoidCallback onDecline;
 
   @override
@@ -289,25 +336,56 @@ class _SessionRequestReviewCard extends StatelessWidget {
               const SizedBox(height: 10),
               Text('Phản hồi: ${request.reviewReason}'),
             ],
-            if (request.status == 'pending') ...[
+            if (request.reviewedAt != null) ...[
+              const SizedBox(height: 8),
+              Text(
+                'Đã xử lý${request.reviewedBy == null ? '' : ' bởi ${request.reviewedBy}'} · '
+                '${localizations.formatMediumDate(request.reviewedAt!.toLocal())}',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+            if (request.scheduledSessionId != null) ...[
+              const SizedBox(height: 6),
+              if (request.scheduledStart != null) ...[
+                Text(
+                  'Đã xếp lịch: ${localizations.formatMediumDate(request.scheduledStart!.toLocal())} · '
+                  '${TimeOfDay.fromDateTime(request.scheduledStart!.toLocal()).format(context)}'
+                  '${request.scheduledEnd == null ? '' : '–${TimeOfDay.fromDateTime(request.scheduledEnd!.toLocal()).format(context)}'}',
+                ),
+              ],
+              Text('Mã buổi học: ${request.scheduledSessionId}'),
+            ],
+            if (request.status == 'pending' ||
+                request.status == 'scheduling') ...[
               const SizedBox(height: 14),
               Wrap(
                 alignment: WrapAlignment.end,
                 spacing: 8,
                 runSpacing: 8,
                 children: [
-                  OutlinedButton(
-                    onPressed: busy ? null : onDecline,
-                    child: const Text('Từ chối'),
-                  ),
+                  if (request.status == 'pending')
+                    OutlinedButton(
+                      onPressed: busy ? null : onDecline,
+                      child: const Text('Từ chối'),
+                    ),
                   FilledButton(
-                    onPressed: busy ? null : onApprove,
+                    onPressed: busy
+                        ? null
+                        : request.requestType == 'absent'
+                        ? onConfirmAbsence
+                        : onSchedule,
                     child: busy
                         ? const SizedBox.square(
                             dimension: 18,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Text('Duyệt yêu cầu'),
+                        : Text(
+                            request.requestType == 'absent'
+                                ? 'Xác nhận xin vắng'
+                                : request.status == 'scheduling'
+                                ? 'Thử tạo lịch lại'
+                                : 'Tạo lịch buổi học',
+                          ),
                   ),
                 ],
               ),

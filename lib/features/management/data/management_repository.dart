@@ -65,6 +65,37 @@ class ManagementRepository {
     );
   }
 
+  Future<SessionRequest> scheduleSessionRequest({
+    required String id,
+    required String title,
+    required String description,
+    required DateTime start,
+    required DateTime end,
+    required String method,
+    String? link,
+    String? location,
+  }) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/session-requests/${Uri.encodeComponent(id)}/schedule',
+      data: {
+        'title': title.trim(),
+        'description': description.trim(),
+        'start': start.toUtc().toIso8601String(),
+        'end': end.toUtc().toIso8601String(),
+        'method': method,
+        if (method == 'online' && link != null) 'link': link.trim(),
+        if (method == 'offline' && location != null)
+          'location': location.trim(),
+      },
+    );
+    return SessionRequest.fromJson(
+      _requiredMap(
+        _body(response.data, 'scheduled session request')['item'],
+        'scheduled session request item',
+      ),
+    );
+  }
+
   Future<ClassSession> createSession({
     required Course course,
     required AuthSession session,

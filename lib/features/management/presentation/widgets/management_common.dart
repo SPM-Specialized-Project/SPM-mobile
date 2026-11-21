@@ -141,6 +141,7 @@ class ManagementStatus extends StatelessWidget {
   String _label(String value) => switch (value) {
     'new' => 'Mới',
     'pending' => 'Chờ xử lý',
+    'scheduling' => 'Đang tạo lịch',
     'approved' => 'Đã duyệt',
     'rejected' || 'declined' => 'Từ chối',
     'active' => 'Đang hoạt động',
